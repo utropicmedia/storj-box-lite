@@ -1,0 +1,77 @@
+{
+  "css.validate": false,
+  "editor.codeActionsOnSave": [
+    "source.addMissingImports",
+    "source.fixAll",
+    "source.organizeImports"
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "stylelint.validate": ["css"],
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "NOTE",
+    "[ ]",
+    "[x]",
+    "FPO"
+  ],
+  "todo-tree.highlights.customHighlight": {
+    "BUG": {
+      "icon": "bug"
+    },
+    "NOTE": {
+      "icon": "note",
+      "foreground": "#ffffff99",
+      "background": "#1565c066",
+      "iconColour": "#4fc3f7",
+      "gutterIcon": true,
+      "fontStyle": "italic",
+      "fontWeight": "bold"
+    },
+    "TODO": {
+      "foreground": "#ffffffbb",
+      "background": "#2e7d3266",
+      "iconColour": "#66bb6a",
+      "gutterIcon": true,
+      "fontStyle": "italic",
+      "fontWeight": "bold"
+    },
+    "FIXME": {
+      "icon": "flame",
+      "foreground": "#ffffffbb",
+      "background": "#f57c0066",
+      "iconColour": "#ffa000",
+      "gutterIcon": true,
+      "fontStyle": "italic",
+      "fontWeight": "bold"
+    },
+    "HACK": {
+      "icon": "beaker",
+      "foreground": "#ffffffbb",
+      "background": "#d81b6066",
+      "iconColour": "#f06292",
+      "gutterIcon": true,
+      "fontStyle": "italic",
+      "fontWeight": "bold"
+    },
+    "FPO": {
+      "icon": "image",
+      "foreground": "#ffffffbb",
+      "background": "#5c6bc066",
+      "iconColour": "#7986cb",
+      "gutterIcon": true,
+      "fontStyle": "italic",
+      "fontWeight": "bold"
+    }
+  },
+  "todo-tree.highlights.defaultHighlight": {
+    "type": "line"
+  },
+  "less.validate": false,
+  "scss.validate": false,
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
