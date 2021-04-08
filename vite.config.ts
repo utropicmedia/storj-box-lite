@@ -13,11 +13,11 @@ export default defineConfig({
     VitePWA({
       workbox: {
         additionalManifestEntries: [
-          // eslint-disable-next-line unicorn/no-null
           {
             url:
               "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
-            revision: undefined,
+            // eslint-disable-next-line unicorn/no-null
+            revision: null,
           },
         ],
         cleanupOutdatedCaches: true,
