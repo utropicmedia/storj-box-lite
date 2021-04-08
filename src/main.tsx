@@ -1,8 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { registerSW } from "virtual:pwa-register";
 import "./index.css";
 import App from "./pages/App";
+
+registerSW({
+  onOfflineReady() {},
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
