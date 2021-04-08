@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "is-ci || husky install",
     "dev": "vite --open",
-    "lint": "eslint src/**/* --ext js --ext ts --ext tsx --cache",
+    "lint": "eslint src/**/* --ext js --ext ts --ext tsx",
     "test": "cypress open",
     "test:headless": "cypress run",
     "build": "tsc --project tsconfig.json && vite build",
