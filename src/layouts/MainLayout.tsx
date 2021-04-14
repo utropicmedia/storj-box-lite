@@ -6,8 +6,8 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import firebase from "firebase/app";
 import { AnimatePresence, motion } from "framer-motion";
+import { auth } from "lib/firebase";
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -48,12 +48,12 @@ export default function MainLayout({
   children,
 }: PropsWithChildren<MainLayoutProperties>): ReactElement {
   const history = useHistory();
-  const [user] = useAuthState(firebase.auth());
+  const [user] = useAuthState(auth);
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
   const reference = useRef<HTMLDivElement>(null);
 
   const signOut = async () => {
-    await firebase.auth().signOut();
+    await auth.signOut();
     history.push("/sign-in");
   };
 

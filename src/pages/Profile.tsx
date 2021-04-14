@@ -41,6 +41,7 @@ export default function Profile(): ReactElement {
           onSubmit={async (values) => {
             const { displayName, photoURL } = values;
             await user?.updateProfile({ displayName, photoURL });
+            await user?.reload();
             setInitialFormData({ displayName, photoURL });
           }}
         >
