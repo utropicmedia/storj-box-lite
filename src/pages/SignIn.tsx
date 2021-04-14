@@ -1,16 +1,20 @@
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import firebase from "firebase/app";
 import { useFormik } from "formik";
+import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import AppLogo from "../components/AppLogo";
 import Head from "../components/Head";
 
 export default function SignIn(): ReactElement {
-  const [user] = useAuthState(firebase.auth());
+  const [user] = useAuthState(auth);
   const history = useHistory();
   const [signingIn, setSigningIn] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -36,6 +40,18 @@ export default function SignIn(): ReactElement {
     },
   });
 
+  const signInWithGoogle = () => {
+    firebase
+      .auth()
+      .signInWithPopup(googleAuthProvider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   useEffect(() => {
     if (user) {
       history.push("/home");
@@ -48,17 +64,6 @@ export default function SignIn(): ReactElement {
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <AppLogo size="md" color="brand" />
-          <div>
-            <p className="mt-2 text-center text-sm text-gray-600 max-w">
-              Sign in or{" "}
-              <Link
-                to="/sign-up"
-                className="font-medium text-brand hover:text-brand-lighter"
-              >
-                sign up.
-              </Link>
-            </p>
-          </div>
         </div>
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
@@ -114,6 +119,15 @@ export default function SignIn(): ReactElement {
                   disabled={signingIn}
                 >
                   Sign in
+                </button>
+                <button
+                  type="button"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-brand-contrast bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter"
+                  disabled={signingIn}
+                  onClick={() => signInWithGoogle()}
+                >
+                  Sign in with google
+                  <FontAwesomeIcon icon={faGoogle} />
                 </button>
               </div>
             </form>

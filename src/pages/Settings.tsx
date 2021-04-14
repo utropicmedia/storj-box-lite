@@ -1,9 +1,11 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
 import { useFormik } from "formik";
+import { auth, firestore } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import * as Yup from "yup";
 import Head from "../components/Head";
+
+const { VITE_FIRESTORE_COLLECTION: firestoreCollection } = import.meta.env;
 
 interface DocumentDataAuth {
   accessKeyId: string;
@@ -15,15 +17,15 @@ interface DocumentData {
 }
 
 export default function Settings(): ReactElement {
-  const store = firebase.firestore();
+  const [user] = useAuthState(auth);
   const [initalFormData, setInitialFormData] = useState({
     accessKeyId: "",
     secretAccessKey: "",
   });
 
-  const userReference = store
-    .collection("storj-box-lite-dev")
-    .doc("XL6a7bZhWHNz5r60ShFjh8Wota93");
+  const userReference = firestore
+    .collection(String(firestoreCollection))
+    .doc(user?.uid);
 
   const formik = useFormik({
     initialValues: initalFormData,

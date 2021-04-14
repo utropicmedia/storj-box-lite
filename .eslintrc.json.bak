@@ -1,0 +1,82 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/warnings",
+    "plugin:import/errors",
+    "eslint-config-airbnb-base",
+    "plugin:unicorn/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      { "devDependencies": ["tailwind.config.js"] }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:import/warnings",
+        "plugin:import/errors",
+        "plugin:import/typescript",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "airbnb-typescript",
+        "airbnb/hooks",
+        "plugin:unicorn/recommended",
+        "prettier"
+      ],
+      "rules": {
+        "import/namespace": "off",
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": ["vite.config.ts"]
+          }
+        ],
+
+        "unicorn/filename-case": [
+          "error",
+          {
+            "cases": {
+              "camelCase": true,
+              "pascalCase": true
+            }
+          }
+        ],
+        "jsx-a11y/label-has-associated-control": [
+          "off",
+          {
+            "labelComponents": [],
+            "labelAttributes": [],
+            "controlComponents": [],
+            "assert": "both",
+            "depth": 25
+          }
+        ],
+        // Require that Labels nest their input or uses htmlFor
+        // https://github.com/evcohen/eslint-plugin-jsx-a11y/blob/master/docs/rules/label-has-for.md
+        "jsx-a11y/label-has-for": [
+          "error",
+          {
+            "components": [],
+            "required": {
+              "some": ["nesting", "id"]
+            },
+            "allowChildren": false
+          }
+        ]
+      }
+    }
+  ]
+}

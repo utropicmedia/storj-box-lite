@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import AppLogo from "../components/AppLogo";
 
 const variants = {
@@ -72,11 +72,15 @@ const menuItems = [
 export default function MainLayout({
   children,
 }: PropsWithChildren<MainLayoutProperties>): ReactElement {
+  const history = useHistory();
   const [user] = useAuthState(firebase.auth());
   const [mobileMenuIsOpen, setMobileMenuIsOpen] = useState(false);
   const reference = useRef<HTMLDivElement>(null);
 
-  const signOut = () => firebase.auth().signOut();
+  const signOut = async () => {
+    await firebase.auth().signOut();
+    history.push("/sign-in");
+  };
 
   const toggleMobileMenu = () => {
     setMobileMenuIsOpen(!mobileMenuIsOpen);
@@ -204,7 +208,7 @@ export default function MainLayout({
                           {user.displayName}
                         </p>
                         <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
-                          {user.email}
+                          Update Profile
                         </p>
                       </div>
                     </div>
@@ -280,7 +284,7 @@ export default function MainLayout({
                         {user.displayName}
                       </p>
                       <p className="text-xs font-medium text-indigo-200 group-hover:text-white">
-                        {user.email}
+                        Update Profile
                       </p>
                     </div>
                   </div>

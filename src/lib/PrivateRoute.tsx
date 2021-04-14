@@ -9,7 +9,6 @@ export default function PrivateRoute({
   ...rest
 }: RouteProps): ReactElement {
   const [user] = useAuthState(firebase.auth());
-
   return (
     <Route
       {...rest}
