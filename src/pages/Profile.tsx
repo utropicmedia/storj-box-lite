@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import { auth } from "lib/firebase";
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import * as Yup from "yup";
 import Head from "../components/Head";
@@ -10,8 +10,8 @@ export default function Profile(): ReactElement {
 
   const formik = useFormik({
     initialValues: {
-      displayName: "",
-      photoURL: "",
+      displayName: user?.displayName || "",
+      photoURL: user?.photoURL || "",
     },
     validationSchema: Yup.object({
       displayName: Yup.string().required("Display name is required"),
@@ -34,7 +34,7 @@ export default function Profile(): ReactElement {
   });
 
   const resetForm = () => {
-    console.log("user", user);
+    console.log("resetForm", user);
     formik.resetForm({
       values: {
         displayName: user?.displayName || "",
@@ -42,16 +42,6 @@ export default function Profile(): ReactElement {
       },
     });
   };
-
-  useEffect(() => {
-    console.log("useEffect");
-    if (user) {
-      formik.setValues({
-        displayName: user?.displayName || "",
-        photoURL: user?.photoURL || "",
-      });
-    }
-  }, [user]);
 
   return (
     <>

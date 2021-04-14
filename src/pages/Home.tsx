@@ -1,21 +1,21 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useState } from "react";
 import Head from "../components/Head";
-import { api } from "../lib/api";
+// import { api } from "../lib/api";
 
 export default function Home(): ReactElement {
   const [data, setData] = useState(null);
-  useEffect(async () => {
-    const parameters = {
-      Delimiter: "/",
-      Prefix: "",
-    };
-    const response = await api.listDirectories(
-      parameters.Delimiter,
-      parameters.Prefix
-    );
-    console.log(response);
-    setData(response);
-  }, []);
+  // useEffect(async () => {
+  //   const parameters = {
+  //     Delimiter: "/",
+  //     Prefix: "",
+  //   };
+  //   const response = await api.listDirectories(
+  //     parameters.Delimiter,
+  //     parameters.Prefix
+  //   );
+  //   console.log(response);
+  //   setData(response);
+  // }, []);
 
   return (
     <>
