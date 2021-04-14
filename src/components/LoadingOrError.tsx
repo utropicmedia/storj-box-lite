@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import React, { ReactElement } from "react";
+import Spinner from "./Spinner";
 
 interface Properties {
   error?: Error | firebase.auth.Error;
@@ -7,10 +8,12 @@ interface Properties {
 export default function LoadingOrError({ error }: Properties): ReactElement {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-xl">{error ? error.message : "Loading..."}</h1>
+      {error && <h1 className="text-xl">{error.message}</h1>}
+      {!error && <Spinner size="2x" />}
     </div>
   );
 }
+
 LoadingOrError.defaultProps = {
   error: undefined,
 };

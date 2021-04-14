@@ -5,15 +5,18 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-class Api {
-  client = new S3Client({
-    credentials: {
-      accessKeyId: "GET_THIS_FROM_SOMEWHERE",
-      secretAccessKey: "GET_THIS_FROM_SOMEWHERE",
-    },
-    endpoint: "GET_THIS_FROM_SOMEWHERE",
-    region: "GET_THIS_FROM_SOMEWHERE",
-  });
+const { VITE_STORJ_ENDPOINT, VITE_STORJ_REGION } = import.meta.env;
+
+export class Api {
+  client: S3Client;
+
+  constructor(accessKeyId: string, secretAccessKey: string) {
+    this.client = new S3Client({
+      credentials: { accessKeyId, secretAccessKey },
+      endpoint: String(VITE_STORJ_ENDPOINT),
+      region: String(VITE_STORJ_REGION),
+    });
+  }
 
   listDirectories(Delimiter = "/", Prefix = "") {
     return this.client.send(
@@ -26,7 +29,6 @@ class Api {
   }
 
   getObjectUrl(key: string) {
-    // return key;
     return getSignedUrl(
       this.client,
       new GetObjectCommand({
@@ -39,5 +41,3 @@ class Api {
     );
   }
 }
-
-export const api = new Api();

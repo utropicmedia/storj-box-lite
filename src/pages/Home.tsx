@@ -1,21 +1,47 @@
-import React, { ReactElement, useState } from "react";
+import { ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
+import { auth, firestoreCollection } from "lib/firebase";
+import React, { ReactElement, useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useHistory } from "react-router";
 import Head from "../components/Head";
-// import { api } from "../lib/api";
+import { Api } from "../lib/api";
 
 export default function Home(): ReactElement {
-  const [data, setData] = useState(null);
-  // useEffect(async () => {
-  //   const parameters = {
-  //     Delimiter: "/",
-  //     Prefix: "",
-  //   };
-  //   const response = await api.listDirectories(
-  //     parameters.Delimiter,
-  //     parameters.Prefix
-  //   );
-  //   console.log(response);
-  //   setData(response);
-  // }, []);
+  const [user] = useAuthState(auth);
+  const history = useHistory();
+  const [data, setData] = useState<ListObjectsV2CommandOutput>();
+  const [apiClient, setApiClient] = useState<Api>();
+
+  useEffect(() => {
+    async function loadSettings() {
+      const document = await firestoreCollection.doc(user?.uid).get();
+      const data = document.data();
+      if (data?.auth?.accessKeyId && data?.auth?.secretAccessKey) {
+        const { accessKeyId, secretAccessKey } = data.auth;
+        setApiClient(new Api(String(accessKeyId), String(secretAccessKey)));
+      } else {
+        history.push("/settings");
+      }
+    }
+    loadSettings();
+  }, [user, history]);
+
+  useEffect(() => {
+    async function listDirectories() {
+      const parameters = {
+        Delimiter: "/",
+        Prefix: "",
+      };
+      const response = await apiClient?.listDirectories(
+        parameters.Delimiter,
+        parameters.Prefix
+      );
+      setData(response);
+    }
+    if (apiClient) {
+      listDirectories();
+    }
+  }, [apiClient]);
 
   return (
     <>

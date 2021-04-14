@@ -9,6 +9,7 @@ const {
   VITE_FIREBASE_MESSAGING_SENDER_ID: messagingSenderId,
   VITE_FIREBASE_PROJECT_ID: projectId,
   VITE_FIREBASE_STORAGE_BUCKET: storageBucket,
+  VITE_FIRESTORE_COLLECTION,
 } = import.meta.env;
 
 const firebaseConfig = {
@@ -27,3 +28,6 @@ if (firebase.apps.length === 0) {
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 export const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+export const firestoreCollection = firestore.collection(
+  String(VITE_FIRESTORE_COLLECTION)
+);

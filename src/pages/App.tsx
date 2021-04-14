@@ -11,11 +11,9 @@ import NoMatch from "./NoMatch";
 import Profile from "./Profile";
 import Settings from "./Settings";
 import SignIn from "./SignIn";
-import SignUp from "./SignUp";
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
-
   return (
     <>
       {(loading || error) && <LoadingOrError error={error} />}
@@ -50,11 +48,6 @@ export default function App(): ReactElement {
               <Route path="/sign-in">
                 <FullPageLayout>
                   <SignIn />
-                </FullPageLayout>
-              </Route>
-              <Route path="/sign-up">
-                <FullPageLayout>
-                  <SignUp />
                 </FullPageLayout>
               </Route>
               <Route path="*">
