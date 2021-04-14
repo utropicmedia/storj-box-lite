@@ -1,4 +1,4 @@
-import { Formik } from "formik";
+import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -78,20 +78,28 @@ export default function Settings(): ReactElement {
                         Access Key Id
                       </label>
                       <div className="mt-1">
-                        <input
-                          type="text"
-                          name="accessKeyId"
-                          id="accessKeyId"
-                          onChange={props.handleChange}
-                          onBlur={props.handleBlur}
-                          value={props.values.accessKeyId}
-                          className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                        {props.errors.accessKeyId && (
-                          <div className="text-sm text-red-600">
-                            {props.errors.accessKeyId}
-                          </div>
-                        )}
+                        <Field name="accessKeyId">
+                          {({ field }: FieldProps) => (
+                            <div>
+                              <input
+                                type="text"
+                                id="accessKeyId"
+                                className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                {...field}
+                              />
+                              <ErrorMessage
+                                className="text-sm text-red-600"
+                                name="accessKeyId"
+                              >
+                                {(msg) => (
+                                  <div className="text-sm text-red-600">
+                                    {msg}
+                                  </div>
+                                )}
+                              </ErrorMessage>
+                            </div>
+                          )}
+                        </Field>
                       </div>
                     </div>
                   </div>
@@ -104,20 +112,28 @@ export default function Settings(): ReactElement {
                         Secret Access Key
                       </label>
                       <div className="mt-1">
-                        <input
-                          type="text"
-                          name="secretAccessKey"
-                          id="secretAccessKey"
-                          onChange={props.handleChange}
-                          onBlur={props.handleBlur}
-                          value={props.values.secretAccessKey}
-                          className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                        {props.errors.secretAccessKey && (
-                          <div className="text-sm text-red-600">
-                            {props.errors.secretAccessKey}
-                          </div>
-                        )}
+                        <Field name="secretAccessKey">
+                          {({ field }: FieldProps) => (
+                            <div>
+                              <input
+                                type="text"
+                                id="secretAccessKey"
+                                className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                {...field}
+                              />
+                              <ErrorMessage
+                                className="text-sm text-red-600"
+                                name="secretAccessKey"
+                              >
+                                {(msg) => (
+                                  <div className="text-sm text-red-600">
+                                    {msg}
+                                  </div>
+                                )}
+                              </ErrorMessage>
+                            </div>
+                          )}
+                        </Field>
                       </div>
                     </div>
                   </div>

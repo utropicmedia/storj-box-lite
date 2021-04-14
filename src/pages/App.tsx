@@ -1,9 +1,9 @@
 import FullPageLayout from "layouts/FullPageLayout";
-import MainLayout from "layouts/MainLayout";
 import React, { ReactElement, Suspense } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import LoadingOrError from "../components/LoadingOrError";
+import AppLayout from "../layouts/AppLayout";
 import { auth } from "../lib/firebase";
 import PrivateRoute from "../lib/PrivateRoute";
 import Home from "./Home";
@@ -11,6 +11,7 @@ import NoMatch from "./NoMatch";
 import Profile from "./Profile";
 import Settings from "./Settings";
 import SignIn from "./SignIn";
+import SignOut from "./SignOut";
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
@@ -30,25 +31,28 @@ export default function App(): ReactElement {
               </Route>
 
               <PrivateRoute path="/home">
-                <MainLayout>
+                <AppLayout>
                   <Home />
-                </MainLayout>
+                </AppLayout>
               </PrivateRoute>
               <PrivateRoute path="/profile">
-                <MainLayout>
+                <AppLayout>
                   <Profile />
-                </MainLayout>
+                </AppLayout>
               </PrivateRoute>
               <PrivateRoute path="/settings">
-                <MainLayout>
+                <AppLayout>
                   <Settings />
-                </MainLayout>
+                </AppLayout>
               </PrivateRoute>
 
               <Route path="/sign-in">
                 <FullPageLayout>
                   <SignIn />
                 </FullPageLayout>
+              </Route>
+              <Route path="/sign-out">
+                <SignOut />
               </Route>
               <Route path="*">
                 <FullPageLayout>

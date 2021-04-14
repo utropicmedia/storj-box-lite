@@ -1,4 +1,4 @@
-import { Formik } from "formik";
+import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -67,21 +67,28 @@ export default function Profile(): ReactElement {
                         Display Name
                       </label>
                       <div className="mt-1">
-                        <input
-                          type="text"
-                          name="displayName"
-                          id="displayName"
-                          autoComplete="name"
-                          onChange={props.handleChange}
-                          onBlur={props.handleBlur}
-                          value={props.values.displayName}
-                          className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
-                        {props.errors.displayName && (
-                          <div className="text-sm text-red-600">
-                            {props.errors.displayName}
-                          </div>
-                        )}
+                        <Field name="displayName">
+                          {({ field }: FieldProps) => (
+                            <div>
+                              <input
+                                type="text"
+                                id="displayName"
+                                className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                {...field}
+                              />
+                              <ErrorMessage
+                                className="text-sm text-red-600"
+                                name="displayName"
+                              >
+                                {(msg) => (
+                                  <div className="text-sm text-red-600">
+                                    {msg}
+                                  </div>
+                                )}
+                              </ErrorMessage>
+                            </div>
+                          )}
+                        </Field>
                       </div>
                     </div>
                     <div className="sm:col-span-4">
@@ -103,16 +110,28 @@ export default function Profile(): ReactElement {
                         Photo URL
                       </label>
                       <div className="mt-1">
-                        <input
-                          type="text"
-                          name="photoURL"
-                          id="photoURL"
-                          autoComplete="name"
-                          onChange={props.handleChange}
-                          onBlur={props.handleBlur}
-                          value={props.values.photoURL}
-                          className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                        />
+                        <Field name="photoURL">
+                          {({ field }: FieldProps) => (
+                            <div>
+                              <input
+                                type="text"
+                                id="photoURL"
+                                className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                {...field}
+                              />
+                              <ErrorMessage
+                                className="text-sm text-red-600"
+                                name="photoURL"
+                              >
+                                {(msg) => (
+                                  <div className="text-sm text-red-600">
+                                    {msg}
+                                  </div>
+                                )}
+                              </ErrorMessage>
+                            </div>
+                          )}
+                        </Field>
                       </div>
                     </div>
                   </div>
