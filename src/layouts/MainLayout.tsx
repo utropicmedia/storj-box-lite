@@ -18,6 +18,7 @@ import React, {
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useHistory } from "react-router-dom";
 import AppLogo from "../components/AppLogo";
+import UserAvatar from "../components/UserAvatar";
 
 const variants = {
   visible: { translateX: "0%", opacity: 1, width: "auto" },
@@ -159,7 +160,7 @@ export default function MainLayout({
                           {user.displayName}
                         </p>
                         <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
-                          Update Profile
+                          View Profile
                         </p>
                       </div>
                     </div>
@@ -211,21 +212,13 @@ export default function MainLayout({
                   className="flex-shrink-0 w-full group block"
                 >
                   <div className="flex items-center">
-                    {user.photoURL && (
-                      <div>
-                        <img
-                          className="inline-block h-9 w-9 rounded-full"
-                          src={user.photoURL}
-                          alt=""
-                        />
-                      </div>
-                    )}
+                    <UserAvatar user={user} />
                     <div className="ml-3">
                       <p className="text-sm font-medium text-white">
                         {user.displayName}
                       </p>
                       <p className="text-xs font-medium text-indigo-200 group-hover:text-white">
-                        Update Profile
+                        View Profile
                       </p>
                     </div>
                   </div>
