@@ -1,5 +1,4 @@
 import firebase from "firebase/app";
-import FullPageLayout from "layouts/FullPageLayout";
 import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
@@ -7,16 +6,11 @@ import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { setSettings, SettingsState } from "store/settings/settingsSlice";
 import { setUser, UserState } from "store/user/userSlice";
 import LoadingOrError from "../components/LoadingOrError";
-import AppLayout from "../layouts/AppLayout";
 import { auth, firestoreCollection } from "../lib/firebase";
-import PrivateRoute from "../lib/PrivateRoute";
-// import Home from "./Home";
-// import NoMatch from "./NoMatch";
-// import Profile from "./Profile";
-// import Settings from "./Settings";
-// import SignIn from "./SignIn";
-// import SignOut from "./SignOut";
 
+const FullPageLayout = lazy(() => import("../layouts/FullPageLayout"));
+const AppLayout = lazy(() => import("../layouts/AppLayout"));
+const PrivateRoute = lazy(() => import("../lib/PrivateRoute"));
 const Home = lazy(() => import("./Home"));
 const NoMatch = lazy(() => import("./NoMatch"));
 const Profile = lazy(() => import("./Profile"));

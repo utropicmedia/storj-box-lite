@@ -53,4 +53,31 @@ export default defineConfig({
       },
     ],
   },
+  // TODO: Should we do this? The largest chunk is smaller than the limit, but there are more files.
+  // build: {
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks(id) {
+  //         if (id.includes("lodash")) {
+  //           return "lodash";
+  //         }
+  //         if (id.includes("@redux/toolkit")) {
+  //           return "reduxToolkit";
+  //         }
+  //         if (id.includes("@aws-sdk")) {
+  //           return "awsSdk";
+  //         }
+  //         if (id.includes("firebase/auth")) {
+  //           return "firebaseAuth";
+  //         }
+  //         if (id.includes("firebase/firestore")) {
+  //           return "firebaseFirestore";
+  //         }
+  //         if (id.includes("firebase/app")) {
+  //           return "firebaseApp";
+  //         }
+  //       },
+  //     },
+  //   },
+  // },
 });
