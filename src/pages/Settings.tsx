@@ -7,15 +7,6 @@ import { selectSettings, setSettings } from "store/settings/settingsSlice";
 import * as Yup from "yup";
 import Head from "../components/Head";
 
-interface SettingsDocumentAuth {
-  accessKeyId: string;
-  secretAccessKey: string;
-}
-
-interface SettingsDocument {
-  auth: SettingsDocumentAuth;
-}
-
 export default function Settings(): ReactElement {
   const [user] = useAuthState(auth);
   const settings = useSelector(selectSettings);
