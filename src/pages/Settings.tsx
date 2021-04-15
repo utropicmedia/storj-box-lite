@@ -2,6 +2,8 @@ import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { selectSettings, setSettings } from "store/settings/settingsSlice";
 import * as Yup from "yup";
 import Head from "../components/Head";
 
@@ -16,22 +18,31 @@ interface SettingsDocument {
 
 export default function Settings(): ReactElement {
   const [user] = useAuthState(auth);
+  const settings = useSelector(selectSettings);
+  const dispatch = useDispatch();
+
   const [initalFormData, setInitialFormData] = useState({
     accessKeyId: "",
     secretAccessKey: "",
   });
 
+  // useEffect(() => {
+  //   async function getSettings() {
+  //     const document = await firestoreCollection.doc(user?.uid).get();
+  //     const data = document.data() as SettingsDocument;
+  //     if (data?.auth) {
+  //       const { accessKeyId, secretAccessKey } = data.auth;
+  //       setInitialFormData({ accessKeyId, secretAccessKey });
+  //     }
+  //   }
+  //   getSettings();
+  // }, [user]);
+
   useEffect(() => {
-    async function getSettings() {
-      const document = await firestoreCollection.doc(user?.uid).get();
-      const data = document.data() as SettingsDocument;
-      if (data?.auth) {
-        const { accessKeyId, secretAccessKey } = data.auth;
-        setInitialFormData({ accessKeyId, secretAccessKey });
-      }
+    if (settings?.auth) {
+      setInitialFormData(settings.auth);
     }
-    getSettings();
-  }, [user]);
+  }, [settings]);
 
   return (
     <>
@@ -54,6 +65,7 @@ export default function Settings(): ReactElement {
             await firestoreCollection
               .doc(user?.uid)
               .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
+            dispatch(setSettings({ ...settings, ...values }));
           }}
         >
           {(props) => (
