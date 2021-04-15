@@ -1,6 +1,6 @@
 import firebase from "firebase/app";
 import FullPageLayout from "layouts/FullPageLayout";
-import React, { ReactElement, Suspense, useEffect } from "react";
+import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
@@ -10,12 +10,19 @@ import LoadingOrError from "../components/LoadingOrError";
 import AppLayout from "../layouts/AppLayout";
 import { auth, firestoreCollection } from "../lib/firebase";
 import PrivateRoute from "../lib/PrivateRoute";
-import Home from "./Home";
-import NoMatch from "./NoMatch";
-import Profile from "./Profile";
-import Settings from "./Settings";
-import SignIn from "./SignIn";
-import SignOut from "./SignOut";
+// import Home from "./Home";
+// import NoMatch from "./NoMatch";
+// import Profile from "./Profile";
+// import Settings from "./Settings";
+// import SignIn from "./SignIn";
+// import SignOut from "./SignOut";
+
+const Home = lazy(() => import("./Home"));
+const NoMatch = lazy(() => import("./NoMatch"));
+const Profile = lazy(() => import("./Profile"));
+const Settings = lazy(() => import("./Settings"));
+const SignIn = lazy(() => import("./SignIn"));
+const SignOut = lazy(() => import("./SignOut"));
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
