@@ -8,10 +8,11 @@ import React, {
   useState,
 } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router";
-import { Link } from "react-router-dom";
+import { useHistory, useParams } from "react-router";
 import { selectSettings } from "store/settings/settingsSlice";
 import Head from "../components/Head";
+import IconButton from "../components/IconButton";
+import Link from "../components/Link";
 import Spinner from "../components/Spinner";
 
 interface FolderOrFile {
@@ -33,15 +34,28 @@ export default function Home(): ReactElement {
   const [data, setData] = useState<any>();
   const settings = useSelector(selectSettings);
   const [params, setParams] = useState();
+  const history = useHistory();
+
+  const downloadFile = async (key: string) => {
+    const { auth } = settings;
+    const storjClient = StorjClient.getInstance(auth);
+    const url = await storjClient?.getObjectUrl(
+      key.charAt(0) === "/" ? key.slice(1) : key
+    );
+    console.log("url", url);
+    window.open(url, "dowloadFile", "noopener");
+  };
 
   useEffect(() => {
     if (folderPath) {
       setParams({
+        Bucket: "bucket1",
         Delimiter: "/",
         Prefix: `${folderPath}/`,
       });
     } else {
       setParams({
+        Bucket: "bucket1",
         Delimiter: "/",
         Prefix: "/",
       });
@@ -49,7 +63,7 @@ export default function Home(): ReactElement {
   }, [folderPath]);
 
   useEffect(() => {
-    async function getBuckets() {
+    async function listDirectories() {
       const { auth } = settings;
       const storjClient = StorjClient.getInstance(auth);
       const listBucketsResponse = await storjClient?.listDirectories(params);
@@ -90,16 +104,18 @@ export default function Home(): ReactElement {
       const results: FolderOrFile[] = [...folders, ...files];
       setData(results);
     }
-    if (
+    if (!settings?.auth?.accessKeyId || !settings?.auth?.secretAccessKey) {
+      history.push("/settings");
+    } else if (
       params &&
       settings &&
       settings.auth &&
       settings.auth.accessKeyId &&
       settings.auth.secretAccessKey
     ) {
-      getBuckets();
+      listDirectories();
     }
-  }, [settings, params, folderPath]);
+  }, [settings, params, folderPath, history]);
 
   return (
     <>
@@ -164,7 +180,6 @@ export default function Home(): ReactElement {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {f.type === "folder" && (
                         <Link
-                          className="text-indigo-600 hover:text-indigo-500"
                           to={`/home/${f.key.substring(0, f.key.length - 1)}`}
                         >
                           {f.key}
@@ -174,17 +189,11 @@ export default function Home(): ReactElement {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       {f.type === "file" && (
-                        <button
-                          type="button"
-                          onClick={() => console.log("download", f.originalKey)}
-                        >
-                          <FontAwesomeIcon
-                            className="flex-shrink-0"
-                            aria-hidden="true"
-                            icon={faDownload}
-                          />
-                          <span className="sr-only">Download</span>
-                        </button>
+                        <IconButton
+                          onClick={() => downloadFile(f.originalKey)}
+                          text="Download"
+                          icon={faDownload}
+                        />
                       )}
                     </td>
                   </tr>

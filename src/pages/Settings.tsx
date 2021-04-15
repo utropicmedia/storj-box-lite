@@ -65,7 +65,12 @@ export default function Settings(): ReactElement {
             await firestoreCollection
               .doc(user?.uid)
               .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
-            dispatch(setSettings({ ...settings, ...values }));
+            dispatch(
+              setSettings({
+                ...settings,
+                auth: { accessKeyId, secretAccessKey },
+              })
+            );
           }}
         >
           {(props) => (

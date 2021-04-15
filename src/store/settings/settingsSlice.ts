@@ -17,6 +17,10 @@ export const settingsSlice = createSlice({
   name: "settings",
   initialState,
   reducers: {
+    resetSettings: (state) => {
+      state = initialState;
+      return state;
+    },
     setSettings: (state, action: PayloadAction<SettingsState>) => {
       state = action.payload;
       return state;
@@ -24,6 +28,6 @@ export const settingsSlice = createSlice({
   },
 });
 
-export const { setSettings } = settingsSlice.actions;
+export const { resetSettings, setSettings } = settingsSlice.actions;
 export const selectSettings = (state: RootState) => state.settings;
 export default settingsSlice.reducer;

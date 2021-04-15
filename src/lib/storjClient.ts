@@ -12,6 +12,7 @@ export interface StorjClientOptions {
 }
 
 export interface ListDirectoriesParams {
+  Bucket?: string;
   Delimiter?: string;
   Prefix?: string;
 }
@@ -45,24 +46,25 @@ export class StorjClient {
   }
 
   listDirectories(params: ListDirectoriesParams = {}) {
+    const Bucket = params.Bucket;
     const Delimiter =
       params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
     const Prefix = params.Prefix || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
     return this.client.send(
       new ListObjectsV2Command({
-        Bucket: "bucket1",
+        Bucket,
         Delimiter,
         Prefix,
       })
     );
   }
 
-  getObjectUrl(key: string) {
+  getObjectUrl(Key: string, Bucket: string) {
     return getSignedUrl(
       this.client,
       new GetObjectCommand({
-        Bucket: "bucket1",
-        Key: key,
+        Bucket,
+        Key,
       }),
       {
         expiresIn: 3600,

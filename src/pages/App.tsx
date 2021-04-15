@@ -25,8 +25,8 @@ export default function App(): ReactElement {
   useEffect(() => {
     async function loadUserDocument(user: firebase.User) {
       const userDocument = await firestoreCollection.doc(user.uid).get();
-      const data = userDocument.data();
-      dispatch(setSettings(data as SettingsState));
+      const data = userDocument.data() as SettingsState;
+      dispatch(setSettings(data));
     }
     if (user) {
       loadUserDocument(user);
