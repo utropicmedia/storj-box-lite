@@ -200,7 +200,9 @@ export default function AppLayout({
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex">
               <div className="w-full flex items-center md:ml-0">
-                <BucketSelector />
+                {location &&
+                  location.pathname &&
+                  location.pathname.startsWith("/home") && <BucketSelector />}
               </div>
               {/* <form className="w-full flex md:ml-0" action="#" method="GET">
                 <label htmlFor="search_field" className="sr-only">

@@ -6,12 +6,22 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const { VITE_STORJ_ENDPOINT, VITE_STORJ_REGION } = import.meta.env;
-
 export interface StorjClientOptions {
   accessKeyId: string;
   secretAccessKey: string;
 }
+
+export interface ListDirectoriesParams {
+  Delimiter?: string;
+  Prefix?: string;
+}
+
+const { VITE_STORJ_ENDPOINT, VITE_STORJ_REGION } = import.meta.env;
+
+const DEFAULT_LIST_DIRECTORIES_PARAMS: ListDirectoriesParams = {
+  Delimiter: "/",
+  Prefix: "/",
+};
 
 export class StorjClient {
   private client: S3Client;
@@ -34,7 +44,10 @@ export class StorjClient {
     return this.classInstance;
   }
 
-  listDirectories(Delimiter = "/", Prefix = "") {
+  listDirectories(params: ListDirectoriesParams = {}) {
+    const Delimiter =
+      params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
+    const Prefix = params.Prefix || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
     return this.client.send(
       new ListObjectsV2Command({
         Bucket: "bucket1",

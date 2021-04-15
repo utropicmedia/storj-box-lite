@@ -4,9 +4,9 @@ import { VitePWA } from "vite-plugin-pwa";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  build: {
-    brotliSize: false,
-  },
+  // build: {
+  //   brotliSize: false,
+  // },
   plugins: [
     tsconfigPaths(),
     reactRefresh(),
@@ -16,7 +16,6 @@ export default defineConfig({
           {
             url:
               "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
-            // eslint-disable-next-line unicorn/no-null
             revision: null,
           },
         ],
