@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Listbox, Transition } from "@headlessui/react";
 import { StorjClient } from "lib/storjClient";
 import React, { Fragment, ReactElement, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedBucket } from "store/bucket/bucketSlice";
 import { selectSettings } from "store/settings/settingsSlice";
 import Spinner from "./Spinner";
 
@@ -12,6 +13,12 @@ export default function BucketSelector(): ReactElement {
   const [selected, setSelected] = useState<Bucket>();
   const [buckets, setBuckets] = useState<Bucket[]>([]);
   const settings = useSelector(selectSettings);
+  const dispatch = useDispatch();
+
+  const selectSelectedBucket = (bucket: Bucket) => {
+    setSelected(bucket);
+    dispatch(setSelectedBucket(bucket.Name));
+  };
 
   useEffect(() => {
     async function getBuckets() {
@@ -25,6 +32,7 @@ export default function BucketSelector(): ReactElement {
       ) {
         setBuckets(listBucketsResponse.Buckets);
         setSelected(listBucketsResponse.Buckets[0]);
+        dispatch(setSelectedBucket(listBucketsResponse.Buckets[0].Name));
       }
     }
     if (
@@ -35,10 +43,10 @@ export default function BucketSelector(): ReactElement {
     ) {
       getBuckets();
     }
-  }, [settings]);
+  }, [settings, dispatch]);
 
   return (
-    <Listbox value={selected} onChange={setSelected}>
+    <Listbox value={selected} onChange={selectSelectedBucket}>
       {({ open }) => (
         <>
           {settings && (

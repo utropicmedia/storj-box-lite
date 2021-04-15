@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
+import { selectSelectedBucket } from "store/bucket/bucketSlice";
 import { selectSettings } from "store/settings/settingsSlice";
 import Head from "../components/Head";
 import IconButton from "../components/IconButton";
@@ -30,6 +31,7 @@ function Main({ children }: PropsWithChildren<MainProps>): ReactElement {
 }
 
 export default function Home(): ReactElement {
+  const selectedBucket = useSelector(selectSelectedBucket);
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
   const settings = useSelector(selectSettings);
@@ -47,20 +49,22 @@ export default function Home(): ReactElement {
   };
 
   useEffect(() => {
-    if (folderPath) {
-      setParams({
-        Bucket: "bucket1",
-        Delimiter: "/",
-        Prefix: `${folderPath}/`,
-      });
-    } else {
-      setParams({
-        Bucket: "bucket1",
-        Delimiter: "/",
-        Prefix: "/",
-      });
+    if (selectedBucket) {
+      if (folderPath) {
+        setParams({
+          Bucket: selectedBucket,
+          Delimiter: "/",
+          Prefix: `${folderPath}/`,
+        });
+      } else {
+        setParams({
+          Bucket: selectedBucket,
+          Delimiter: "/",
+          Prefix: "/",
+        });
+      }
     }
-  }, [folderPath]);
+  }, [folderPath, selectedBucket]);
 
   useEffect(() => {
     async function listDirectories() {
@@ -120,89 +124,91 @@ export default function Home(): ReactElement {
   return (
     <>
       <Head title="Home | Storj Box Lite" />
-      <Main>
-        {params && (
-          <nav className="flex mb-3" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-4">
-              <li>
-                <div>
-                  <Link
-                    to="/home"
-                    className="text-gray-400 hover:text-gray-500"
-                  >
-                    <FontAwesomeIcon
-                      className="flex-shrink-0"
-                      aria-hidden="true"
-                      icon={faHome}
-                    />
-                    <span className="sr-only">Home</span>
-                  </Link>
-                </div>
-              </li>
-              {params.Prefix.split("/")
-                .filter((v) => !!v)
-                .map((page) => (
-                  <li key={page}>
-                    <div className="flex items-center">
-                      <svg
-                        className="flex-shrink-0 h-5 w-5 text-gray-300"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+      {selectedBucket && (
+        <Main>
+          {params && (
+            <nav className="flex mb-3" aria-label="Breadcrumb">
+              <ol className="flex items-center space-x-4">
+                <li>
+                  <div>
+                    <Link
+                      to="/home"
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <FontAwesomeIcon
+                        className="flex-shrink-0"
                         aria-hidden="true"
-                      >
-                        <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-                      </svg>
-                      <Link
-                        to={`/home/${page}`}
-                        className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
-                        aria-current={page ? "page" : undefined}
-                      >
-                        {page}
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-            </ol>
-          </nav>
-        )}
-        {!data && <Spinner />}
-        {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
-        {data && data.length > 0 && (
-          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <tbody>
-                {data.map((f: FolderOrFile, fIdx: number) => (
-                  <tr
-                    className={fIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    key={`f-${f.key}}`}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {f.type === "folder" && (
-                        <Link
-                          to={`/home/${f.key.substring(0, f.key.length - 1)}`}
+                        icon={faHome}
+                      />
+                      <span className="sr-only">Home</span>
+                    </Link>
+                  </div>
+                </li>
+                {params.Prefix.split("/")
+                  .filter((v) => !!v)
+                  .map((page) => (
+                    <li key={page}>
+                      <div className="flex items-center">
+                        <svg
+                          className="flex-shrink-0 h-5 w-5 text-gray-300"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          aria-hidden="true"
                         >
-                          {f.key}
+                          <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+                        </svg>
+                        <Link
+                          to={`/home/${page}`}
+                          className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
+                          aria-current={page ? "page" : undefined}
+                        >
+                          {page}
                         </Link>
-                      )}
-                      {f.type === "file" && f.key}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {f.type === "file" && (
-                        <IconButton
-                          onClick={() => downloadFile(f.originalKey)}
-                          text="Download"
-                          icon={faDownload}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Main>
+                      </div>
+                    </li>
+                  ))}
+              </ol>
+            </nav>
+          )}
+          {!data && <Spinner />}
+          {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
+          {data && data.length > 0 && (
+            <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <tbody>
+                  {data.map((f: FolderOrFile, fIdx: number) => (
+                    <tr
+                      className={fIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      key={`f-${f.key}}`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {f.type === "folder" && (
+                          <Link
+                            to={`/home/${f.key.substring(0, f.key.length - 1)}`}
+                          >
+                            {f.key}
+                          </Link>
+                        )}
+                        {f.type === "file" && f.key}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {f.type === "file" && (
+                          <IconButton
+                            onClick={() => downloadFile(f.originalKey)}
+                            text="Download"
+                            icon={faDownload}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Main>
+      )}
     </>
   );
 }
