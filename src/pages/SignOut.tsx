@@ -17,7 +17,7 @@ export default function SignIn(): ReactElement {
       history.push("/sign-in");
     }
     signOut();
-  }, [history]);
+  }, [history, dispatch]);
 
   return <></>;
 }

@@ -35,17 +35,24 @@ export default function Home(): ReactElement {
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
   const settings = useSelector(selectSettings);
-  const [params, setParams] = useState();
+  const [params, setParams] = useState<{
+    Bucket: string;
+    Delimiter: string;
+    Prefix: string;
+  }>();
   const history = useHistory();
 
   const downloadFile = async (key: string) => {
     const { auth } = settings;
     const storjClient = StorjClient.getInstance(auth);
-    const url = await storjClient?.getObjectUrl(
-      key.charAt(0) === "/" ? key.slice(1) : key
-    );
-    console.log("url", url);
-    window.open(url, "dowloadFile", "noopener");
+    if (storjClient && selectedBucket) {
+      const url = await storjClient.getObjectUrl(
+        key.charAt(0) === "/" ? key.slice(1) : key,
+        selectedBucket
+      );
+      console.log("url", url);
+      window.open(url, "dowloadFile", "noopener");
+    }
   };
 
   useEffect(() => {
@@ -79,6 +86,7 @@ export default function Home(): ReactElement {
       //   }),
       // };
       const folders =
+        params &&
         listBucketsResponse &&
         listBucketsResponse.CommonPrefixes &&
         listBucketsResponse.CommonPrefixes.length > 0
@@ -91,6 +99,7 @@ export default function Home(): ReactElement {
             )
           : [];
       const files =
+        params &&
         listBucketsResponse &&
         listBucketsResponse.Contents &&
         listBucketsResponse.Contents.length > 0
@@ -195,7 +204,7 @@ export default function Home(): ReactElement {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         {f.type === "file" && (
                           <IconButton
-                            onClick={() => downloadFile(f.originalKey)}
+                            onClick={() => downloadFile(String(f.originalKey))}
                             text="Download"
                             icon={faDownload}
                           />

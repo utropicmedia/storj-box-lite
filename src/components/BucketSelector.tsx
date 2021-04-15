@@ -17,7 +17,7 @@ export default function BucketSelector(): ReactElement {
 
   const selectSelectedBucket = (bucket: Bucket) => {
     setSelected(bucket);
-    dispatch(setSelectedBucket(bucket.Name));
+    dispatch(setSelectedBucket(String(bucket.Name)));
   };
 
   useEffect(() => {
@@ -32,7 +32,9 @@ export default function BucketSelector(): ReactElement {
       ) {
         setBuckets(listBucketsResponse.Buckets);
         setSelected(listBucketsResponse.Buckets[0]);
-        dispatch(setSelectedBucket(listBucketsResponse.Buckets[0].Name));
+        dispatch(
+          setSelectedBucket(String(listBucketsResponse.Buckets[0].Name))
+        );
       }
     }
     if (
