@@ -15,6 +15,7 @@ import SignOut from "./SignOut";
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
+
   return (
     <>
       {(loading || error) && <LoadingOrError error={error} />}
@@ -32,26 +33,31 @@ export default function App(): ReactElement {
 
               <PrivateRoute path="/home">
                 <AppLayout>
-                  <Home />
+                  <Route exact path="/home">
+                    <Home />
+                  </Route>
+                  <Route path="/home/:folderPath">
+                    <Home />
+                  </Route>
                 </AppLayout>
               </PrivateRoute>
-              <PrivateRoute path="/profile">
+              <PrivateRoute exact path="/profile">
                 <AppLayout>
                   <Profile />
                 </AppLayout>
               </PrivateRoute>
-              <PrivateRoute path="/settings">
+              <PrivateRoute exact path="/settings">
                 <AppLayout>
                   <Settings />
                 </AppLayout>
               </PrivateRoute>
 
-              <Route path="/sign-in">
+              <Route exact path="/sign-in">
                 <FullPageLayout>
                   <SignIn />
                 </FullPageLayout>
               </Route>
-              <Route path="/sign-out">
+              <Route exact path="/sign-out">
                 <SignOut />
               </Route>
               <Route path="*">

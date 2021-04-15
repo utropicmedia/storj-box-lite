@@ -1,4 +1,9 @@
-import { faBars, faHome, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faCogs,
+  faHome,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { auth } from "lib/firebase";
@@ -19,13 +24,12 @@ const navigation = [
   {
     name: "Settings",
     href: "/settings",
-    icon: faHome,
+    icon: faCogs,
   },
 ];
 
 const userNavigation = [
   { name: "Your Profile", href: "/profile" },
-  { name: "Settings", href: "/settings" },
   { name: "Sign out", href: "/sign-out" },
 ];
 

@@ -3731,10 +3731,10 @@ eslint-plugin-react@^7.23.2:
     resolve "^2.0.0-next.3"
     string.prototype.matchall "^4.0.4"
 
-eslint-plugin-testing-library@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-testing-library/-/eslint-plugin-testing-library-4.0.0.tgz#87c7f292e0890b75ca443e8282d0a8b67d52c6a7"
-  integrity sha512-B23Ibwx5xQn77DaN9dfq0FgdOnfKHPMfeWsyRnJn1G+/dPl3JfXZfmbzbfiFuS8TAKgpi1HQ/jxLguNPZ40eUQ==
+eslint-plugin-testing-library@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-testing-library/-/eslint-plugin-testing-library-4.0.1.tgz#c4e6e2992034fc3a46950cd9a3b19600f567fc61"
+  integrity sha512-kbJJty456+D/NQB4jcj0OymD8c0vNj85EHOS83fRmx0ed5vTMcNmLDGp47wE/XhP3ojmmMcqVp9OGiQzY6E04g==
   dependencies:
     "@typescript-eslint/experimental-utils" "^4.21.0"
 
@@ -4346,6 +4346,11 @@ globjoin@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/globjoin/-/globjoin-0.1.4.tgz#2f4494ac8919e3767c5cbb691e9f463324285d43"
   integrity sha1-L0SUrIkZ43Z8XLtpHp9GMyQoXUM=
+
+globrex@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/globrex/-/globrex-0.1.2.tgz#dd5d9ec826232730cd6793a5e33a9302985e6098"
+  integrity sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==
 
 gonzales-pe@^4.3.0:
   version "4.3.0"
@@ -6136,10 +6141,10 @@ react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-query@3.13.7:
-  version "3.13.7"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.13.7.tgz#34f5849abbf0c41d88044cca96502c98696b36c5"
-  integrity sha512-PIU51gQaIQX6WY82e8FbBzYr5pWajAbQsVKdkS3I+hnp0vTDsr3usIjWj90r0ZEGP43nZH3v2HPXXg1/bt8D4Q==
+react-query@3.13.8:
+  version "3.13.8"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.13.8.tgz#fe82aa80064857bde93eb571534190554addb2d5"
+  integrity sha512-0zujQNExerbNgULg3W+7PKTyf/iGzTdBExUaRIxb/mLa+Ghc5QKl/5c8yqkwwvlAFUUX8GAQ/Qu3l46SKOWCOg==
   dependencies:
     "@babel/runtime" "^7.5.5"
     broadcast-channel "^3.4.1"
@@ -7400,12 +7405,13 @@ vite-plugin-pwa@0.7.1:
     workbox-build "^6.1.2"
     workbox-window "^6.1.2"
 
-vite-tsconfig-paths@2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/vite-tsconfig-paths/-/vite-tsconfig-paths-2.5.1.tgz#5bce56220a5f8d3cf4dc2bc5bbb4758f2672d2e5"
-  integrity sha512-qVFOvu6rd4hmWnETyVBGNuhcgj5M68D5gVrc/zpyTLk5WapXzHqmb5V/AywMFSD+5wptOuWcvH6KMdYFEwJAUA==
+vite-tsconfig-paths@3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/vite-tsconfig-paths/-/vite-tsconfig-paths-3.2.1.tgz#f0ed3818715571fa8a9ff9525d545e22afc40b7d"
+  integrity sha512-1jc6hbgT4CXvw0YdKTlj6GtwuZGQxZTd0+ghZm/iYYfDwWk0+1ddUi8tbXUULLfWBRlaG/lITZRT6pFVaIlbaw==
   dependencies:
     debug "^4.1.1"
+    globrex "^0.1.2"
     tsconfig-paths "^3.9.0"
 
 vite@2.1.5:

@@ -1,5 +1,6 @@
 import {
   GetObjectCommand,
+  ListBucketsCommand,
   ListObjectsV2Command,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -7,15 +8,30 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const { VITE_STORJ_ENDPOINT, VITE_STORJ_REGION } = import.meta.env;
 
-export class Api {
-  client: S3Client;
+export interface StorjClientOptions {
+  accessKeyId: string;
+  secretAccessKey: string;
+}
 
-  constructor(accessKeyId: string, secretAccessKey: string) {
+export class StorjClient {
+  private client: S3Client;
+  private static classInstance?: StorjClient;
+
+  private constructor({ accessKeyId, secretAccessKey }: StorjClientOptions) {
     this.client = new S3Client({
       credentials: { accessKeyId, secretAccessKey },
       endpoint: String(VITE_STORJ_ENDPOINT),
       region: String(VITE_STORJ_REGION),
     });
+  }
+
+  static getInstance(options: StorjClientOptions | null | undefined) {
+    if (!this.classInstance && options) {
+      this.classInstance = new StorjClient(options);
+    } else if (!this.classInstance && !options) {
+      throw new Error("StorjClientOptions are required");
+    }
+    return this.classInstance;
   }
 
   listDirectories(Delimiter = "/", Prefix = "") {
@@ -39,5 +55,9 @@ export class Api {
         expiresIn: 3600,
       }
     );
+  }
+
+  listBuckets() {
+    return this.client.send(new ListBucketsCommand({}));
   }
 }
