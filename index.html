@@ -20,6 +20,11 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!-- FIXME: This is a hack to fix aws sdk issues with rollup: https://github.com/aws-amplify/amplify-js/issues/7499#issuecomment-804386820 -->
+    <script>
+      window.global = window;
+      var exports = {};
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

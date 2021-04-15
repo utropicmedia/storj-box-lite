@@ -44,4 +44,13 @@ export default defineConfig({
       },
     }),
   ],
+  // FIXME: This is a hack to fix aws sdk issues with rollup: https://github.com/aws-amplify/amplify-js/issues/7499#issuecomment-804386820
+  resolve: {
+    alias: [
+      {
+        find: "./runtimeConfig",
+        replacement: "./runtimeConfig.browser",
+      },
+    ],
+  },
 });
