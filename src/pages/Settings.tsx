@@ -9,7 +9,7 @@ import Head from "../components/Head";
 
 export default function Settings(): ReactElement {
   const [user] = useAuthState(auth);
-  const settings = useSelector(selectSettings);
+  const { settings, loading } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
   const [initalFormData, setInitialFormData] = useState({
@@ -17,23 +17,11 @@ export default function Settings(): ReactElement {
     secretAccessKey: "",
   });
 
-  // useEffect(() => {
-  //   async function getSettings() {
-  //     const document = await firestoreCollection.doc(user?.uid).get();
-  //     const data = document.data() as SettingsDocument;
-  //     if (data?.auth) {
-  //       const { accessKeyId, secretAccessKey } = data.auth;
-  //       setInitialFormData({ accessKeyId, secretAccessKey });
-  //     }
-  //   }
-  //   getSettings();
-  // }, [user]);
-
   useEffect(() => {
-    if (settings?.auth) {
+    if (!loading && settings?.auth) {
       setInitialFormData(settings.auth);
     }
-  }, [settings]);
+  }, [loading, settings]);
 
   return (
     <>

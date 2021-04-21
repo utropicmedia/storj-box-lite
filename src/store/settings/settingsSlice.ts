@@ -1,39 +1,47 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction,
+  SerializedError,
+} from "@reduxjs/toolkit";
 import firebase from "firebase/app";
 import { firestoreCollection } from "../../lib/firebase";
 import { RootState } from "../store";
 
-export const getUserSettings = createAsyncThunk(
-  "settings/getUserSettings",
-  async (user: firebase.User, { getState }) => {
-    const { loading } = getState().settings;
-    if (loading !== "pending") {
-      return;
-    }
-    const userDocument = await firestoreCollection.doc(user.uid).get();
-    const data = userDocument.data() as SettingsState;
-    return data;
+export const getSettings = createAsyncThunk<
+  Settings | undefined,
+  firebase.User,
+  { state: RootState }
+>("settings/getSettings", async (user, { getState }) => {
+  const { loading } = getState().settings;
+  if (!loading) {
+    return;
   }
-);
+  const userDocument = await firestoreCollection.doc(user.uid).get();
+  const data = userDocument.data();
+  return data;
+});
 
 export interface AuthSettings {
   accessKeyId: string;
   secretAccessKey: string;
 }
 
+export interface Settings {
+  auth?: AuthSettings;
+}
+
 export interface SettingsState {
-  settings: {
-    auth?: AuthSettings;
-  };
-  loading: string;
-  error: Error | null;
+  settings: Settings | undefined;
+  loading: boolean;
+  error: SerializedError | undefined;
 }
 
 // Define the initial state using that type
 const initialState: SettingsState = {
   settings: {},
-  loading: "idle",
-  error: null,
+  loading: false,
+  error: undefined,
 };
 
 export const settingsSlice = createSlice({
@@ -44,28 +52,25 @@ export const settingsSlice = createSlice({
       state = initialState;
       return state;
     },
-    setSettings: (state, action: PayloadAction<SettingsState>) => {
-      state = action.payload;
+    setSettings: (state, action: PayloadAction<Settings>) => {
+      state.settings = action.payload;
       return state;
     },
   },
-  extraReducers: {
-    [getUserSettings.pending]: (state) => {
-      console.log("getUserSettings.pending");
-      if (state.loading === "idle") {
-        state.loading = "pending";
+  extraReducers: (builder) => {
+    builder.addCase(getSettings.pending, (state) => {
+      if (!state.loading) {
+        state.loading = true;
       }
-    },
-    [getUserSettings.fulfilled]: (state, action) => {
-      console.log("getUserSettings.fulfilled");
-      state.loading = "idle";
+    });
+    builder.addCase(getSettings.fulfilled, (state, action) => {
+      state.loading = false;
       state.settings = action.payload;
-    },
-    [getUserSettings.rejected]: (state, action) => {
-      console.log("getUserSettings.rejected");
-      state.loading = "idle";
+    });
+    builder.addCase(getSettings.rejected, (state, action) => {
+      state.loading = false;
       state.error = action.error;
-    },
+    });
   },
 });
 

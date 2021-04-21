@@ -1,16 +1,11 @@
-import firebase from "firebase/app";
 import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import {
-  getUserSettings,
-  setSettings,
-  SettingsState,
-} from "store/settings/settingsSlice";
+import { getSettings } from "store/settings/settingsSlice";
 import { setUser, UserState } from "store/user/userSlice";
 import LoadingOrError from "../components/LoadingOrError";
-import { auth, firestoreCollection } from "../lib/firebase";
+import { auth } from "../lib/firebase";
 
 const FullPageLayout = lazy(() => import("../layouts/FullPageLayout"));
 const AppLayout = lazy(() => import("../layouts/AppLayout"));
@@ -27,15 +22,9 @@ export default function App(): ReactElement {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    async function loadUserDocument(user: firebase.User) {
-      const userDocument = await firestoreCollection.doc(user.uid).get();
-      const data = userDocument.data() as SettingsState;
-      dispatch(setSettings(data));
-    }
     if (user) {
-      // loadUserDocument(user);
       dispatch(setUser(user.toJSON() as UserState));
-      dispatch(getUserSettings(user));
+      dispatch(getSettings(user));
     }
   }, [user, dispatch]);
 

@@ -10,7 +10,7 @@ import React, {
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { selectSelectedBucket } from "store/bucket/bucketSlice";
-import { selectSettings } from "store/settings/settingsSlice";
+import { AuthSettings, selectSettings } from "store/settings/settingsSlice";
 import Head from "../components/Head";
 import IconButton from "../components/IconButton";
 import Link from "../components/Link";
@@ -34,7 +34,7 @@ export default function Home(): ReactElement {
   const selectedBucket = useSelector(selectSelectedBucket);
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
-  const { settings, loading, error } = useSelector(selectSettings);
+  const { settings, loading } = useSelector(selectSettings);
   const [params, setParams] = useState<{
     Bucket: string;
     Delimiter: string;
@@ -42,21 +42,16 @@ export default function Home(): ReactElement {
   }>();
   const history = useHistory();
 
-  console.log("the init", loading, settings, error);
-  useEffect(() => {
-    console.log("the useEffect", loading, settings, error);
-  }, [loading, settings, error]);
-
   const downloadFile = async (key: string) => {
-    const { auth } = settings;
-    const storjClient = StorjClient.getInstance(auth);
-    if (storjClient && selectedBucket) {
-      const url = await storjClient.getObjectUrl(
-        key.charAt(0) === "/" ? key.slice(1) : key,
-        selectedBucket
-      );
-      console.log("url", url);
-      window.open(url, "dowloadFile", "noopener");
+    if (settings && settings.auth) {
+      const storjClient = StorjClient.getInstance(settings.auth);
+      if (storjClient && selectedBucket) {
+        const url = await storjClient.getObjectUrl(
+          key.charAt(0) === "/" ? key.slice(1) : key,
+          selectedBucket
+        );
+        window.open(url, "dowloadFile", "noopener");
+      }
     }
   };
 
@@ -79,17 +74,9 @@ export default function Home(): ReactElement {
   }, [folderPath, selectedBucket]);
 
   useEffect(() => {
-    async function listDirectories() {
-      const { auth } = settings;
+    async function listDirectories(auth: AuthSettings) {
       const storjClient = StorjClient.getInstance(auth);
       const listBucketsResponse = await storjClient?.listDirectories(params);
-      // const result = {
-      //   folders: listBucketsResponse?.CommonPrefixes?.map((cp) => cp.Prefix),
-      //   files: listBucketsResponse?.Contents?.filter((c) => {
-      //     console.log(c, params.Prefix);
-      //     return c.Key !== params.Prefix;
-      //   }),
-      // };
       const folders =
         params &&
         listBucketsResponse &&
@@ -122,8 +109,7 @@ export default function Home(): ReactElement {
       const results: FolderOrFile[] = [...folders, ...files];
       setData(results);
     }
-    // if (!loading) {
-    if (loading === "idle") {
+    if (!loading) {
       if (!settings?.auth?.accessKeyId || !settings?.auth?.secretAccessKey) {
         history.push("/settings");
       } else if (
@@ -133,7 +119,7 @@ export default function Home(): ReactElement {
         settings.auth.accessKeyId &&
         settings.auth.secretAccessKey
       ) {
-        listDirectories();
+        listDirectories(settings.auth);
       }
     }
   }, [loading, settings, params, folderPath, history]);
@@ -189,7 +175,6 @@ export default function Home(): ReactElement {
             </nav>
           )}
           {!data && <Spinner />}
-          {/* {data && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
           {data && data.length > 0 && (
             <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
               <table className="min-w-full divide-y divide-gray-200">

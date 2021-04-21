@@ -6,13 +6,13 @@ import { StorjClient } from "lib/storjClient";
 import React, { Fragment, ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedBucket } from "store/bucket/bucketSlice";
-import { selectSettings } from "store/settings/settingsSlice";
+import { AuthSettings, selectSettings } from "store/settings/settingsSlice";
 import Spinner from "./Spinner";
 
 export default function BucketSelector(): ReactElement {
   const [selected, setSelected] = useState<Bucket>();
   const [buckets, setBuckets] = useState<Bucket[]>([]);
-  const settings = useSelector(selectSettings);
+  const { settings, loading } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
   const selectSelectedBucket = (bucket: Bucket) => {
@@ -21,8 +21,7 @@ export default function BucketSelector(): ReactElement {
   };
 
   useEffect(() => {
-    async function getBuckets() {
-      const { auth } = settings;
+    async function getBuckets(auth: AuthSettings) {
       const storjClient = StorjClient.getInstance(auth);
       const listBucketsResponse = await storjClient?.listBuckets();
       if (
@@ -38,14 +37,15 @@ export default function BucketSelector(): ReactElement {
       }
     }
     if (
+      !loading &&
       settings &&
       settings.auth &&
       settings.auth.accessKeyId &&
       settings.auth.secretAccessKey
     ) {
-      getBuckets();
+      getBuckets(settings.auth);
     }
-  }, [settings, dispatch]);
+  }, [loading, settings, dispatch]);
 
   return (
     <Listbox value={selected} onChange={selectSelectedBucket}>
