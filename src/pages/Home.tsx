@@ -34,13 +34,18 @@ export default function Home(): ReactElement {
   const selectedBucket = useSelector(selectSelectedBucket);
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
-  const settings = useSelector(selectSettings);
+  const { settings, loading, error } = useSelector(selectSettings);
   const [params, setParams] = useState<{
     Bucket: string;
     Delimiter: string;
     Prefix: string;
   }>();
   const history = useHistory();
+
+  console.log("the init", loading, settings, error);
+  useEffect(() => {
+    console.log("the useEffect", loading, settings, error);
+  }, [loading, settings, error]);
 
   const downloadFile = async (key: string) => {
     const { auth } = settings;
@@ -117,18 +122,21 @@ export default function Home(): ReactElement {
       const results: FolderOrFile[] = [...folders, ...files];
       setData(results);
     }
-    if (!settings?.auth?.accessKeyId || !settings?.auth?.secretAccessKey) {
-      history.push("/settings");
-    } else if (
-      params &&
-      settings &&
-      settings.auth &&
-      settings.auth.accessKeyId &&
-      settings.auth.secretAccessKey
-    ) {
-      listDirectories();
+    // if (!loading) {
+    if (loading === "idle") {
+      if (!settings?.auth?.accessKeyId || !settings?.auth?.secretAccessKey) {
+        history.push("/settings");
+      } else if (
+        params &&
+        settings &&
+        settings.auth &&
+        settings.auth.accessKeyId &&
+        settings.auth.secretAccessKey
+      ) {
+        listDirectories();
+      }
     }
-  }, [settings, params, folderPath, history]);
+  }, [loading, settings, params, folderPath, history]);
 
   return (
     <>

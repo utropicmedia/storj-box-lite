@@ -3,7 +3,11 @@ import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import { setSettings, SettingsState } from "store/settings/settingsSlice";
+import {
+  getUserSettings,
+  setSettings,
+  SettingsState,
+} from "store/settings/settingsSlice";
 import { setUser, UserState } from "store/user/userSlice";
 import LoadingOrError from "../components/LoadingOrError";
 import { auth, firestoreCollection } from "../lib/firebase";
@@ -29,8 +33,9 @@ export default function App(): ReactElement {
       dispatch(setSettings(data));
     }
     if (user) {
-      loadUserDocument(user);
+      // loadUserDocument(user);
       dispatch(setUser(user.toJSON() as UserState));
+      dispatch(getUserSettings(user));
     }
   }, [user, dispatch]);
 
