@@ -29,19 +29,20 @@ export interface AuthSettings {
 
 export interface Settings {
   auth?: AuthSettings;
+  defaultBucket?: string;
 }
 
 export interface SettingsState {
-  settings: Settings | undefined;
-  loading: boolean;
   error: SerializedError | undefined;
+  loading: boolean;
+  settings: Settings | undefined;
 }
 
 // Define the initial state using that type
 const initialState: SettingsState = {
-  settings: {},
-  loading: false,
   error: undefined,
+  loading: false,
+  settings: {},
 };
 
 export const settingsSlice = createSlice({

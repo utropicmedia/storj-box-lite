@@ -31,7 +31,7 @@ export default function Profile(): ReactElement {
     <>
       <Head title="Profile | Storj Box Lite" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Profile</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900">Profile</h1>
       </div>
       {user && (
         <div className="mt-4 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">

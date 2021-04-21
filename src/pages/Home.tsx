@@ -1,5 +1,12 @@
-import { faDownload, faHome } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFileAlt,
+  faFolder,
+  faTrashAlt,
+} from "@fortawesome/free-regular-svg-icons";
+import { faDownload, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import format from "date-fns/format";
+import filesize from "filesize";
 import { StorjClient } from "lib/storjClient";
 import React, {
   PropsWithChildren,
@@ -20,6 +27,8 @@ interface FolderOrFile {
   key: string;
   type: "file" | "folder";
   originalKey: string | undefined;
+  lastModified: Date;
+  size: number;
 }
 
 interface MainProps {}
@@ -103,6 +112,8 @@ export default function Home(): ReactElement {
                   key: String(cp.Key).replace(params.Prefix, ""),
                   type: "file",
                   originalKey: cp.Key,
+                  lastModified: cp.LastModified,
+                  size: cp.Size,
                 } as FolderOrFile)
             )
           : [];
@@ -129,55 +140,118 @@ export default function Home(): ReactElement {
       <Head title="Home | Storj Box Lite" />
       {selectedBucket && (
         <Main>
-          {params && (
-            <nav className="flex mb-3" aria-label="Breadcrumb">
-              <ol className="flex items-center space-x-4">
-                <li>
-                  <div>
-                    <Link
-                      to="/home"
-                      className="text-gray-400 hover:text-gray-500"
-                    >
-                      <FontAwesomeIcon
-                        className="flex-shrink-0"
-                        aria-hidden="true"
-                        icon={faHome}
-                      />
-                      <span className="sr-only">Home</span>
-                    </Link>
-                  </div>
-                </li>
-                {params.Prefix.split("/")
-                  .filter((v) => !!v)
-                  .map((page) => (
-                    <li key={page}>
-                      <div className="flex items-center">
-                        <svg
-                          className="flex-shrink-0 h-5 w-5 text-gray-300"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+          <div className="flex items-center justify-between mb-3">
+            {params && (
+              <nav className="flex" aria-label="Breadcrumb">
+                <ol className="flex items-center space-x-4">
+                  <li>
+                    <div>
+                      <Link
+                        to="/home"
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <FontAwesomeIcon
+                          className="flex-shrink-0"
                           aria-hidden="true"
-                        >
-                          <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-                        </svg>
-                        <Link
-                          to={`/home/${page}`}
-                          className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
-                          aria-current={page ? "page" : undefined}
-                        >
-                          {page}
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
-              </ol>
-            </nav>
-          )}
-          {!data && <Spinner />}
-          {data && data.length > 0 && (
-            <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-200">
+                          icon={faHome}
+                        />
+                        <span className="sr-only">Home</span>
+                      </Link>
+                    </div>
+                  </li>
+                  {params.Prefix.split("/")
+                    .filter((v) => !!v)
+                    .map((page) => (
+                      <li key={page}>
+                        <div className="flex items-center">
+                          <svg
+                            className="flex-shrink-0 h-5 w-5 text-gray-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            aria-hidden="true"
+                          >
+                            <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+                          </svg>
+                          <Link
+                            to={`/home/${page}`}
+                            className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
+                            aria-current={page ? "page" : undefined}
+                          >
+                            {page}
+                          </Link>
+                        </div>
+                      </li>
+                    ))}
+                </ol>
+              </nav>
+            )}
+            <div>
+              <button
+                type="button"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <span className="-ml-0.5 mr-2">
+                  <FontAwesomeIcon aria-hidden="true" icon={faPlus} />
+                </span>{" "}
+                Upload
+              </button>
+            </div>
+          </div>
+
+          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Updated
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Size
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  />
+                </tr>
+              </thead>
+              {!data && (
+                <tbody>
+                  <tr>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                      colSpan={5}
+                    >
+                      <Spinner />
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+              {data && !data.length && (
+                <tbody>
+                  <tr>
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                      colSpan={5}
+                    >
+                      Nothing to see here!
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+              {data && data.length > 0 && (
                 <tbody>
                   {data.map((f: FolderOrFile, fIdx: number) => (
                     <tr
@@ -186,29 +260,66 @@ export default function Home(): ReactElement {
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {f.type === "folder" && (
-                          <Link
-                            to={`/home/${f.key.substring(0, f.key.length - 1)}`}
-                          >
-                            {f.key}
-                          </Link>
+                          <span className="flex items-center">
+                            <FontAwesomeIcon
+                              className="flex-shrink-0 text-xl mr-4"
+                              aria-hidden="true"
+                              icon={faFolder}
+                            />
+                            <Link
+                              to={`/home/${f.key.substring(
+                                0,
+                                f.key.length - 1
+                              )}`}
+                            >
+                              {f.key}
+                            </Link>
+                          </span>
                         )}
-                        {f.type === "file" && f.key}
+                        {f.type === "file" && (
+                          <span className="flex items-center">
+                            <FontAwesomeIcon
+                              className="flex-shrink-0 text-xl mr-4"
+                              aria-hidden="true"
+                              icon={faFileAlt}
+                            />
+                            {f.key}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                        {f.type === "file" && (
+                          <>{format(f.lastModified, "MMM d, yyyy h:mm bbb")}</>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                        {f.type === "file" && <>{filesize(f.size)}</>}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         {f.type === "file" && (
-                          <IconButton
-                            onClick={() => downloadFile(String(f.originalKey))}
-                            text="Download"
-                            icon={faDownload}
-                          />
+                          <>
+                            <IconButton
+                              onClick={() =>
+                                downloadFile(String(f.originalKey))
+                              }
+                              text="Download"
+                              icon={faDownload}
+                              size="sm"
+                            />
+                            <IconButton
+                              className="ml-1"
+                              text="Delete"
+                              icon={faTrashAlt}
+                            />
+                          </>
                         )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
-          )}
+              )}
+            </table>
+          </div>
         </Main>
       )}
     </>

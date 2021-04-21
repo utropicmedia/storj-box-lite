@@ -27,7 +27,7 @@ export default function BucketSelector(): ReactElement {
       if (
         listBucketsResponse &&
         listBucketsResponse.Buckets &&
-        listBucketsResponse.Buckets.length > 0
+        listBucketsResponse?.Buckets?.length > 0
       ) {
         setBuckets(listBucketsResponse.Buckets);
         setSelected(listBucketsResponse.Buckets[0]);
@@ -38,10 +38,8 @@ export default function BucketSelector(): ReactElement {
     }
     if (
       !loading &&
-      settings &&
-      settings.auth &&
-      settings.auth.accessKeyId &&
-      settings.auth.secretAccessKey
+      settings?.auth?.accessKeyId &&
+      settings?.auth?.secretAccessKey
     ) {
       getBuckets(settings.auth);
     }
