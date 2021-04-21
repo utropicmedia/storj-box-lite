@@ -15,7 +15,7 @@ export default function Settings(): ReactElement {
         <AuthSettings />
       </div>
 
-      <div className="mt-4 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+      <div className="mt-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <BucketSettings />
       </div>
     </>

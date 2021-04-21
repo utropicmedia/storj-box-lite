@@ -52,7 +52,7 @@ export default function AuthSettings(): ReactElement {
           {(props) => (
             <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
               <form onSubmit={props.handleSubmit} noValidate>
-                <div className="shadow sm:rounded-md sm:overflow-hidden">
+                <div className="shadow sm:rounded-md">
                   <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
                     <div>
                       <h3 className="text-lg leading-6 font-medium text-gray-900">
