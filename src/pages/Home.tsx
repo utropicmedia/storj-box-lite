@@ -11,9 +11,11 @@ import { StorjClient } from "lib/storjClient";
 import React, {
   PropsWithChildren,
   ReactElement,
+  useCallback,
   useEffect,
   useState,
 } from "react";
+import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { selectSelectedBucket } from "store/bucket/bucketSlice";
@@ -43,6 +45,7 @@ export default function Home(): ReactElement {
   const selectedBucket = useSelector(selectSelectedBucket);
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
+  const [refresh, setRefresh] = useState<boolean>(true);
   const { settings, loading } = useSelector(selectSettings);
   const [params, setParams] = useState<{
     Bucket: string;
@@ -50,6 +53,10 @@ export default function Home(): ReactElement {
     Prefix: string;
   }>();
   const history = useHistory();
+  const onDrop = useCallback((acceptedFiles) => {
+    console.log("Dropped!!!", acceptedFiles);
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const downloadFile = async (key: string) => {
     if (settings && settings.auth) {
@@ -81,6 +88,20 @@ export default function Home(): ReactElement {
       }
     }
   }, [folderPath, selectedBucket]);
+
+  const onUpload = (onUploadData: any) => {
+    console.log("onUploadData", onUploadData);
+    setRefresh(true);
+  };
+
+  const deleteFile = async (key: string) => {
+    if (settings && selectedBucket) {
+      const storjClient = StorjClient.getInstance(settings.auth);
+      const response = await storjClient?.deleteFile(key, selectedBucket);
+      console.log("deleteFile", response);
+      setRefresh(true);
+    }
+  };
 
   useEffect(() => {
     async function listDirectories(auth: AuthSettings) {
@@ -119,11 +140,13 @@ export default function Home(): ReactElement {
           : [];
       const results: FolderOrFile[] = [...folders, ...files];
       setData(results);
+      setRefresh(false);
     }
     if (!loading) {
       if (!settings?.auth?.accessKeyId || !settings?.auth?.secretAccessKey) {
         history.push("/settings");
       } else if (
+        refresh &&
         params &&
         settings &&
         settings.auth &&
@@ -133,7 +156,7 @@ export default function Home(): ReactElement {
         listDirectories(settings.auth);
       }
     }
-  }, [loading, settings, params, folderPath, history]);
+  }, [loading, settings, params, folderPath, history, refresh]);
 
   return (
     <>
@@ -187,15 +210,17 @@ export default function Home(): ReactElement {
               </nav>
             )}
             <div>
-              <button
-                type="button"
+              {/* <UploadButton onUpload={(data: any) => onUpload(data)} /> */}
+              <div
+                {...getRootProps()}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <span className="-ml-0.5 mr-2">
                   <FontAwesomeIcon aria-hidden="true" icon={faPlus} />
                 </span>{" "}
-                Upload
-              </button>
+                {isDragActive ? <span>Drop</span> : <span>Upload</span>}
+                <input {...getInputProps()} />
+              </div>
             </div>
           </div>
 
@@ -310,6 +335,7 @@ export default function Home(): ReactElement {
                               className="ml-1"
                               text="Delete"
                               icon={faTrashAlt}
+                              onClick={() => deleteFile(String(f.originalKey))}
                             />
                           </>
                         )}

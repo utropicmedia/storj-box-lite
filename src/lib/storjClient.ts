@@ -1,9 +1,12 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   ListBucketsCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
+// import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export interface StorjClientOptions {
@@ -45,18 +48,9 @@ export class StorjClient {
     return this.classInstance;
   }
 
-  listDirectories(params: ListDirectoriesParams = {}) {
-    const Bucket = params.Bucket;
-    const Delimiter =
-      params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
-    const Prefix = params.Prefix || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
-    return this.client.send(
-      new ListObjectsV2Command({
-        Bucket,
-        Delimiter,
-        Prefix,
-      })
-    );
+  deleteFile(originalKey: string, Bucket: string) {
+    const Key = originalKey.replace(/^\//g, "");
+    return this.client.send(new DeleteObjectCommand({ Key, Bucket }));
   }
 
   getObjectUrl(Key: string, Bucket: string) {
@@ -72,7 +66,37 @@ export class StorjClient {
     );
   }
 
+  listDirectories(params: ListDirectoriesParams = {}) {
+    const Bucket = params.Bucket;
+    const Delimiter =
+      params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
+    const Prefix = params.Prefix || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
+    return this.client.send(
+      new ListObjectsV2Command({
+        Bucket,
+        Delimiter,
+        Prefix,
+      })
+    );
+  }
+
   listBuckets() {
     return this.client.send(new ListBucketsCommand({}));
+  }
+
+  uploadFile(Body: any, Key: string, Bucket: string) {
+    const params = {
+      // ACL: 'public-read',
+      Body,
+      Bucket,
+      Key,
+    };
+    // return new Upload({
+    //   client: this.client,
+    //   params,
+    // });
+
+    const cmd = new PutObjectCommand(params);
+    return this.client.send(cmd);
   }
 }

@@ -5,23 +5,25 @@ import { Listbox, Transition } from "@headlessui/react";
 import { StorjClient } from "lib/storjClient";
 import React, { Fragment, ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedBucket } from "store/bucket/bucketSlice";
-import { AuthSettings, selectSettings } from "store/settings/settingsSlice";
+import { setBucketState } from "store/bucket/bucketSlice";
+import { selectSettings, Settings } from "store/settings/settingsSlice";
 import Spinner from "./Spinner";
 
 export default function BucketSelector(): ReactElement {
-  const [selected, setSelected] = useState<Bucket>();
+  const [selected, setSelected] = useState<string>();
   const [buckets, setBuckets] = useState<Bucket[]>([]);
   const { settings, loading } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
-  const selectSelectedBucket = (bucket: Bucket) => {
-    setSelected(bucket);
-    dispatch(setSelectedBucket(String(bucket.Name)));
+  const selectSelectedBucket = (bucketName: string) => {
+    setSelected(bucketName);
+    dispatch(
+      setBucketState({ currentFolderPath: "/", selectedBucket: bucketName })
+    );
   };
 
   useEffect(() => {
-    async function getBuckets(auth: AuthSettings) {
+    async function getBuckets({ auth, defaultBucket }: Settings) {
       const storjClient = StorjClient.getInstance(auth);
       const listBucketsResponse = await storjClient?.listBuckets();
       if (
@@ -30,10 +32,15 @@ export default function BucketSelector(): ReactElement {
         listBucketsResponse?.Buckets?.length > 0
       ) {
         setBuckets(listBucketsResponse.Buckets);
-        setSelected(listBucketsResponse.Buckets[0]);
-        dispatch(
-          setSelectedBucket(String(listBucketsResponse.Buckets[0].Name))
-        );
+        const selectedBucket = defaultBucket
+          ? defaultBucket
+          : listBucketsResponse && listBucketsResponse.Buckets.length > 0
+          ? listBucketsResponse.Buckets[0].Name
+          : null;
+        if (selectedBucket) {
+          setSelected(selectedBucket);
+          dispatch(setBucketState({ currentFolderPath: "/", selectedBucket }));
+        }
       }
     }
     if (
@@ -41,7 +48,7 @@ export default function BucketSelector(): ReactElement {
       settings?.auth?.accessKeyId &&
       settings?.auth?.secretAccessKey
     ) {
-      getBuckets(settings.auth);
+      getBuckets(settings);
     }
   }, [loading, settings, dispatch]);
 
@@ -56,7 +63,7 @@ export default function BucketSelector(): ReactElement {
                 {buckets.length === 0 && <Spinner />}
                 {buckets.length > 0 && selected && (
                   <>
-                    <span className="block truncate">{selected.Name}</span>
+                    <span className="block truncate">{selected}</span>
                     <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                       <FontAwesomeIcon
                         className="w-5 h-5 text-gray-400"
@@ -90,7 +97,7 @@ export default function BucketSelector(): ReactElement {
                           }
                       cursor-default select-none relative py-2 pl-10 pr-4`
                         }
-                        value={bucket}
+                        value={bucket.Name}
                       >
                         {({ selected, active }) => (
                           <>
