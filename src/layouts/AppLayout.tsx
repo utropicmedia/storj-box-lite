@@ -278,7 +278,7 @@ export default function AppLayout({
         </div>
 
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6">{children}</div>
+          <div className="px-4 py-6">{children}</div>
         </main>
       </div>
     </div>

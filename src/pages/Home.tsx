@@ -8,17 +8,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import format from "date-fns/format";
 import filesize from "filesize";
 import { StorjClient } from "lib/storjClient";
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
-import { selectSelectedBucket } from "store/bucket/bucketSlice";
+import { selectBucket } from "store/bucket/bucketSlice";
 import { AuthSettings, selectSettings } from "store/settings/settingsSlice";
 import Head from "../components/Head";
 import IconButton from "../components/IconButton";
@@ -33,16 +27,8 @@ interface FolderOrFile {
   size: number;
 }
 
-interface MainProps {}
-
-function Main({ children }: PropsWithChildren<MainProps>): ReactElement {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">{children}</div>
-  );
-}
-
 export default function Home(): ReactElement {
-  const selectedBucket = useSelector(selectSelectedBucket);
+  const selectedBucket = useSelector(selectBucket);
   const { folderPath } = useParams<{ folderPath: string }>();
   const [data, setData] = useState<any>();
   const [refresh, setRefresh] = useState<boolean>(true);
@@ -162,7 +148,7 @@ export default function Home(): ReactElement {
     <>
       <Head title="Home | Storj Box Lite" />
       {selectedBucket && (
-        <Main>
+        <div>
           <div className="flex items-center justify-between mb-3">
             {params && (
               <nav className="flex" aria-label="Breadcrumb">
@@ -346,7 +332,7 @@ export default function Home(): ReactElement {
               )}
             </table>
           </div>
-        </Main>
+        </div>
       )}
     </>
   );

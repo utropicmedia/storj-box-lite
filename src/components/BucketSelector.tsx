@@ -5,20 +5,30 @@ import { Listbox, Transition } from "@headlessui/react";
 import { StorjClient } from "lib/storjClient";
 import React, { Fragment, ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setBucketState } from "store/bucket/bucketSlice";
+import { selectBucketState, setBucketState } from "store/bucket/bucketSlice";
 import { selectSettings, Settings } from "store/settings/settingsSlice";
 import Spinner from "./Spinner";
 
-export default function BucketSelector(): ReactElement {
-  const [selected, setSelected] = useState<string>();
+interface BucketSelectorProps {
+  onChange?: (bucket: string | null | undefined) => unknown;
+}
+
+export default function BucketSelector({
+  onChange,
+}: BucketSelectorProps): ReactElement {
+  const [selected, setSelected] = useState<string | null | undefined>();
   const [buckets, setBuckets] = useState<Bucket[]>([]);
+  const bucketState = useSelector(selectBucketState);
   const { settings, loading } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
-  const selectSelectedBucket = (bucketName: string) => {
-    setSelected(bucketName);
+  const selectSelectedBucket = (bucket: string | null | undefined) => {
+    setSelected(bucket);
     dispatch(
-      setBucketState({ currentFolderPath: "/", selectedBucket: bucketName })
+      setBucketState({
+        ...bucketState,
+        bucket,
+      })
     );
   };
 
@@ -32,15 +42,12 @@ export default function BucketSelector(): ReactElement {
         listBucketsResponse?.Buckets?.length > 0
       ) {
         setBuckets(listBucketsResponse.Buckets);
-        const selectedBucket = defaultBucket
+        const bucket = defaultBucket
           ? defaultBucket
           : listBucketsResponse && listBucketsResponse.Buckets.length > 0
           ? listBucketsResponse.Buckets[0].Name
           : null;
-        if (selectedBucket) {
-          setSelected(selectedBucket);
-          dispatch(setBucketState({ currentFolderPath: "/", selectedBucket }));
-        }
+        selectSelectedBucket(bucket);
       }
     }
     if (
@@ -50,7 +57,7 @@ export default function BucketSelector(): ReactElement {
     ) {
       getBuckets(settings);
     }
-  }, [loading, settings, dispatch]);
+  }, [loading, settings, dispatch, onChange]);
 
   return (
     <Listbox value={selected} onChange={selectSelectedBucket}>

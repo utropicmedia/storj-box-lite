@@ -30,11 +30,11 @@ export default function Profile(): ReactElement {
   return (
     <>
       <Head title="Profile | Storj Box Lite" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+      <div className="mx-auto px-4 sm:px-6 md:px-8">
         <h1 className="text-3xl font-extrabold text-gray-900">Profile</h1>
       </div>
       {user && (
-        <div className="mt-4 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="mt-4 mx-auto px-4 sm:px-6 md:px-8">
           <Formik
             initialValues={initalFormData}
             enableReinitialize={true}
