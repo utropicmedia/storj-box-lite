@@ -33,7 +33,7 @@ export default function BucketSelector({
   };
 
   useEffect(() => {
-    async function getBuckets({ auth, defaultBucket }: Settings) {
+    async function getBuckets({ auth }: Settings) {
       const storjClient = StorjClient.getInstance(auth);
       const listBucketsResponse = await storjClient?.listBuckets();
       if (
@@ -42,11 +42,10 @@ export default function BucketSelector({
         listBucketsResponse?.Buckets?.length > 0
       ) {
         setBuckets(listBucketsResponse.Buckets);
-        const bucket = defaultBucket
-          ? defaultBucket
-          : listBucketsResponse && listBucketsResponse.Buckets.length > 0
-          ? listBucketsResponse.Buckets[0].Name
-          : null;
+        const bucket =
+          listBucketsResponse && listBucketsResponse.Buckets.length > 0
+            ? listBucketsResponse.Buckets[0].Name
+            : null;
         selectSelectedBucket(bucket);
       }
     }

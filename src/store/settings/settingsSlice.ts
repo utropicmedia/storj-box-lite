@@ -18,9 +18,22 @@ export const getSettings = createAsyncThunk<
     return;
   }
   const userDocument = await firestoreCollection.doc(user.uid).get();
-  const data = userDocument.data();
+  const data = userDocument.data() as Settings;
   return data;
 });
+
+export interface S3Credentials {
+  accessKeyId: string;
+  secretAccessKey: string;
+}
+
+export type CredentialProfileType = "storjS3";
+
+export interface CredentialProfile {
+  credentials: S3Credentials;
+  nickname: string;
+  type: CredentialProfileType;
+}
 
 export interface AuthSettings {
   accessKeyId: string;
@@ -28,8 +41,8 @@ export interface AuthSettings {
 }
 
 export interface Settings {
-  auth?: AuthSettings;
-  defaultBucket?: string;
+  auth: AuthSettings | undefined;
+  credentialProfiles: CredentialProfile[] | undefined;
 }
 
 export interface SettingsState {
@@ -42,7 +55,10 @@ export interface SettingsState {
 const initialState: SettingsState = {
   error: undefined,
   loading: false,
-  settings: {},
+  settings: {
+    auth: undefined,
+    credentialProfiles: undefined,
+  },
 };
 
 export const settingsSlice = createSlice({

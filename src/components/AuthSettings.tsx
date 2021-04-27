@@ -45,6 +45,7 @@ export default function AuthSettings(): ReactElement {
               setSettings({
                 ...settings,
                 auth: { accessKeyId, secretAccessKey },
+                credentialProfiles: undefined,
               })
             );
           }}
