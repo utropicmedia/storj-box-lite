@@ -44,7 +44,12 @@ export default function UploadButton({ onUpload }: any) {
         console.log("storjClient", storjClient);
         if (storjClient) {
           console.log("file", f);
-          const response = await storjClient.uploadFile(f, f.name, "bucket1");
+          const response = await storjClient.uploadFile(
+            f,
+            f.name,
+            "bucket1",
+            f.type
+          );
           console.log("response", response);
           if (onUpload) {
             console.log("call onUpload");
