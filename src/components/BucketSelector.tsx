@@ -5,7 +5,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { StorjClient } from "lib/storjClient";
 import React, { Fragment, ReactElement, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectBucketState, setBucketState } from "store/bucket/bucketSlice";
+// import { selectBucketState, setBucketState } from "store/bucket/bucketSlice";
 import { selectSettings, Settings } from "store/settings/settingsSlice";
 import Spinner from "./Spinner";
 
@@ -18,18 +18,18 @@ export default function BucketSelector({
 }: BucketSelectorProps): ReactElement {
   const [selected, setSelected] = useState<string | null | undefined>();
   const [buckets, setBuckets] = useState<Bucket[]>([]);
-  const bucketState = useSelector(selectBucketState);
+  // const bucketState = useSelector(selectBucketState);
   const { settings, loading } = useSelector(selectSettings);
   const dispatch = useDispatch();
 
   const selectSelectedBucket = (bucket: string | null | undefined) => {
     setSelected(bucket);
-    dispatch(
-      setBucketState({
-        ...bucketState,
-        bucket,
-      })
-    );
+    // dispatch(
+    //   setBucketState({
+    //     ...bucketState,
+    //     bucket,
+    //   })
+    // );
   };
 
   useEffect(() => {

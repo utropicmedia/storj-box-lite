@@ -17,7 +17,7 @@ export default function NoMatch(): ReactElement {
             We didn&apos;t find a match for <code>{location.pathname}</code>
           </div>
           <div>
-            <Link className="text-brand hover:text-brand-lighter" to="/home">
+            <Link className="text-brand hover:text-brand-lighter" to="/bucket">
               Head back home...
             </Link>
           </div>

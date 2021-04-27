@@ -77,4 +77,6 @@ export const settingsSlice = createSlice({
 
 export const { resetSettings, setSettings } = settingsSlice.actions;
 export const selectSettings = (state: RootState) => state.settings;
+export const selectAuthSettings = (state: RootState) =>
+  state.settings.settings?.auth;
 export default settingsSlice.reducer;

@@ -4,9 +4,9 @@ import {
   ListBucketsCommand,
   ListObjectsV2Command,
   PutObjectCommand,
+  PutObjectRequest,
   S3Client,
 } from "@aws-sdk/client-s3";
-// import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export interface StorjClientOptions {
@@ -54,23 +54,18 @@ export class StorjClient {
   }
 
   getObjectUrl(Key: string, Bucket: string) {
-    return getSignedUrl(
-      this.client,
-      new GetObjectCommand({
-        Bucket,
-        Key,
-      }),
-      {
-        expiresIn: 3600,
-      }
-    );
+    return getSignedUrl(this.client, new GetObjectCommand({ Bucket, Key }), {
+      expiresIn: 3600,
+    });
   }
 
   listDirectories(params: ListDirectoriesParams = {}) {
     const Bucket = params.Bucket;
     const Delimiter =
       params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
-    const Prefix = params.Prefix || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
+    const Prefix = params.Prefix
+      ? `${params.Prefix}/`
+      : DEFAULT_LIST_DIRECTORIES_PARAMS.Prefix;
     return this.client.send(
       new ListObjectsV2Command({
         Bucket,
@@ -84,18 +79,15 @@ export class StorjClient {
     return this.client.send(new ListBucketsCommand({}));
   }
 
-  uploadFile(Body: any, Key: string, Bucket: string) {
-    const params = {
-      // ACL: 'public-read',
+  uploadFile(Body: any, Key: string, Bucket: string, ContentType: string) {
+    const params: PutObjectRequest = {
+      ACL: "public-read",
       Body,
       Bucket,
       Key,
+      ContentType,
     };
-    // return new Upload({
-    //   client: this.client,
-    //   params,
-    // });
-
+    console.log("params", params);
     const cmd = new PutObjectCommand(params);
     return this.client.send(cmd);
   }

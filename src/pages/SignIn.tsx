@@ -17,7 +17,7 @@ export default function SignIn(): ReactElement {
 
   useEffect(() => {
     if (user) {
-      history.push("/home");
+      history.push("/bucket");
     }
   }, [user, history]);
 

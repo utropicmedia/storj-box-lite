@@ -26,7 +26,7 @@ export default function AuthSettings(): ReactElement {
   return (
     <>
       {loading && <Spinner />}
-      {!loading && settings && (
+      {!loading && (
         <Formik
           initialValues={initalFormData}
           enableReinitialize={true}
@@ -73,7 +73,7 @@ export default function AuthSettings(): ReactElement {
                             {({ field }: FieldProps) => (
                               <div>
                                 <input
-                                  type="text"
+                                  type="password"
                                   id="accessKeyId"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                   {...field}
@@ -105,7 +105,7 @@ export default function AuthSettings(): ReactElement {
                             {({ field }: FieldProps) => (
                               <div>
                                 <input
-                                  type="text"
+                                  type="password"
                                   id="secretAccessKey"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                   {...field}

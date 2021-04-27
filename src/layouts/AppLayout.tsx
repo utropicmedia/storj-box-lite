@@ -12,13 +12,13 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 import AppLogo from "../components/AppLogo";
-import BucketSelector from "../components/BucketSelector";
+// import BucketSelector from "../components/BucketSelector";
 import UserAvatar from "../components/UserAvatar";
 
 const navigation = [
   {
-    name: "Home",
-    href: "/home",
+    name: "Buckets",
+    href: "/bucket",
     icon: faHome,
   },
   {
@@ -103,7 +103,7 @@ export default function AppLayout({
               </Transition.Child>
               <div className="flex-shrink-0 flex items-center px-4">
                 <Link
-                  to="/home"
+                  to="/bucket"
                   className="h-8 w-auto"
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -149,7 +149,7 @@ export default function AppLayout({
           <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <Link
-                to="/home"
+                to="/bucket"
                 className="h-8 w-auto"
                 onClick={() => setSidebarOpen(false)}
               >
@@ -199,11 +199,11 @@ export default function AppLayout({
           </button>
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex">
-              <div className="w-full flex items-center md:ml-0">
+              {/* <div className="w-full flex items-center md:ml-0">
                 {location &&
                   location.pathname &&
-                  location.pathname.startsWith("/home") && <BucketSelector />}
-              </div>
+                  location.pathname.startsWith("/bucket") && <BucketSelector />}
+              </div> */}
               {/* <form className="w-full flex md:ml-0" action="#" method="GET">
                 <label htmlFor="search_field" className="sr-only">
                   Search

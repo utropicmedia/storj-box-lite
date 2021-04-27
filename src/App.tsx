@@ -2,21 +2,20 @@ import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import { getSettings } from "store/settings/settingsSlice";
-import { setUser, UserState } from "store/user/userSlice";
-import LoadingOrError from "../components/LoadingOrError";
-import { auth } from "../lib/firebase";
+import LoadingOrError from "./components/LoadingOrError";
+import { auth } from "./lib/firebase";
+import { getSettings } from "./store/settings/settingsSlice";
+import { setUser, UserState } from "./store/user/userSlice";
 
-const FullPageLayout = lazy(() => import("../layouts/FullPageLayout"));
-const AppLayout = lazy(() => import("../layouts/AppLayout"));
-const PrivateRoute = lazy(() => import("../lib/PrivateRoute"));
-const Home = lazy(() => import("./Home"));
-const NewHome = lazy(() => import("./NewHome"));
-const NoMatch = lazy(() => import("./NoMatch"));
-const Profile = lazy(() => import("./Profile"));
-const Settings = lazy(() => import("./Settings"));
-const SignIn = lazy(() => import("./SignIn"));
-const SignOut = lazy(() => import("./SignOut"));
+const FullPageLayout = lazy(() => import("./layouts/FullPageLayout"));
+const AppLayout = lazy(() => import("./layouts/AppLayout"));
+const PrivateRoute = lazy(() => import("./lib/PrivateRoute"));
+const BucketPage = lazy(() => import("./pages/BucketPage"));
+const NoMatch = lazy(() => import("./pages/NoMatch"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
+const SignIn = lazy(() => import("./pages/SignIn"));
+const SignOut = lazy(() => import("./pages/SignOut"));
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
@@ -39,18 +38,18 @@ export default function App(): ReactElement {
               <Route exact path="/">
                 <Redirect
                   to={{
-                    pathname: user ? "/home" : "/sign-in",
+                    pathname: user ? "/bucket" : "/sign-in",
                   }}
                 />
               </Route>
 
-              <PrivateRoute path="/home">
+              <PrivateRoute path="/bucket">
                 <AppLayout>
-                  <Route exact path="/home">
-                    <NewHome />
+                  <Route exact path="/bucket">
+                    <BucketPage />
                   </Route>
-                  <Route path="/home/:folderPath">
-                    <NewHome />
+                  <Route path="/bucket/:bucketName">
+                    <BucketPage />
                   </Route>
                 </AppLayout>
               </PrivateRoute>
