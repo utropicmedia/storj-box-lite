@@ -5,38 +5,28 @@ import {
   faIdCard,
   faSignOutAlt,
   faTimes,
+  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { auth } from "lib/firebase";
-import React, { Fragment, PropsWithChildren, useState } from "react";
+import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-// import AppLogo from "../components/AppLogo";
+import { selectSettings } from "store/settings/settingsSlice";
 import { Logo } from "../components/logo/index";
 import UserAvatar from "../components/UserAvatar";
 
-const navigation = [
-  {
-    name: "Storj DCS",
-    href: "/bucket",
-    icon: faCloud,
-  },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: faCogs,
-  },
-];
-
-const userNavigation = [
-  { name: "Your Profile", href: "/profile", icon: faIdCard },
-  { name: "Sign out", href: "/sign-out", icon: faSignOutAlt },
-];
-
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
+}
+
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon?: IconDefinition;
 }
 
 interface AppLayoutProps {}
@@ -44,9 +34,44 @@ interface AppLayoutProps {}
 export default function AppLayout({
   children,
 }: PropsWithChildren<AppLayoutProps>) {
+  const { settings, loading } = useSelector(selectSettings);
   const [user] = useAuthState(auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [navigation, setNavigation] = useState<NavigationItem[]>();
+  const [userNavigation, setUserNavigation] = useState<NavigationItem[]>();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!loading) {
+      const navigationItems: NavigationItem[] = [
+        {
+          name: "Storj DCS",
+          href: "/bucket",
+          icon: faCloud,
+        },
+        ...(settings &&
+        settings.credentialProfiles &&
+        settings.credentialProfiles.length > 0
+          ? settings.credentialProfiles.map((cp) => ({
+              name: cp.nickname,
+              href: `/storj-dcs/${cp.id}`,
+              icon: faCloud,
+            }))
+          : []),
+        {
+          name: "Settings",
+          href: "/settings",
+          icon: faCogs,
+        },
+      ];
+      setNavigation(navigationItems);
+      const userNavigationItems: NavigationItem[] = [
+        { name: "Your Profile", href: "/profile", icon: faIdCard },
+        { name: "Sign out", href: "/sign-out", icon: faSignOutAlt },
+      ];
+      setUserNavigation(userNavigationItems);
+    }
+  }, [loading, settings]);
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
@@ -114,26 +139,29 @@ export default function AppLayout({
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
                 <nav className="px-2 space-y-1">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={classNames(
-                        location.pathname === item.href
-                          ? "bg-secondary-dark text-white"
-                          : "text-gray-100 hover:bg-secondary-lighter",
-                        "group flex items-center px-2 py-2 text-base font-medium rounded-md"
-                      )}
-                      onClick={() => setSidebarOpen(false)}
-                    >
-                      <FontAwesomeIcon
-                        icon={item.icon}
-                        className="mr-4 h-6 w-6 text-gray-300"
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  ))}
+                  {navigation &&
+                    navigation.map((item, itemIndex) => (
+                      <Link
+                        key={`n-${itemIndex}-${item.name}`}
+                        to={item.href}
+                        className={classNames(
+                          location.pathname === item.href
+                            ? "bg-secondary-dark text-white"
+                            : "text-gray-100 hover:bg-secondary-lighter",
+                          "group flex items-center px-2 py-2 text-base font-medium rounded-md"
+                        )}
+                        onClick={() => setSidebarOpen(false)}
+                      >
+                        {item.icon && (
+                          <FontAwesomeIcon
+                            icon={item.icon}
+                            className="mr-4 h-6 w-6 text-gray-300"
+                            aria-hidden="true"
+                          />
+                        )}
+                        {item.name}
+                      </Link>
+                    ))}
                 </nav>
               </div>
             </div>
@@ -160,26 +188,29 @@ export default function AppLayout({
             </div>
             <div className="mt-5 flex-1 flex flex-col">
               <nav className="flex-1 px-2 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={classNames(
-                      location.pathname === item.href
-                        ? "bg-secondary-dark text-white"
-                        : "text-gray-100 hover:bg-secondary-lighter",
-                      "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                    )}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <FontAwesomeIcon
-                      icon={item.icon}
-                      className="mr-3 h-6 w-6 text-gray-300"
-                      aria-hidden="true"
-                    />
-                    {item.name}
-                  </Link>
-                ))}
+                {navigation &&
+                  navigation.map((item, itemIndex) => (
+                    <Link
+                      key={`n-${itemIndex}-${item.name}`}
+                      to={item.href}
+                      className={classNames(
+                        location.pathname === item.href
+                          ? "bg-secondary-dark text-white"
+                          : "text-gray-100 hover:bg-secondary-lighter",
+                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                      )}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      {item.icon && (
+                        <FontAwesomeIcon
+                          icon={item.icon}
+                          className="mr-3 h-6 w-6 text-gray-300"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {item.name}
+                    </Link>
+                  ))}
               </nav>
             </div>
           </div>
@@ -254,26 +285,29 @@ export default function AppLayout({
                           static
                           className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                         >
-                          {userNavigation.map((item) => (
-                            <Menu.Item key={item.name}>
-                              {({ active }) => (
-                                <Link
-                                  to={item.href}
-                                  className={classNames(
-                                    active ? "bg-gray-100" : "",
-                                    "block px-4 py-2 text-sm text-gray-700"
-                                  )}
-                                >
-                                  <FontAwesomeIcon
-                                    icon={item.icon}
-                                    className="mr-4 text-gray-500"
-                                    aria-hidden="true"
-                                  />
-                                  {item.name}
-                                </Link>
-                              )}
-                            </Menu.Item>
-                          ))}
+                          {userNavigation &&
+                            userNavigation.map((item, itemIndex) => (
+                              <Menu.Item key={`un-${itemIndex}-${item.name}`}>
+                                {({ active }) => (
+                                  <Link
+                                    to={item.href}
+                                    className={classNames(
+                                      active ? "bg-gray-100" : "",
+                                      "block px-4 py-2 text-sm text-gray-700"
+                                    )}
+                                  >
+                                    {item.icon && (
+                                      <FontAwesomeIcon
+                                        icon={item.icon}
+                                        className="mr-4 text-gray-500"
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                    {item.name}
+                                  </Link>
+                                )}
+                              </Menu.Item>
+                            ))}
                         </Menu.Items>
                       </Transition>
                     </>

@@ -108,7 +108,7 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
         settings &&
         credentialProfiles.map((profile, profileIndex) => (
           <li
-            key={profile.nickname}
+            key={`cp-${profileIndex}-${profile.nickname}`}
             className="col-span-1 bg-white rounded-lg shadow border border-gray-200 divide-y divide-gray-200"
           >
             <div className="w-full flex items-center justify-between p-6 space-x-6">

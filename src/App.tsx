@@ -53,6 +53,17 @@ export default function App(): ReactElement {
                   </Route>
                 </AppLayout>
               </PrivateRoute>
+              <PrivateRoute path="/storj-dcs">
+                <AppLayout>
+                  <Route exact path="/storj-dcs">
+                    storj-dcs
+                  </Route>
+                  <Route path="/storj-dcs/:profile">storj-dcs profile</Route>
+                  <Route path="/storj-dcs/:profile/:bucketName">
+                    storj-dcs profile bucket
+                  </Route>
+                </AppLayout>
+              </PrivateRoute>
               <PrivateRoute exact path="/profile">
                 <AppLayout>
                   <Profile />

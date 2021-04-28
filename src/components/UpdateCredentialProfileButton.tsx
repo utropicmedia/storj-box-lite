@@ -5,6 +5,7 @@ import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import React, { Fragment, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
 import { auth, firestoreCollection } from "../lib/firebase";
 import {
@@ -19,17 +20,32 @@ export interface UpdateCredentialProfileButtonProps {
   onSave?: () => unknown;
 }
 
+const DEFAULT_INITIAL_VALUES: CredentialProfile = {
+  nickname: "",
+  id: uuidv4(),
+  type: "storjDcs",
+  credentials: { accessKeyId: "", secretAccessKey: "" },
+};
+
 export const UpdateCredentialProfileButton = ({
   onSave,
 }: UpdateCredentialProfileButtonProps) => {
   const [user] = useAuthState(auth);
   const { settings, loading } = useSelector(selectSettings);
   const [open, setOpen] = useState(false);
+  const [initialValues, setInitalValues] = useState<CredentialProfile>(
+    DEFAULT_INITIAL_VALUES
+  );
   const dispatch = useDispatch();
 
   const handleClick = () => {
     setOpen(true);
   };
+
+  // TODO: Set initial values when updating
+  // useEffect(() => {
+  //   setInitalValues(DEFAULT_INITIAL_VALUES);
+  // }, []);
 
   return (
     <>
@@ -84,13 +100,7 @@ export const UpdateCredentialProfileButton = ({
                 >
                   <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                     <Formik
-                      initialValues={
-                        {
-                          nickname: "",
-                          type: "storjDcs",
-                          credentials: { accessKeyId: "", secretAccessKey: "" },
-                        } as CredentialProfile
-                      }
+                      initialValues={initialValues}
                       enableReinitialize={true}
                       validationSchema={Yup.object({
                         nickname: Yup.string().required("Nickname is required"),
@@ -116,6 +126,16 @@ export const UpdateCredentialProfileButton = ({
                             ? settings.credentialProfiles
                             : []),
                           values,
+                          // {
+                          //   ...values,
+                          //   // id:
+                          //   //   settings &&
+                          //   //   settings.credentialProfiles &&
+                          //   //   settings.credentialProfiles.length > 0
+                          //   //     ? settings.credentialProfiles.length
+                          //   //     : 0,
+                          //   id: uuidv4(),
+                          // },
                         ];
                         await firestoreCollection
                           .doc(user?.uid)

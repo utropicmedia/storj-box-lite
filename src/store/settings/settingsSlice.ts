@@ -31,6 +31,7 @@ export type CredentialProfileType = "storjDcs";
 
 export interface CredentialProfile {
   credentials: S3Credentials;
+  id: string;
   nickname: string;
   type: CredentialProfileType;
 }
@@ -95,4 +96,6 @@ export const { resetSettings, setSettings } = settingsSlice.actions;
 export const selectSettings = (state: RootState) => state.settings;
 export const selectAuthSettings = (state: RootState) =>
   state.settings.settings?.auth;
+export const selectCredentialProfiles = (state: RootState) =>
+  state.settings.settings?.credentialProfiles;
 export default settingsSlice.reducer;
