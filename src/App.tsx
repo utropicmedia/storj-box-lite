@@ -1,21 +1,32 @@
-import React, { lazy, ReactElement, Suspense, useEffect } from "react";
+import React, { ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import LoadingOrError from "./components/LoadingOrError";
+import AppLayout from "./layouts/AppLayout";
+import FullPageLayout from "./layouts/FullPageLayout";
 import { auth } from "./lib/firebase";
+import PrivateRoute from "./lib/PrivateRoute";
+import BucketPage from "./pages/BucketPage";
+import NoMatch from "./pages/NoMatch";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import SignIn from "./pages/SignIn";
+import SignOut from "./pages/SignOut";
+import StorjDcs from "./pages/StorjDcs";
 import { getSettings } from "./store/settings/settingsSlice";
 import { setUser, UserState } from "./store/user/userSlice";
 
-const FullPageLayout = lazy(() => import("./layouts/FullPageLayout"));
-const AppLayout = lazy(() => import("./layouts/AppLayout"));
-const PrivateRoute = lazy(() => import("./lib/PrivateRoute"));
-const BucketPage = lazy(() => import("./pages/BucketPage"));
-const NoMatch = lazy(() => import("./pages/NoMatch"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Settings = lazy(() => import("./pages/Settings"));
-const SignIn = lazy(() => import("./pages/SignIn"));
-const SignOut = lazy(() => import("./pages/SignOut"));
+// const FullPageLayout = lazy(() => import("./layouts/FullPageLayout"));
+// const AppLayout = lazy(() => import("./layouts/AppLayout"));
+// const PrivateRoute = lazy(() => import("./lib/PrivateRoute"));
+// const BucketPage = lazy(() => import("./pages/BucketPage"));
+// const NoMatch = lazy(() => import("./pages/NoMatch"));
+// const Profile = lazy(() => import("./pages/Profile"));
+// const Settings = lazy(() => import("./pages/Settings"));
+// const SignIn = lazy(() => import("./pages/SignIn"));
+// const SignOut = lazy(() => import("./pages/SignOut"));
+// const StorjDcs = lazy(() => import("./pages/StorjDcs"));
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
@@ -56,11 +67,13 @@ export default function App(): ReactElement {
               <PrivateRoute path="/storj-dcs">
                 <AppLayout>
                   <Route exact path="/storj-dcs">
-                    storj-dcs
+                    <StorjDcs />
                   </Route>
-                  <Route path="/storj-dcs/:profile">storj-dcs profile</Route>
+                  <Route path="/storj-dcs/:profile">
+                    <StorjDcs />
+                  </Route>
                   <Route path="/storj-dcs/:profile/:bucketName">
-                    storj-dcs profile bucket
+                    <StorjDcs />
                   </Route>
                 </AppLayout>
               </PrivateRoute>

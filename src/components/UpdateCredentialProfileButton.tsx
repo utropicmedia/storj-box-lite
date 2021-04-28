@@ -22,7 +22,7 @@ export interface UpdateCredentialProfileButtonProps {
 
 const DEFAULT_INITIAL_VALUES: CredentialProfile = {
   nickname: "",
-  id: uuidv4(),
+  id: "",
   type: "storjDcs",
   credentials: { accessKeyId: "", secretAccessKey: "" },
 };
@@ -126,16 +126,16 @@ export const UpdateCredentialProfileButton = ({
                             ? settings.credentialProfiles
                             : []),
                           values,
-                          // {
-                          //   ...values,
-                          //   // id:
-                          //   //   settings &&
-                          //   //   settings.credentialProfiles &&
-                          //   //   settings.credentialProfiles.length > 0
-                          //   //     ? settings.credentialProfiles.length
-                          //   //     : 0,
-                          //   id: uuidv4(),
-                          // },
+                          {
+                            ...values,
+                            // id:
+                            //   settings &&
+                            //   settings.credentialProfiles &&
+                            //   settings.credentialProfiles.length > 0
+                            //     ? settings.credentialProfiles.length
+                            //     : 0,
+                            id: uuidv4(),
+                          },
                         ];
                         await firestoreCollection
                           .doc(user?.uid)

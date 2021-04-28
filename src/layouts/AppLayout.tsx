@@ -1,23 +1,38 @@
 import {
-  faBars,
   faCloud,
   faCogs,
   faIdCard,
+  faPlus,
   faSignOutAlt,
-  faTimes,
+  faUserCog,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
+import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
+import { SelectorIcon } from "@heroicons/react/solid";
+import UserAvatar from "components/UserAvatar";
 import { auth } from "lib/firebase";
 import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { selectSettings } from "store/settings/settingsSlice";
 import { Logo } from "../components/logo/index";
-import UserAvatar from "../components/UserAvatar";
+
+const navigation = [{ name: "Storj DCS", href: "/bucket", icon: faCloud }];
+
+const userMenu = [
+  {
+    items: [
+      { name: "Your Profile", href: "/profile", icon: faIdCard },
+      { name: "Settings", href: "/settings", icon: faCogs },
+    ],
+  },
+  {
+    items: [{ name: "Sign out", href: "/sign-out", icon: faSignOutAlt }],
+  },
+];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -37,49 +52,36 @@ export default function AppLayout({
   const { settings, loading } = useSelector(selectSettings);
   const [user] = useAuthState(auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [navigation, setNavigation] = useState<NavigationItem[]>();
-  const [userNavigation, setUserNavigation] = useState<NavigationItem[]>();
+  const [profiles, setProfiles] = useState<NavigationItem[]>();
   const location = useLocation();
 
   useEffect(() => {
     if (!loading) {
-      const navigationItems: NavigationItem[] = [
-        {
-          name: "Storj DCS",
-          href: "/bucket",
-          icon: faCloud,
-        },
+      const profileItems = [
         ...(settings &&
         settings.credentialProfiles &&
         settings.credentialProfiles.length > 0
           ? settings.credentialProfiles.map((cp) => ({
               name: cp.nickname,
-              href: `/storj-dcs/${cp.id}`,
-              icon: faCloud,
+              href: `/${cp.type === "storjDcs" ? "storj-dcs" : "storj-dcs"}/${
+                cp.id
+              }`,
+              icon: cp.type === "storjDcs" ? faCloud : faUserCog,
             }))
           : []),
-        {
-          name: "Settings",
-          href: "/settings",
-          icon: faCogs,
-        },
+        { name: "Add Profile", href: "/settings", icon: faPlus },
       ];
-      setNavigation(navigationItems);
-      const userNavigationItems: NavigationItem[] = [
-        { name: "Your Profile", href: "/profile", icon: faIdCard },
-        { name: "Sign out", href: "/sign-out", icon: faSignOutAlt },
-      ];
-      setUserNavigation(userNavigationItems);
+      setProfiles(profileItems);
     }
   }, [loading, settings]);
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
+    <div className="h-screen flex overflow-hidden bg-white">
       <Transition.Root show={sidebarOpen} as={Fragment}>
         <Dialog
           as="div"
           static
-          className="fixed inset-0 flex z-40 md:hidden"
+          className="fixed inset-0 flex z-40 lg:hidden"
           open={sidebarOpen}
           onClose={setSidebarOpen}
         >
@@ -115,16 +117,11 @@ export default function AppLayout({
               >
                 <div className="absolute top-0 right-0 -mr-12 pt-2">
                   <button
-                    type="button"
                     className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                     onClick={() => setSidebarOpen(false)}
                   >
                     <span className="sr-only">Close sidebar</span>
-                    <FontAwesomeIcon
-                      className="h-6 w-6 text-white"
-                      aria-hidden="true"
-                      icon={faTimes}
-                    />
+                    <XIcon className="h-6 w-6 text-white" aria-hidden="true" />
                   </button>
                 </div>
               </Transition.Child>
@@ -138,30 +135,77 @@ export default function AppLayout({
                 </Link>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
-                <nav className="px-2 space-y-1">
-                  {navigation &&
-                    navigation.map((item, itemIndex) => (
-                      <Link
-                        key={`n-${itemIndex}-${item.name}`}
-                        to={item.href}
-                        className={classNames(
-                          location.pathname === item.href
-                            ? "bg-secondary-dark text-white"
-                            : "text-gray-100 hover:bg-secondary-lighter",
-                          "group flex items-center px-2 py-2 text-base font-medium rounded-md"
-                        )}
-                        onClick={() => setSidebarOpen(false)}
-                      >
-                        {item.icon && (
-                          <FontAwesomeIcon
-                            icon={item.icon}
-                            className="mr-4 h-6 w-6 text-gray-300"
-                            aria-hidden="true"
-                          />
-                        )}
-                        {item.name}
-                      </Link>
-                    ))}
+                <nav className="px-2">
+                  <div className="space-y-1">
+                    {navigation &&
+                      navigation.map((item, itemIndex) => (
+                        <Link
+                          key={`n-${itemIndex}-${item.name}`}
+                          to={item.href}
+                          className={classNames(
+                            location.pathname === item.href
+                              ? "bg-secondary-dark text-white"
+                              : "text-gray-100 hover:bg-secondary-lighter",
+                            "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
+                          )}
+                          onClick={() => setSidebarOpen(false)}
+                          aria-current={
+                            location.pathname === item.href ? "page" : undefined
+                          }
+                        >
+                          {item.icon && (
+                            <FontAwesomeIcon
+                              icon={item.icon}
+                              className="mr-3 h-6 w-6 text-gray-300"
+                              aria-hidden="true"
+                            />
+                          )}
+                          {item.name}
+                        </Link>
+                      ))}
+                  </div>
+                  <div className="mt-8">
+                    <h3
+                      className="px-3 text-xs font-semibold text-gray-100 uppercase tracking-wider"
+                      id="teams-headline"
+                    >
+                      Profiles
+                    </h3>
+                    <div
+                      className="mt-1 space-y-1"
+                      role="group"
+                      aria-labelledby="teams-headline"
+                    >
+                      {profiles &&
+                        profiles.map((profile, profileIndex) => (
+                          <Link
+                            key={`pmm-${profileIndex}-${profile.name}`}
+                            to={profile.href}
+                            className={classNames(
+                              location.pathname === profile.href
+                                ? "bg-secondary-dark text-white"
+                                : "text-gray-100 hover:bg-secondary-lighter",
+                              "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
+                            )}
+                            onClick={() => setSidebarOpen(false)}
+                            aria-current={
+                              location.pathname === profile.href
+                                ? "page"
+                                : undefined
+                            }
+                          >
+                            {profile.icon && (
+                              <FontAwesomeIcon
+                                icon={profile.icon}
+                                className="mr-3 h-6 w-6 text-gray-300"
+                                aria-hidden="true"
+                              />
+                            )}
+                            {profile.name}
+                          </Link>
+                        ))}
+                    </div>
+                  </div>
                 </nav>
               </div>
             </div>
@@ -173,21 +217,104 @@ export default function AppLayout({
       </Transition.Root>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden bg-secondary md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64">
+      <div className="hidden lg:flex lg:flex-shrink-0">
+        <div className="flex flex-col w-64 border-r border-gray-200 pt-5 pb-4 bg-secondary">
+          <div className="flex items-center flex-shrink-0 px-6">
+            <Link
+              to="/bucket"
+              className="h-8 w-auto"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Logo variant="white" />
+            </Link>
+          </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <Link
-                to="/bucket"
-                className="h-8 w-auto"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <Logo variant="white" />
-              </Link>
-            </div>
-            <div className="mt-5 flex-1 flex flex-col">
-              <nav className="flex-1 px-2 space-y-1">
+          <div className="h-0 flex-1 flex flex-col overflow-y-auto">
+            {/* User account dropdown */}
+            <Menu
+              as="div"
+              className="px-3 mt-6 relative inline-block text-left"
+            >
+              {({ open }) => (
+                <>
+                  <div>
+                    {user && (
+                      <Menu.Button className="group w-full bg-secondary rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-100 hover:bg-secondary-lighter focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter">
+                        <span className="flex w-full justify-between items-center">
+                          <span className="flex min-w-0 items-center justify-between space-x-3">
+                            <UserAvatar user={user} />
+                            <span className="flex-1 flex flex-col min-w-0">
+                              <span className="text-sm font-medium truncate">
+                                {user.displayName}
+                              </span>
+                              <span className="text-gray-400 text-sm truncate">
+                                {user.email}
+                              </span>
+                            </span>
+                          </span>
+                          <SelectorIcon
+                            className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-100"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Menu.Button>
+                    )}
+                  </div>
+                  <Transition
+                    show={open}
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items
+                      static
+                      className="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                    >
+                      {userMenu &&
+                        userMenu.map((userMenuItem, userMenuItemIndex) => (
+                          <div
+                            className="py-1"
+                            key={`umd-${userMenuItemIndex}`}
+                          >
+                            {userMenuItem.items &&
+                              userMenuItem.items.map((item, itemIndex) => (
+                                <Menu.Item
+                                  key={`umd-${itemIndex}-${item.name}`}
+                                >
+                                  {({ active }) => (
+                                    <Link
+                                      to={item.href}
+                                      className={classNames(
+                                        active ? "bg-gray-200" : "",
+                                        "block px-4 py-2 text-sm text-gray-700"
+                                      )}
+                                    >
+                                      {item.icon && (
+                                        <FontAwesomeIcon
+                                          icon={item.icon}
+                                          className="mr-4 text-gray-500"
+                                          aria-hidden="true"
+                                        />
+                                      )}
+                                      {item.name}
+                                    </Link>
+                                  )}
+                                </Menu.Item>
+                              ))}
+                          </div>
+                        ))}
+                    </Menu.Items>
+                  </Transition>
+                </>
+              )}
+            </Menu>
+            {/* Navigation */}
+            <nav className="px-3 mt-6">
+              <div className="space-y-1">
                 {navigation &&
                   navigation.map((item, itemIndex) => (
                     <Link
@@ -197,9 +324,12 @@ export default function AppLayout({
                         location.pathname === item.href
                           ? "bg-secondary-dark text-white"
                           : "text-gray-100 hover:bg-secondary-lighter",
-                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                        "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
                       )}
                       onClick={() => setSidebarOpen(false)}
+                      aria-current={
+                        location.pathname === item.href ? "page" : undefined
+                      }
                     >
                       {item.icon && (
                         <FontAwesomeIcon
@@ -211,114 +341,136 @@ export default function AppLayout({
                       {item.name}
                     </Link>
                   ))}
-              </nav>
-            </div>
+              </div>
+              <div className="mt-8">
+                {/* Secondary navigation */}
+                <h3
+                  className="px-3 text-xs font-semibold text-gray-100 uppercase tracking-wider"
+                  id="teams-headline"
+                >
+                  Profiles
+                </h3>
+                <div
+                  className="mt-1 space-y-1"
+                  role="group"
+                  aria-labelledby="teams-headline"
+                >
+                  {profiles &&
+                    profiles.map((profile, profileIndex) => (
+                      <Link
+                        key={`pmm-${profileIndex}-${profile.name}`}
+                        to={profile.href}
+                        className={classNames(
+                          location.pathname === profile.href
+                            ? "bg-secondary-dark text-white"
+                            : "text-gray-100 hover:bg-secondary-lighter",
+                          "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
+                        )}
+                        onClick={() => setSidebarOpen(false)}
+                        aria-current={
+                          location.pathname === profile.href
+                            ? "page"
+                            : undefined
+                        }
+                      >
+                        {profile.icon && (
+                          <FontAwesomeIcon
+                            icon={profile.icon}
+                            className="mr-3 h-6 w-6 text-gray-300"
+                            aria-hidden="true"
+                          />
+                        )}
+                        {profile.name}
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            </nav>
           </div>
         </div>
       </div>
+      {/* Main column */}
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+        {/* Search header */}
+        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:hidden">
           <button
-            type="button"
-            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden"
+            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:secondary-lighter lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
-            <FontAwesomeIcon
-              className="h-6 w-6"
-              aria-hidden="true"
-              icon={faBars}
-            />
+            <MenuAlt1Icon className="h-6 w-6" aria-hidden="true" />
           </button>
-          <div className="flex-1 px-4 flex justify-between">
-            <div className="flex-1 flex">
-              {/* <div className="w-full flex items-center md:ml-0">
-                {location &&
-                  location.pathname &&
-                  location.pathname.startsWith("/bucket") && <BucketSelector />}
-              </div> */}
-              {/* <form className="w-full flex md:ml-0" action="#" method="GET">
-                <label htmlFor="search_field" className="sr-only">
-                  Search
-                </label>
-                <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <FontAwesomeIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                      icon={faSearch}
-                    />
-                  </div>
-                  <input
-                    id="search_field"
-                    className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm"
-                    placeholder="Search"
-                    type="search"
-                    name="search"
-                  />
-                </div>
-              </form> */}
-            </div>
-            {user && (
-              <div className="ml-4 flex items-center md:ml-6">
-                {/* Profile dropdown */}
-                <Menu as="div" className="ml-3 relative">
-                  {({ open }) => (
-                    <>
-                      <div>
-                        <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <div className="flex-1 flex justify-between px-4 sm:px-6 lg:px-8">
+            <div className="flex-1 flex pr-4">{/* Search? */}</div>
+            <div className="flex items-center">
+              {/* Profile dropdown */}
+              <Menu as="div" className="ml-3 relative">
+                {({ open }) => (
+                  <>
+                    <div>
+                      {user && (
+                        <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:secondary-lighter">
                           <span className="sr-only">Open user menu</span>
                           <UserAvatar user={user} />
                         </Menu.Button>
-                      </div>
-                      <Transition
-                        show={open}
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
+                      )}
+                    </div>
+                    <Transition
+                      show={open}
+                      as={Fragment}
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95"
+                    >
+                      <Menu.Items
+                        static
+                        className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
                       >
-                        <Menu.Items
-                          static
-                          className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                        >
-                          {userNavigation &&
-                            userNavigation.map((item, itemIndex) => (
-                              <Menu.Item key={`un-${itemIndex}-${item.name}`}>
-                                {({ active }) => (
-                                  <Link
-                                    to={item.href}
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
+                        {userMenu &&
+                          userMenu.map((userMenuItem, userMenuItemIndex) => (
+                            <div
+                              className="py-1"
+                              key={`umm-${userMenuItemIndex}`}
+                            >
+                              {userMenuItem.items &&
+                                userMenuItem.items.map((item, itemIndex) => (
+                                  <Menu.Item
+                                    key={`umm-${itemIndex}-${item.name}`}
                                   >
-                                    {item.icon && (
-                                      <FontAwesomeIcon
-                                        icon={item.icon}
-                                        className="mr-4 text-gray-500"
-                                        aria-hidden="true"
-                                      />
+                                    {({ active }) => (
+                                      <Link
+                                        to={item.href}
+                                        className={classNames(
+                                          active ? "bg-gray-200" : "",
+                                          "block px-4 py-2 text-sm text-gray-700"
+                                        )}
+                                      >
+                                        {item.icon && (
+                                          <FontAwesomeIcon
+                                            icon={item.icon}
+                                            className="mr-4 text-gray-500"
+                                            aria-hidden="true"
+                                          />
+                                        )}
+                                        {item.name}
+                                      </Link>
                                     )}
-                                    {item.name}
-                                  </Link>
-                                )}
-                              </Menu.Item>
-                            ))}
-                        </Menu.Items>
-                      </Transition>
-                    </>
-                  )}
-                </Menu>
-              </div>
-            )}
+                                  </Menu.Item>
+                                ))}
+                            </div>
+                          ))}
+                      </Menu.Items>
+                    </Transition>
+                  </>
+                )}
+              </Menu>
+            </div>
           </div>
         </div>
-
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
+        <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <div className="px-4 py-6">{children}</div>
         </main>
       </div>
