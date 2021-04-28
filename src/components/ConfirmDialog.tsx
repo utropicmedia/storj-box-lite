@@ -20,7 +20,7 @@ export const ConfirmDialog = ({
   cancelText,
   confirmText,
 }: ConfirmDialogProps) => {
-  const cancelButtonRef = useRef();
+  const cancelButtonRef = useRef() as any;
 
   return (
     <Transition.Root show={open} as={Fragment}>
