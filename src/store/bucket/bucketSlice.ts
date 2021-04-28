@@ -29,28 +29,22 @@ export const mapBucketContents = (
   const items: BucketItem[] = [];
   if (response.CommonPrefixes && response.CommonPrefixes.length > 0) {
     response.CommonPrefixes.forEach((item) => {
-      const key = String(item.Prefix).replace(/^\//, "");
-      if (key !== item.Prefix) {
-        items.push({
-          key,
-          lastModified: undefined,
-          size: undefined,
-          type: "folder",
-        });
-      }
+      items.push({
+        key: String(item.Prefix),
+        lastModified: undefined,
+        size: undefined,
+        type: "folder",
+      });
     });
   }
   if (response.Contents && response.Contents.length > 0) {
     response.Contents.forEach((item) => {
-      const key = String(item.Key).replace(new RegExp(`^${prefix}/`), "");
-      if (key) {
-        items.push({
-          key,
-          lastModified: item.LastModified?.toISOString(),
-          size: item.Size,
-          type: "file",
-        });
-      }
+      items.push({
+        key: String(item.Key),
+        lastModified: item.LastModified?.toISOString(),
+        size: item.Size,
+        type: "file",
+      });
     });
   }
   return items;

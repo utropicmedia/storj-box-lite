@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  DeleteObjectsCommand,
   GetObjectCommand,
   ListBucketsCommand,
   ListObjectsV2Command,
@@ -8,6 +9,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { FileWithPath } from "file-selector";
 
 export interface StorjClientOptions {
   accessKeyId: string;
@@ -48,47 +50,84 @@ export class StorjClient {
     return this.classInstance;
   }
 
-  deleteFile(originalKey: string, Bucket: string) {
-    const Key = originalKey.replace(/^\//g, "");
+  createFolder(bucket: string, name: string, prefix: string | undefined) {
+    const params: PutObjectRequest = {
+      Bucket: bucket,
+      ContentLength: 0,
+      Key: `${prefix ? `${prefix}/` : ""}${name}/`,
+    };
+    const cmd = new PutObjectCommand(params);
+    return this.client.send(cmd);
+  }
+
+  deleteFile(Bucket: string, Key: string) {
     return this.client.send(new DeleteObjectCommand({ Key, Bucket }));
   }
 
-  getObjectUrl(Key: string, Bucket: string) {
+  async deleteFolder(Bucket: string, Key: string) {
+    const objects = await this.listDirectories({
+      Bucket,
+      Prefix: Key,
+    });
+    const Objects =
+      objects && objects.Contents && objects.Contents.length > 0
+        ? objects.Contents.map((c) => ({ Key: c.Key }))
+        : [];
+    return this.client.send(
+      new DeleteObjectsCommand({ Delete: { Objects }, Bucket })
+    );
+  }
+
+  getObjectUrl(Bucket: string, Key: string) {
     return getSignedUrl(this.client, new GetObjectCommand({ Bucket, Key }), {
       expiresIn: 3600,
     });
   }
 
   listDirectories(params: ListDirectoriesParams = {}) {
-    const Bucket = params.Bucket;
-    const Delimiter =
-      params.Delimiter || DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter;
-    const Prefix = params.Prefix
-      ? `${params.Prefix}/`
-      : DEFAULT_LIST_DIRECTORIES_PARAMS.Prefix;
-    return this.client.send(
-      new ListObjectsV2Command({
-        Bucket,
-        Delimiter,
-        Prefix,
-      })
-    );
+    // If the last character in the prefix is not a slash, we need to add one
+    const options = {
+      Bucket: params.Bucket,
+      ...(params.Delimiter
+        ? { Delimiter: params.Delimiter }
+        : { Delimiter: DEFAULT_LIST_DIRECTORIES_PARAMS.Delimiter }),
+      ...(params.Prefix && {
+        Prefix:
+          params.Prefix.slice(-1) === "/" ? params.Prefix : `${params.Prefix}/`,
+      }),
+    };
+    return this.client.send(new ListObjectsV2Command(options));
   }
 
   listBuckets() {
     return this.client.send(new ListBucketsCommand({}));
   }
 
-  uploadFile(Body: any, Key: string, Bucket: string, ContentType: string) {
-    const params: PutObjectRequest = {
-      ACL: "public-read",
-      Body,
-      Bucket,
-      Key,
-      ContentType,
-    };
-    console.log("params", params);
-    const cmd = new PutObjectCommand(params);
-    return this.client.send(cmd);
+  async uploadFiles({
+    files,
+    bucket,
+    prefix,
+  }: {
+    files: FileWithPath[];
+    bucket: string;
+    prefix: string | undefined;
+  }) {
+    const promises = files.map(async (file) => {
+      const Key = `${prefix}/${(file.path ? file.path : file.name).replace(
+        /^\//g,
+        ""
+      )}`.replace(/^\//g, "");
+      const params: PutObjectRequest = {
+        Body: file,
+        Bucket: bucket,
+        Key,
+        ContentType: file.type,
+      };
+      const cmd = new PutObjectCommand(params);
+      const r = await this.client.send(cmd);
+      return r;
+    });
+    const response = await Promise.all(promises);
+    return response;
   }
 }

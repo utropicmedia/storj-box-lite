@@ -1,6 +1,7 @@
 import reactRefresh from "@vitejs/plugin-react-refresh";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import svgr from "vite-plugin-svgr";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
@@ -10,6 +11,7 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     reactRefresh(),
+    svgr(),
     VitePWA({
       workbox: {
         additionalManifestEntries: [

@@ -1,7 +1,9 @@
 import {
   faBars,
+  faCloud,
   faCogs,
-  faHome,
+  faIdCard,
+  faSignOutAlt,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,15 +13,15 @@ import React, { Fragment, PropsWithChildren, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import AppLogo from "../components/AppLogo";
-// import BucketSelector from "../components/BucketSelector";
+// import AppLogo from "../components/AppLogo";
+import { Logo } from "../components/logo/index";
 import UserAvatar from "../components/UserAvatar";
 
 const navigation = [
   {
-    name: "Buckets",
+    name: "Storj S3 Buckets",
     href: "/bucket",
-    icon: faHome,
+    icon: faCloud,
   },
   {
     name: "Settings",
@@ -29,8 +31,8 @@ const navigation = [
 ];
 
 const userNavigation = [
-  { name: "Your Profile", href: "/profile" },
-  { name: "Sign out", href: "/sign-out" },
+  { name: "Your Profile", href: "/profile", icon: faIdCard },
+  { name: "Sign out", href: "/sign-out", icon: faSignOutAlt },
 ];
 
 function classNames(...classes: string[]) {
@@ -76,7 +78,7 @@ export default function AppLayout({
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-brand">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-secondary">
               <Transition.Child
                 as={Fragment}
                 enter="ease-in-out duration-300"
@@ -107,7 +109,7 @@ export default function AppLayout({
                   className="h-8 w-auto"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <AppLogo color="contrast" />
+                  <Logo variant="white" />
                 </Link>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
@@ -118,15 +120,15 @@ export default function AppLayout({
                       to={item.href}
                       className={classNames(
                         location.pathname === item.href
-                          ? "bg-brand-dark text-white"
-                          : "text-indigo-100 hover:bg-brand-lighter",
+                          ? "bg-secondary-dark text-white"
+                          : "text-gray-100 hover:bg-secondary-lighter",
                         "group flex items-center px-2 py-2 text-base font-medium rounded-md"
                       )}
                       onClick={() => setSidebarOpen(false)}
                     >
                       <FontAwesomeIcon
                         icon={item.icon}
-                        className="mr-4 h-6 w-6 text-indigo-300"
+                        className="mr-4 h-6 w-6 text-gray-300"
                         aria-hidden="true"
                       />
                       {item.name}
@@ -143,7 +145,7 @@ export default function AppLayout({
       </Transition.Root>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden bg-brand md:flex md:flex-shrink-0">
+      <div className="hidden bg-secondary md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
@@ -153,7 +155,7 @@ export default function AppLayout({
                 className="h-8 w-auto"
                 onClick={() => setSidebarOpen(false)}
               >
-                <AppLogo color="contrast" />
+                <Logo variant="white" />
               </Link>
             </div>
             <div className="mt-5 flex-1 flex flex-col">
@@ -164,15 +166,15 @@ export default function AppLayout({
                     to={item.href}
                     className={classNames(
                       location.pathname === item.href
-                        ? "bg-brand-dark text-white"
-                        : "text-indigo-100 hover:bg-brand-lighter",
+                        ? "bg-secondary-dark text-white"
+                        : "text-gray-100 hover:bg-secondary-lighter",
                       "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
                     <FontAwesomeIcon
                       icon={item.icon}
-                      className="mr-3 h-6 w-6 text-indigo-300"
+                      className="mr-3 h-6 w-6 text-gray-300"
                       aria-hidden="true"
                     />
                     {item.name}
@@ -262,6 +264,11 @@ export default function AppLayout({
                                     "block px-4 py-2 text-sm text-gray-700"
                                   )}
                                 >
+                                  <FontAwesomeIcon
+                                    icon={item.icon}
+                                    className="mr-4 text-gray-500"
+                                    aria-hidden="true"
+                                  />
                                   {item.name}
                                 </Link>
                               )}

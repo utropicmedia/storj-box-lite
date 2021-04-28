@@ -14,12 +14,17 @@ import format from "date-fns/format";
 import filesize from "filesize";
 import { StorjClient } from "lib/storjClient";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import { getBucketItems, selectBucket } from "store/bucket/bucketSlice";
+import {
+  BucketItem,
+  getBucketItems,
+  selectBucket,
+} from "store/bucket/bucketSlice";
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
+import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
@@ -29,7 +34,17 @@ export interface BucketContentsProps {
 }
 
 const getPrefix = (bucket: string, pathname: string) => {
-  return pathname.replace(`/bucket/${bucket}`, "").replace(/^\//, "");
+  const prefix = pathname.replace(`/bucket/${bucket}`, "").replace(/^\//, "");
+  return prefix;
+};
+
+const getFolderLink = (key: string, bucket: string) => {
+  return `/bucket/${bucket}/${key.substring(0, key.length - 1)}`;
+};
+
+const getItemName = (key: string, prefix: string | undefined) => {
+  const name = prefix ? key.replace(`${prefix}/`, "") : key;
+  return name.replace(/\/$/, "");
 };
 
 interface BreadcrumbsProps {
@@ -98,7 +113,7 @@ const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
         <nav className="hidden sm:flex" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-4">
             {breadcrumbs.map((bc, bcIndex) => (
-              <li key={bc.title}>
+              <li key={`bc-${bcIndex}-${bc.title}`}>
                 <div className="flex items-center">
                   {bc.icon && bc.url && (
                     <Link
@@ -146,6 +161,105 @@ const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
   );
 };
 
+interface DeleteButtonProps {
+  authSettings: AuthSettings;
+  bucketName: string;
+  item: BucketItem;
+  prefix: string;
+}
+
+const DeleteFileButton = ({
+  authSettings,
+  bucketName,
+  item,
+  prefix,
+}: DeleteButtonProps) => {
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+
+  const deleteFile = async (key: string) => {
+    setOpen(false);
+    const storjClient = StorjClient.getInstance(authSettings);
+    await storjClient?.deleteFile(bucketName, key);
+    dispatch(
+      getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
+    );
+  };
+
+  return (
+    <>
+      <IconButton
+        className="ml-1"
+        text="Delete"
+        icon={faTrashAlt}
+        onClick={() => setOpen(true)}
+      />
+      <ConfirmDialog
+        confirmText="Delete"
+        content={
+          <span>
+            Are you sure you want to delete{" "}
+            <span className="font-medium italic">
+              {getItemName(item.key, prefix)}
+            </span>
+            ?
+          </span>
+        }
+        open={open}
+        onCancel={() => setOpen(false)}
+        onConfirm={() => deleteFile(item.key)}
+        title="Delete File"
+      />
+    </>
+  );
+};
+
+const DeleteFolderButton = ({
+  authSettings,
+  bucketName,
+  item,
+  prefix,
+}: DeleteButtonProps) => {
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+
+  const deleteFolder = async (key: string) => {
+    setOpen(false);
+    const storjClient = StorjClient.getInstance(authSettings);
+    await storjClient?.deleteFolder(bucketName, key);
+    dispatch(
+      getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
+    );
+  };
+
+  return (
+    <>
+      <IconButton
+        className="ml-1"
+        text="Delete"
+        icon={faTrashAlt}
+        onClick={() => setOpen(true)}
+      />
+      <ConfirmDialog
+        confirmText="Delete"
+        content={
+          <span>
+            Are you sure you want to delete{" "}
+            <span className="font-medium italic">
+              {getItemName(item.key, prefix)}
+            </span>{" "}
+            and all of its contents?
+          </span>
+        }
+        open={open}
+        onCancel={() => setOpen(false)}
+        onConfirm={() => deleteFolder(item.key)}
+        title="Delete Folder"
+      />
+    </>
+  );
+};
+
 interface BucketContentsTableProps {
   bucket: string;
   prefix: string | undefined;
@@ -163,10 +277,9 @@ const BucketContentsTable = ({
     if (authSettings && bucketName) {
       const storjClient = StorjClient.getInstance(authSettings);
       if (storjClient) {
-        const openMe = `${prefix ? `${prefix}/` : ""}${key}`;
-        // TODO: Figure out a better way to handle this, perhaps?
-        const windowRef = window.open("", "dowloadFile");
-        const url = await storjClient.getObjectUrl(openMe, bucketName);
+        // TODO: Figure out a better way to handle this, perhaps? Maybe a dialog, with a link once the url has been generated.
+        const windowRef = window.open(`/downloading`, "dowloadFile");
+        const url = await storjClient.getObjectUrl(bucketName, key);
         if (windowRef) {
           windowRef.location.assign(url);
         }
@@ -174,12 +287,11 @@ const BucketContentsTable = ({
     }
   };
 
-  const deleteFile = async (key: string) => {
-    // TODO: Confirm
+  // TODO: Create a folder
+  const createFolder = async (name: string, prefix: string | undefined) => {
     if (authSettings && bucketName) {
       const storjClient = StorjClient.getInstance(authSettings);
-      const deleteMe = `${prefix ? `${prefix}/` : ""}${key}`;
-      await storjClient?.deleteFile(deleteMe, bucketName);
+      const r = await storjClient?.createFolder(bucketName, name, prefix);
       dispatch(
         getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
       );
@@ -265,13 +377,8 @@ const BucketContentsTable = ({
                           aria-hidden="true"
                           icon={faFolder}
                         />
-                        <Link
-                          to={`/bucket/${bucketName}/${item.key.substring(
-                            0,
-                            item.key.length - 1
-                          )}`}
-                        >
-                          {item.key}
+                        <Link to={getFolderLink(item.key, bucketName)}>
+                          {getItemName(item.key, prefix)}
                         </Link>
                       </span>
                     )}
@@ -282,7 +389,7 @@ const BucketContentsTable = ({
                           aria-hidden="true"
                           icon={faFileAlt}
                         />
-                        {item.key}
+                        {getItemName(item.key, prefix)}
                       </span>
                     )}
                   </td>
@@ -304,6 +411,14 @@ const BucketContentsTable = ({
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {item.type === "folder" && (
+                      <DeleteFolderButton
+                        authSettings={authSettings as AuthSettings}
+                        bucketName={bucketName}
+                        item={item}
+                        prefix={String(prefix)}
+                      />
+                    )}
                     {item.type === "file" && (
                       <>
                         <IconButton
@@ -312,11 +427,11 @@ const BucketContentsTable = ({
                           size="sm"
                           onClick={() => downloadFile(item.key)}
                         />
-                        <IconButton
-                          className="ml-1"
-                          text="Delete"
-                          icon={faTrashAlt}
-                          onClick={() => deleteFile(item.key)}
+                        <DeleteFileButton
+                          authSettings={authSettings as AuthSettings}
+                          bucketName={bucketName}
+                          item={item}
+                          prefix={String(prefix)}
                         />
                       </>
                     )}
@@ -327,7 +442,6 @@ const BucketContentsTable = ({
           )}
         </table>
       </div>
-      {/* {!loading && items && <pre>items: {JSON.stringify(items, null, 2)}</pre>} */}
     </>
   );
 };
@@ -340,20 +454,22 @@ export const BucketContents = ({
   const [uploading, setUploading] = useState(false);
   const authSettings = useSelector(selectAuthSettings);
   const onDrop = useCallback(
-    (acceptedFiles) => {
+    (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
         setUploading(true);
         const storjClient = StorjClient.getInstance(authSettings);
         if (storjClient) {
-          const file = acceptedFiles[0];
-          const key = `${prefix ? `${prefix}/` : ""}${file.name}`;
-          await storjClient.uploadFile(file, key, bucket, file.type);
+          await storjClient.uploadFiles({
+            files: acceptedFiles,
+            bucket,
+            prefix,
+          });
           setUploading(false);
         }
       }
       if (
         acceptedFiles &&
-        acceptedFiles.length === 1 &&
+        acceptedFiles.length > 0 &&
         authSettings?.accessKeyId &&
         authSettings?.secretAccessKey
       ) {
@@ -362,8 +478,14 @@ export const BucketContents = ({
     },
     [authSettings, bucket, prefix]
   );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    maxFiles: 1,
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const {
+    getRootProps: getRootPropsDrop,
+    getInputProps: getInputPropsDrop,
+    isDragActive: isDragActiveDrop,
+  } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
     onDrop,
   });
 
@@ -379,20 +501,39 @@ export const BucketContents = ({
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
         <PageTitle>{bucket}</PageTitle>
         <div className="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+          <button
+            type="button"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter"
+          >
+            <span className="-ml-0.5 mr-2">
+              <FontAwesomeIcon aria-hidden="true" icon={faPlus} />
+            </span>{" "}
+            Create Folder
+          </button>
           <div
             {...getRootProps()}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+            className="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter cursor-pointer"
           >
             <span className="-ml-0.5 mr-2">
               <FontAwesomeIcon aria-hidden="true" icon={faPlus} />
             </span>{" "}
             {isDragActive ? <span>Drop</span> : <span>Upload</span>}
-            <input {...getInputProps()} multiple={false} />
+            <input {...getInputProps()} multiple={true} disabled={uploading} />
           </div>
         </div>
       </div>
       {uploading && <Spinner />}
-      {!uploading && <BucketContentsTable bucket={bucket} prefix={prefix} />}
+      <div {...getRootPropsDrop()} className="relative">
+        {isDragActiveDrop && (
+          <span className="absolute z-10 w-full h-full bg-brand bg-opacity-50 flex items-center justify-items-center rounded">
+            <div className="mx-auto text-3xl font-bold py-4 px-8 bg-gray-900 bg-opacity-50 text-white rounded">
+              Drop to upload!
+            </div>
+          </span>
+        )}
+        {!uploading && <BucketContentsTable bucket={bucket} prefix={prefix} />}
+        <input {...getInputPropsDrop()} multiple={true} disabled={uploading} />
+      </div>
     </>
   );
 };

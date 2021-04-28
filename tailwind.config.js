@@ -12,16 +12,16 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#0055C6",
+          DEFAULT: "#376FFF",
           contrast: colors.white,
-          dark: "#0047a3",
-          lighter: "#0f77ff",
+          dark: "#3264e6",
+          lighter: "#739aff",
         },
         secondary: {
-          DEFAULT: "#505b76",
+          DEFAULT: "#001030",
           contrast: colors.white,
-          dark: "#384169",
-          lighter: "#5972a6",
+          dark: "#000a1d",
+          lighter: "#4d586e",
         },
       },
     },

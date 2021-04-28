@@ -72,6 +72,9 @@ export default function App(): ReactElement {
               <Route exact path="/sign-out">
                 <SignOut />
               </Route>
+              <Route exact path="/downloading">
+                <LoadingOrError />
+              </Route>
               <Route path="*">
                 <FullPageLayout>
                   <NoMatch />

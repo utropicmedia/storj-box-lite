@@ -108,7 +108,6 @@ export const UpdateCredentialProfileButton = ({
                         }),
                       })}
                       onSubmit={async (values) => {
-                        console.log("onSubmit", values);
                         const credentialProfiles = [
                           ...(settings &&
                           settings.credentialProfiles &&

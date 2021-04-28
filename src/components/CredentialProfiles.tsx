@@ -1,13 +1,16 @@
+import firebase from "firebase/app";
 import { auth, firestoreCollection } from "lib/firebase";
-import React from "react";
+import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  AuthSettings,
   CredentialProfile,
   CredentialProfileType,
   selectSettings,
   setSettings,
 } from "store/settings/settingsSlice";
+import ConfirmDialog from "./ConfirmDialog";
 import { UpdateCredentialProfileButton } from "./UpdateCredentialProfileButton";
 
 export interface CredentialProfileTypeDisplayProps {
@@ -24,6 +27,66 @@ const CredentialProfileTypeDisplay = ({
   }
 };
 
+interface DeleteProfileButtonProps {
+  authSettings: AuthSettings;
+  credentialProfiles: CredentialProfile[];
+  profile: CredentialProfile;
+  profileIndex: number;
+  user: firebase.User;
+}
+
+const DeleteProfileButton = ({
+  authSettings,
+  credentialProfiles,
+  profile,
+  profileIndex,
+  user,
+}: DeleteProfileButtonProps) => {
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+
+  const deleteProfile = async (idx: number) => {
+    const newProfiles = [
+      ...credentialProfiles.slice(0, idx),
+      ...credentialProfiles.slice(idx + 1),
+    ];
+    await firestoreCollection
+      .doc(user?.uid)
+      .set({ credentialProfiles: newProfiles }, { merge: true });
+    dispatch(
+      setSettings({
+        auth: authSettings,
+        credentialProfiles: newProfiles,
+      })
+    );
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-red-700 font-medium border border-transparent rounded-bl-lg hover:text-red-500"
+        onClick={() => setOpen(true)}
+      >
+        Delete
+      </button>
+      <ConfirmDialog
+        confirmText="Delete"
+        content={
+          <span>
+            Are you sure you want to delete your{" "}
+            <span className="italic">{profile.nickname}</span> profile?
+          </span>
+        }
+        open={open}
+        onCancel={() => setOpen(false)}
+        onConfirm={() => deleteProfile(profileIndex)}
+        title="Delete Credential Profile"
+      />
+    </>
+  );
+};
+
 export interface ProfileCardsProps {
   credentialProfiles: CredentialProfile[];
 }
@@ -31,23 +94,6 @@ export interface ProfileCardsProps {
 const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
   const { settings, loading } = useSelector(selectSettings);
   const [user, userLoading] = useAuthState(auth);
-  const dispatch = useDispatch();
-
-  const deleteProfile = async (profileIndex: number) => {
-    const newProfiles = [
-      ...credentialProfiles.slice(0, profileIndex),
-      ...credentialProfiles.slice(profileIndex + 1),
-    ];
-    await firestoreCollection
-      .doc(user?.uid)
-      .set({ credentialProfiles: newProfiles }, { merge: true });
-    dispatch(
-      setSettings({
-        auth: settings?.auth,
-        credentialProfiles: newProfiles,
-      })
-    );
-  };
 
   const updateProfile = (profileIndex: number) => {
     const profile = credentialProfiles[profileIndex];
@@ -80,13 +126,13 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
             <div>
               <div className="-mt-px flex divide-x divide-gray-200">
                 <div className="w-0 flex-1 flex">
-                  <button
-                    type="button"
-                    className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-red-700 font-medium border border-transparent rounded-bl-lg hover:text-red-500"
-                    onClick={() => deleteProfile(profileIndex)}
-                  >
-                    Delete
-                  </button>
+                  <DeleteProfileButton
+                    authSettings={settings.auth as AuthSettings}
+                    credentialProfiles={credentialProfiles}
+                    profile={profile}
+                    profileIndex={profileIndex}
+                    user={user}
+                  />
                 </div>
                 <div className="-ml-px w-0 flex-1 flex">
                   <button

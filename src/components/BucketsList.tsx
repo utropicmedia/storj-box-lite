@@ -17,7 +17,6 @@ export const BucketsList = (): ReactElement => {
 
   useEffect(() => {
     async function getBucketsList(auth: AuthSettings) {
-      console.log("getBucketsList");
       dispatch(getBuckets(auth));
     }
     if (authSettings?.accessKeyId && authSettings?.secretAccessKey) {

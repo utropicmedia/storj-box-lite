@@ -4,8 +4,8 @@ import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
-import AppLogo from "../components/AppLogo";
 import Head from "../components/Head";
+import { Logo } from "../components/logo/index";
 
 export default function SignIn(): ReactElement {
   const [user] = useAuthState(auth);
@@ -26,7 +26,9 @@ export default function SignIn(): ReactElement {
       <Head title="Sign In | Storj Box Lite" />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <AppLogo size="md" color="brand" />
+          <div className="mx-auto w-3/4">
+            <Logo variant="color" />
+          </div>
         </div>
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
