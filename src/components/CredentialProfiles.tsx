@@ -21,7 +21,7 @@ const CredentialProfileTypeDisplay = ({
   type,
 }: CredentialProfileTypeDisplayProps) => {
   switch (type) {
-    case "storjS3":
+    case "storjDcs":
     default:
       return <span>Storj S3</span>;
   }

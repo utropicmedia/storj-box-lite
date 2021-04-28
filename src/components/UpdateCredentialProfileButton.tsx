@@ -87,7 +87,7 @@ export const UpdateCredentialProfileButton = ({
                       initialValues={
                         {
                           nickname: "",
-                          type: "storjS3",
+                          type: "storjDcs",
                           credentials: { accessKeyId: "", secretAccessKey: "" },
                         } as CredentialProfile
                       }
@@ -96,7 +96,8 @@ export const UpdateCredentialProfileButton = ({
                         nickname: Yup.string().required("Nickname is required"),
                         type: Yup.string().required("Type is required"),
                         credentials: Yup.object().when("type", {
-                          is: (val: CredentialProfileType) => val === "storjS3",
+                          is: (val: CredentialProfileType) =>
+                            val === "storjDcs",
                           then: Yup.object({
                             accessKeyId: Yup.string().required(
                               "Access key id is required"
@@ -186,12 +187,12 @@ export const UpdateCredentialProfileButton = ({
                                   autoComplete="type"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                 >
-                                  <option value="storjS3">Storj S3</option>
+                                  <option value="storjDcs">Storj S3</option>
                                 </select>
                               </div>
                             </div>
 
-                            {props.values.type === "storjS3" && (
+                            {props.values.type === "storjDcs" && (
                               <>
                                 <div className="col-span-1 sm:col-span-1">
                                   <label

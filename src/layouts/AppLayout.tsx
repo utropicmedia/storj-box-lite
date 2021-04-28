@@ -19,7 +19,7 @@ import UserAvatar from "../components/UserAvatar";
 
 const navigation = [
   {
-    name: "Storj S3 Buckets",
+    name: "Storj DCS",
     href: "/bucket",
     icon: faCloud,
   },

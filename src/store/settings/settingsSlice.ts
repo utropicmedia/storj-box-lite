@@ -27,7 +27,7 @@ export interface S3Credentials {
   secretAccessKey: string;
 }
 
-export type CredentialProfileType = "storjS3";
+export type CredentialProfileType = "storjDcs";
 
 export interface CredentialProfile {
   credentials: S3Credentials;
