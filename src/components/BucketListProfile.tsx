@@ -9,7 +9,7 @@ import { PageTitle } from "./typography";
 
 
 
-export const BucketsListTwo = (): ReactElement => {
+export const BucketListProfile = (): ReactElement => {
   const authSettings = useSelector(selectCredentialProfiles);
   
   const { buckets, error, loading } = useSelector(selectBuckets);
@@ -117,4 +117,4 @@ export const BucketsListTwo = (): ReactElement => {
   );
 };
 
-export default BucketsListTwo;
+export default BucketListProfile;

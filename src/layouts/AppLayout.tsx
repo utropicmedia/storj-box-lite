@@ -55,8 +55,6 @@ export default function AppLayout({
   const [profiles, setProfiles] = useState<NavigationItem[]>();
   const location = useLocation();
 
-  // console.log("hello", settings.credentialProfiles[0].credentials)
-
   useEffect(() => {
     if (!loading) {
       const profileItems = [

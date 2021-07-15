@@ -7,7 +7,6 @@ import {
 import { StorjClient } from "../../lib/storjClient";
 import { AuthSettings } from "../settings/settingsSlice";
 import { RootState } from "../store";
-import { clientTwo } from './new';
 
 
 export interface Bucket {
