@@ -8,7 +8,7 @@ import {
   CredentialProfile,
   CredentialProfileType,
   selectSettings,
-  setSettings,
+  setSettings
 } from "store/settings/settingsSlice";
 import ConfirmDialog from "./ConfirmDialog";
 import { UpdateCredentialProfileButton } from "./UpdateCredentialProfileButton";
@@ -97,7 +97,6 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
 
   const updateProfile = (profileIndex: number) => {
     const profile = credentialProfiles[profileIndex];
-    console.log("updateProfile", profile);
   };
 
   return (

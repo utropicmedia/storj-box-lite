@@ -3,27 +3,40 @@ import React, { ReactElement, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { getBuckets, selectBuckets } from "../store/buckets/bucketsSlice";
-import {
-  AuthSettings,
-  selectAuthSettings
-} from "../store/settings/settingsSlice";
+import { selectCredentialProfiles } from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
 
-export const BucketsList = (): ReactElement => {
-  const authSettings = useSelector(selectAuthSettings);
+
+
+export const BucketsListTwo = (): ReactElement => {
+  const authSettings = useSelector(selectCredentialProfiles);
+  
   const { buckets, error, loading } = useSelector(selectBuckets);
   const dispatch = useDispatch();
-
+  
+  //Get CredentialProfile AccessKey and SeceretAccessKey by Id
+  let paramId:string ;
+  const params = new URLSearchParams(window.location.search)
+  for (const param of params) {
+    paramId = param[0]
+  }
+  let getCredential:any;
+  const authSettingCredential = authSettings?.map((cp) =>{
+    if(paramId == cp.id){
+      getCredential = cp.credentials
+    }
+  })
+  
   useEffect(() => {
-    async function getBucketsList(auth: AuthSettings) {
-      dispatch(getBuckets(auth));
+    async function getBucketsList(credentialProfiles:any) {
+      dispatch(getBuckets(credentialProfiles));
     }
-    if (authSettings?.accessKeyId && authSettings?.secretAccessKey) {
-      getBucketsList(authSettings);
+    if (getCredential?.accessKeyId && getCredential?.secretAccessKey) {
+      getBucketsList(getCredential);
     }
-  }, [authSettings, dispatch]);
-
+  }, [getCredential, dispatch]);
+  
   return (
     <>
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
@@ -104,4 +117,4 @@ export const BucketsList = (): ReactElement => {
   );
 };
 
-export default BucketsList;
+export default BucketsListTwo;

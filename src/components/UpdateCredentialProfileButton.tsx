@@ -12,7 +12,7 @@ import {
   CredentialProfile,
   CredentialProfileType,
   selectSettings,
-  setSettings,
+  setSettings
 } from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 

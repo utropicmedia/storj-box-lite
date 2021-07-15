@@ -2,7 +2,7 @@ import {
   createAsyncThunk,
   createSlice,
   PayloadAction,
-  SerializedError,
+  SerializedError
 } from "@reduxjs/toolkit";
 import firebase from "firebase/app";
 import { firestoreCollection } from "../../lib/firebase";
@@ -19,6 +19,7 @@ export const getSettings = createAsyncThunk<
   }
   const userDocument = await firestoreCollection.doc(user.uid).get();
   const data = userDocument.data() as Settings;
+  // console.log("data",data.credentialProfiles[0].credentials)
   return data;
 });
 
@@ -51,6 +52,7 @@ export interface SettingsState {
   loading: boolean;
   settings: Settings | undefined;
 }
+console.log("initialState",);
 
 // Define the initial state using that type
 const initialState: SettingsState = {
@@ -61,6 +63,7 @@ const initialState: SettingsState = {
     credentialProfiles: undefined,
   },
 };
+
 
 export const settingsSlice = createSlice({
   name: "settings",
@@ -98,4 +101,5 @@ export const selectAuthSettings = (state: RootState) =>
   state.settings.settings?.auth;
 export const selectCredentialProfiles = (state: RootState) =>
   state.settings.settings?.credentialProfiles;
+  console.log("selectCredentialProfiles",selectCredentialProfiles)
 export default settingsSlice.reducer;

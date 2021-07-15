@@ -5,7 +5,7 @@ import {
   faPlus,
   faSignOutAlt,
   faUserCog,
-  IconDefinition,
+  IconDefinition
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
@@ -55,6 +55,8 @@ export default function AppLayout({
   const [profiles, setProfiles] = useState<NavigationItem[]>();
   const location = useLocation();
 
+  // console.log("hello", settings.credentialProfiles[0].credentials)
+
   useEffect(() => {
     if (!loading) {
       const profileItems = [
@@ -63,13 +65,13 @@ export default function AppLayout({
         settings.credentialProfiles.length > 0
           ? settings.credentialProfiles.map((cp) => ({
               name: cp.nickname,
-              href: `/${cp.type === "storjDcs" ? "storj-dcs" : "storj-dcs"}/${
+              href: `/${cp.type === "storjDcs" ? "storj-dcs" : "storj-dcs"}/id?${
                 cp.id
               }`,
               icon: cp.type === "storjDcs" ? faCloud : faUserCog,
             }))
           : []),
-        { name: "Add Profile", href: "/settings", icon: faPlus },
+        { name: "Add Profiles", href: "/settings", icon: faPlus },
       ];
       setProfiles(profileItems);
     }
@@ -326,7 +328,7 @@ export default function AppLayout({
                           : "text-gray-100 hover:bg-secondary-lighter",
                         "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
                       )}
-                      onClick={() => setSidebarOpen(false)}
+                      onClick={() => window.location.href = item.href}
                       aria-current={
                         location.pathname === item.href ? "page" : undefined
                       }
@@ -366,7 +368,7 @@ export default function AppLayout({
                             : "text-gray-100 hover:bg-secondary-lighter",
                           "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
                         )}
-                        onClick={() => setSidebarOpen(false)}
+                        onClick={() => window.location.href = profile.href}
                         aria-current={
                           location.pathname === profile.href
                             ? "page"

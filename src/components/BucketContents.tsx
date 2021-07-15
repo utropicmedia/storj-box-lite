@@ -7,7 +7,7 @@ import {
   faFolder,
   faHome,
   faPlus,
-  faTrashAlt,
+  faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import format from "date-fns/format";
@@ -21,7 +21,7 @@ import { Link } from "react-router-dom";
 import {
   BucketItem,
   getBucketItems,
-  selectBucket,
+  selectBucket
 } from "store/bucket/bucketSlice";
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
 import { ConfirmDialog } from "./ConfirmDialog";
