@@ -24,12 +24,6 @@ export default function BucketSelector({
 
   const selectSelectedBucket = (bucket: string | null | undefined) => {
     setSelected(bucket);
-    // dispatch(
-    //   setBucketState({
-    //     ...bucketState,
-    //     bucket,
-    //   })
-    // );
   };
 
   useEffect(() => {

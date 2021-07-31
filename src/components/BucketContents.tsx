@@ -1,19 +1,17 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChevronLeft,
-  faChevronRight,
-  faDownload,
-  faFileAlt,
-  faFolder,
-  faHome,
+  faChevronRight, faDownload, faFileAlt, faFolder, faHome,
   faPlus,
   faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import format from "date-fns/format";
+import { Dialog, Transition } from "@headlessui/react";
+import { format } from "date-fns";
 import filesize from "filesize";
+import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { StorjClient } from "lib/storjClient";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { Fragment, ReactElement, useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -24,6 +22,7 @@ import {
   selectBucket
 } from "store/bucket/bucketSlice";
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
+import * as Yup from "yup";
 import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
 import Spinner from "./Spinner";
@@ -289,17 +288,6 @@ const BucketContentsTable = ({
     }
   };
 
-  // TODO: Create a folder
-  const createFolder = async (name: string, prefix: string | undefined) => {
-    if (authSettings && bucketName) {
-      const storjClient = StorjClient.getInstance(authSettings);
-      const r = await storjClient?.createFolder(bucketName, name, prefix);
-      dispatch(
-        getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
-      );
-    }
-  };
-
   useEffect(() => {
     async function loadBucketContents(auth: AuthSettings) {
       dispatch(getBucketItems({ auth, bucket: bucketName, prefix }));
@@ -359,15 +347,16 @@ const BucketContentsTable = ({
                   className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
                   colSpan={5}
                 >
-                  This folder is empty.
+                  This bucket is empty.
                 </td>
               </tr>
             </tbody>
           )}
-          {!loading && items && items.length > 0 && (
+          {!loading && items && items.length > 0 &&(
             <tbody>
               {items.map((item, itemIndex) => (
-                <tr
+                <>{(item.size != 0) ? 
+                  <tr
                   className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
                   key={`f-${item.key}}`}
                 >
@@ -384,13 +373,15 @@ const BucketContentsTable = ({
                         </Link>
                       </span>
                     )}
-                    {item.type === "file" && (
+                    
+                    { item.type === "file" && (
                       <span className="flex items-center">
                         <FontAwesomeIcon
                           className="flex-shrink-0 text-xl mr-4"
                           aria-hidden="true"
                           icon={faFileAlt}
                         />
+                        
                         {getItemName(item.key, prefix)}
                       </span>
                     )}
@@ -439,6 +430,7 @@ const BucketContentsTable = ({
                     )}
                   </td>
                 </tr>
+                  :""}</>
               ))}
             </tbody>
           )}
@@ -448,13 +440,23 @@ const BucketContentsTable = ({
   );
 };
 
+const DEFAULT_INITIAL_VALUES = {
+  name: "",
+};
+
 export const BucketContents = ({
   bucket,
+  bucket: bucketName,
 }: BucketContentsProps): ReactElement => {
   const location = useLocation();
   const [prefix, setPrefix] = useState<string>();
   const [uploading, setUploading] = useState(false);
   const authSettings = useSelector(selectAuthSettings);
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+  const [initialvalue , setinitialvalue] = useState(
+    DEFAULT_INITIAL_VALUES
+  );
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
@@ -491,11 +493,25 @@ export const BucketContents = ({
     onDrop,
   });
 
+  const createFolder = async (name: string, prefix: string | undefined) => {
+    if (authSettings && bucketName) {
+      const storjClient = StorjClient.getInstance(authSettings);
+      await storjClient?.createFolder(bucketName, name, prefix);
+      dispatch(
+        getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
+      );
+    }
+  };
+
   useEffect(() => {
     if (bucket && location?.pathname) {
       setPrefix(getPrefix(bucket, location.pathname));
     }
   }, [bucket, location]);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
 
   return (
     <>
@@ -504,6 +520,7 @@ export const BucketContents = ({
         <PageTitle>{bucket}</PageTitle>
         <div className="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
           <button
+            onClick={() => handleClick()}
             type="button"
             className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter"
           >
@@ -512,6 +529,119 @@ export const BucketContents = ({
             </span>{" "}
             Create Folder
           </button>
+          <Transition.Root show={open} as={Fragment}>
+            <Dialog
+              as="div"
+              static
+              className="fixed z-10 inset-0 overflow-y-auto"
+              open={open}
+              onClose={setOpen}
+            >
+              <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                </Transition.Child>
+
+                <span
+                  className="hidden sm:inline-block sm:align-middle sm:h-screen"
+                  aria-hidden="true"
+                >
+                  &#8203;
+                </span>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+                    <Formik
+                      initialValues={initialvalue}
+                      enableReinitialize={true}
+                      validationSchema={Yup.object({
+                        name: Yup.string().required("Folder Name is required"),
+                      })}
+                      onSubmit={async (values) => {
+                        createFolder(values.name,prefix)
+                        setOpen(false);
+                      }}
+                      validateOnBlur={false}
+                    >
+                    {(props) => (
+                        <form onSubmit={props.handleSubmit} noValidate>
+                          <div className="mb-2">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              Create New Folder
+                            </h3>
+                          </div>
+                          <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-1">
+                            <div className="col-span-1 sm:col-span-1">
+                              <label
+                                htmlFor="name"
+                                className="block text-sm font-medium text-gray-700"
+                              >
+                                Folder Name
+                              </label>
+                              <div className="mt-1">
+                                    <Field name="name">
+                                      {({ field }:FieldProps) => (
+                                        <div>
+                                          <input
+                                            type="text"
+                                            id="name"
+                                            className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                            {...field}
+                                          />
+                                          <ErrorMessage
+                                            className="text-sm text-red-600"
+                                            name="name"
+                                          >
+                                            {(msg) => (
+                                              <div className="text-sm text-red-600">
+                                                {msg}
+                                              </div>
+                                            )}
+                                          </ErrorMessage>
+                                        </div>
+                                        )}
+                                    </Field>
+                                  </div>
+                            </div>
+                            <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                              <button
+                                type="submit"
+                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-brand text-base font-medium text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter sm:ml-3 sm:w-auto sm:text-sm"
+                              >
+                                Create
+                              </button>
+                              <button
+                                type="button"
+                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter sm:mt-0 sm:w-auto sm:text-sm"
+                                onClick={() => setOpen(false)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                    )}
+                    </Formik>
+                  </div>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition.Root>
           <div
             {...getRootProps()}
             className="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter cursor-pointer"

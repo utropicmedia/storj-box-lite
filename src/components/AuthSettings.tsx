@@ -22,6 +22,13 @@ export default function AuthSettings(): ReactElement {
       setInitialFormData(settings.auth);
     }
   }, [loading, settings, user]);
+ 
+   const createFolder = async () => {
+     await firestoreCollection
+     .doc(user?.uid)
+     .set({ auth: { accessKeyId:"", secretAccessKey:"" } }, { merge: true });
+     location.reload()
+  };
 
   return (
     <>
@@ -41,18 +48,19 @@ export default function AuthSettings(): ReactElement {
             await firestoreCollection
               .doc(user?.uid)
               .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
-            dispatch(
-              setSettings({
-                ...settings,
-                auth: { accessKeyId, secretAccessKey },
-                credentialProfiles: undefined,
-              })
-            );
+              dispatch(
+                setSettings({
+                  ...settings,
+                  auth: { accessKeyId, secretAccessKey },
+                  credentialProfiles: undefined,
+                })
+                );
+                location.reload();
           }}
         >
           {(props) => (
             <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-              <form onSubmit={props.handleSubmit} noValidate>
+              <form onSubmit={props.handleSubmit} noValidate id="test">
                 <div className="shadow sm:rounded-md">
                   <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
                     <div>
@@ -60,7 +68,6 @@ export default function AuthSettings(): ReactElement {
                         Auth Settings
                       </h3>
                     </div>
-
                     <div className="grid grid-cols-3 gap-6">
                       <div className="col-span-3 sm:col-span-2">
                         <label
@@ -106,6 +113,7 @@ export default function AuthSettings(): ReactElement {
                             {({ field }: FieldProps) => (
                               <div>
                                 <input
+                                
                                   type="password"
                                   id="secretAccessKey"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
@@ -134,7 +142,7 @@ export default function AuthSettings(): ReactElement {
                   <button
                     type="button"
                     className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter"
-                    onClick={() => props.resetForm({ values: initalFormData })}
+                    onClick={() => createFolder()}
                   >
                     Reset
                   </button>
