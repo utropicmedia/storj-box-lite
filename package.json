@@ -6,6 +6,7 @@
   "scripts": {
     "postinstall": "is-ci || husky install",
     "dev": "vite --open",
+    "format": "prettier --write .",
     "lint": "yarn eslint && yarn stylelint",
     "eslint": "eslint src/**/* --ext js --ext ts --ext tsx",
     "stylelint": "stylelint \"src/**/*.css\"",

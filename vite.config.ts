@@ -16,8 +16,7 @@ export default defineConfig({
       workbox: {
         additionalManifestEntries: [
           {
-            url:
-              "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
+            url: "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
             revision: null,
           },
         ],
