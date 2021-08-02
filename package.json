@@ -6,7 +6,9 @@
   "scripts": {
     "postinstall": "is-ci || husky install",
     "dev": "vite --open",
-    "lint": "eslint src/**/* --ext js --ext ts --ext tsx",
+    "lint": "yarn eslint && yarn stylelint",
+    "eslint": "eslint src/**/* --ext js --ext ts --ext tsx",
+    "stylelint": "stylelint \"src/**/*.css\"",
     "test": "cypress open",
     "test:headless": "cypress run",
     "build": "tsc --project tsconfig.json && vite build",
@@ -63,6 +65,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-testing-library": "^4.1.2",
