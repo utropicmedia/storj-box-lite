@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { getBuckets, selectBuckets } from "../store/buckets/bucketsSlice";
 import {
   AuthSettings,
-  selectAuthSettings
+  selectAuthSettings,
 } from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
@@ -32,7 +32,11 @@ export const BucketsList = (): ReactElement => {
           {buckets && <span className="font-normal">({buckets.length})</span>}
         </PageTitle>
       </div>
-      {!loading && error && <pre className="mb-4">error: {JSON.stringify(error.message, null, 2)}</pre>}
+      {!loading && error && (
+        <pre className="mb-4">
+          error: {JSON.stringify(error.message, null, 2)}
+        </pre>
+      )}
       <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

@@ -7,36 +7,34 @@ import { selectCredentialProfiles } from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
 
-
-
 export const BucketListProfile = (): ReactElement => {
   const authSettings = useSelector(selectCredentialProfiles);
-  
+
   const { buckets, error, loading } = useSelector(selectBuckets);
   const dispatch = useDispatch();
-  
+
   //Get CredentialProfile AccessKey and SeceretAccessKey by Id
-  let paramId:string ;
-  const params = new URLSearchParams(window.location.search)
+  let paramId: string;
+  const params = new URLSearchParams(window.location.search);
   for (const param of params) {
-    paramId = param[0]
+    paramId = param[0];
   }
-  let getCredential:any;
-  const authSettingCredential = authSettings?.map((cp) =>{
-    if(paramId == cp.id){
-      getCredential = cp.credentials
+  let getCredential: any;
+  const authSettingCredential = authSettings?.map((cp) => {
+    if (paramId == cp.id) {
+      getCredential = cp.credentials;
     }
-  })
-  
+  });
+
   useEffect(() => {
-    async function getBucketsList(credentialProfiles:any) {
+    async function getBucketsList(credentialProfiles: any) {
       dispatch(getBuckets(credentialProfiles));
     }
     if (getCredential?.accessKeyId && getCredential?.secretAccessKey) {
       getBucketsList(getCredential);
     }
   }, [getCredential, dispatch]);
-  
+
   return (
     <>
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
@@ -45,7 +43,11 @@ export const BucketListProfile = (): ReactElement => {
           {buckets && <span className="font-normal">({buckets.length})</span>}
         </PageTitle>
       </div>
-      {!loading && error && <pre className="mb-4">error: {JSON.stringify(error.message, null, 2)}</pre>}
+      {!loading && error && (
+        <pre className="mb-4">
+          error: {JSON.stringify(error.message, null, 2)}
+        </pre>
+      )}
       <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

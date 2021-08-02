@@ -2,12 +2,11 @@ import { Bucket as S3Bucket } from "@aws-sdk/client-s3";
 import {
   createAsyncThunk,
   createSlice,
-  SerializedError
+  SerializedError,
 } from "@reduxjs/toolkit";
 import { StorjClient } from "../../lib/storjClient";
 import { AuthSettings } from "../settings/settingsSlice";
 import { RootState } from "../store";
-
 
 export interface Bucket {
   CreationDate: string;
@@ -23,8 +22,7 @@ export const mapS3Buckets = (buckets: S3Bucket[]) =>
       } as Bucket)
   );
 
-  
-  export const getBuckets = createAsyncThunk<
+export const getBuckets = createAsyncThunk<
   Bucket[] | undefined,
   AuthSettings,
   { state: RootState }

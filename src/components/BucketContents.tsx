@@ -1,9 +1,13 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChevronLeft,
-  faChevronRight, faDownload, faFileAlt, faFolder, faHome,
+  faChevronRight,
+  faDownload,
+  faFileAlt,
+  faFolder,
+  faHome,
   faPlus,
-  faTrashAlt
+  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
@@ -11,7 +15,13 @@ import { format } from "date-fns";
 import filesize from "filesize";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { StorjClient } from "lib/storjClient";
-import React, { Fragment, ReactElement, useCallback, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -19,7 +29,7 @@ import { Link } from "react-router-dom";
 import {
   BucketItem,
   getBucketItems,
-  selectBucket
+  selectBucket,
 } from "store/bucket/bucketSlice";
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
 import * as Yup from "yup";
@@ -352,85 +362,91 @@ const BucketContentsTable = ({
               </tr>
             </tbody>
           )}
-          {!loading && items && items.length > 0 &&(
+          {!loading && items && items.length > 0 && (
             <tbody>
               {items.map((item, itemIndex) => (
-                <>{(item.size != 0) ? 
-                  <tr
-                  className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  key={`f-${item.key}}`}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {item.type === "folder" && (
-                      <span className="flex items-center">
-                        <FontAwesomeIcon
-                          className="flex-shrink-0 text-xl mr-4"
-                          aria-hidden="true"
-                          icon={faFolder}
-                        />
-                        <Link to={getFolderLink(item.key, bucketName)}>
-                          {getItemName(item.key, prefix)}
-                        </Link>
-                      </span>
-                    )}
-                    
-                    { item.type === "file" && (
-                      <span className="flex items-center">
-                        <FontAwesomeIcon
-                          className="flex-shrink-0 text-xl mr-4"
-                          aria-hidden="true"
-                          icon={faFileAlt}
-                        />
-                        
-                        {getItemName(item.key, prefix)}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                    {item.type === "file" && (
-                      <>
-                        {item.lastModified
-                          ? format(
-                              new Date(item.lastModified),
-                              "MMM d, yyyy h:mm bbb"
-                            )
-                          : ""}
-                      </>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                    {item.type === "file" && (
-                      <>{item.size ? filesize(item.size) : ""}</>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {item.type === "folder" && (
-                      <DeleteFolderButton
-                        authSettings={authSettings as AuthSettings}
-                        bucketName={bucketName}
-                        item={item}
-                        prefix={String(prefix)}
-                      />
-                    )}
-                    {item.type === "file" && (
-                      <>
-                        <IconButton
-                          text="Download"
-                          icon={faDownload}
-                          size="sm"
-                          onClick={() => downloadFile(item.key)}
-                        />
-                        <DeleteFileButton
-                          authSettings={authSettings as AuthSettings}
-                          bucketName={bucketName}
-                          item={item}
-                          prefix={String(prefix)}
-                        />
-                      </>
-                    )}
-                  </td>
-                </tr>
-                  :""}</>
+                <>
+                  {item.size != 0 ? (
+                    <tr
+                      className={
+                        itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      }
+                      key={`f-${item.key}}`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {item.type === "folder" && (
+                          <span className="flex items-center">
+                            <FontAwesomeIcon
+                              className="flex-shrink-0 text-xl mr-4"
+                              aria-hidden="true"
+                              icon={faFolder}
+                            />
+                            <Link to={getFolderLink(item.key, bucketName)}>
+                              {getItemName(item.key, prefix)}
+                            </Link>
+                          </span>
+                        )}
+
+                        {item.type === "file" && (
+                          <span className="flex items-center">
+                            <FontAwesomeIcon
+                              className="flex-shrink-0 text-xl mr-4"
+                              aria-hidden="true"
+                              icon={faFileAlt}
+                            />
+
+                            {getItemName(item.key, prefix)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                        {item.type === "file" && (
+                          <>
+                            {item.lastModified
+                              ? format(
+                                  new Date(item.lastModified),
+                                  "MMM d, yyyy h:mm bbb"
+                                )
+                              : ""}
+                          </>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                        {item.type === "file" && (
+                          <>{item.size ? filesize(item.size) : ""}</>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {item.type === "folder" && (
+                          <DeleteFolderButton
+                            authSettings={authSettings as AuthSettings}
+                            bucketName={bucketName}
+                            item={item}
+                            prefix={String(prefix)}
+                          />
+                        )}
+                        {item.type === "file" && (
+                          <>
+                            <IconButton
+                              text="Download"
+                              icon={faDownload}
+                              size="sm"
+                              onClick={() => downloadFile(item.key)}
+                            />
+                            <DeleteFileButton
+                              authSettings={authSettings as AuthSettings}
+                              bucketName={bucketName}
+                              item={item}
+                              prefix={String(prefix)}
+                            />
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ) : (
+                    ""
+                  )}
+                </>
               ))}
             </tbody>
           )}
@@ -454,9 +470,7 @@ export const BucketContents = ({
   const authSettings = useSelector(selectAuthSettings);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [initialvalue , setinitialvalue] = useState(
-    DEFAULT_INITIAL_VALUES
-  );
+  const [initialvalue, setinitialvalue] = useState(DEFAULT_INITIAL_VALUES);
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
@@ -573,12 +587,12 @@ export const BucketContents = ({
                         name: Yup.string().required("Folder Name is required"),
                       })}
                       onSubmit={async (values) => {
-                        createFolder(values.name,prefix)
+                        createFolder(values.name, prefix);
                         setOpen(false);
                       }}
                       validateOnBlur={false}
                     >
-                    {(props) => (
+                      {(props) => (
                         <form onSubmit={props.handleSubmit} noValidate>
                           <div className="mb-2">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -594,29 +608,29 @@ export const BucketContents = ({
                                 Folder Name
                               </label>
                               <div className="mt-1">
-                                    <Field name="name">
-                                      {({ field }:FieldProps) => (
-                                        <div>
-                                          <input
-                                            type="text"
-                                            id="name"
-                                            className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                                            {...field}
-                                          />
-                                          <ErrorMessage
-                                            className="text-sm text-red-600"
-                                            name="name"
-                                          >
-                                            {(msg) => (
-                                              <div className="text-sm text-red-600">
-                                                {msg}
-                                              </div>
-                                            )}
-                                          </ErrorMessage>
-                                        </div>
+                                <Field name="name">
+                                  {({ field }: FieldProps) => (
+                                    <div>
+                                      <input
+                                        type="text"
+                                        id="name"
+                                        className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                        {...field}
+                                      />
+                                      <ErrorMessage
+                                        className="text-sm text-red-600"
+                                        name="name"
+                                      >
+                                        {(msg) => (
+                                          <div className="text-sm text-red-600">
+                                            {msg}
+                                          </div>
                                         )}
-                                    </Field>
-                                  </div>
+                                      </ErrorMessage>
+                                    </div>
+                                  )}
+                                </Field>
+                              </div>
                             </div>
                             <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                               <button
@@ -635,7 +649,7 @@ export const BucketContents = ({
                             </div>
                           </div>
                         </form>
-                    )}
+                      )}
                     </Formik>
                   </div>
                 </Transition.Child>

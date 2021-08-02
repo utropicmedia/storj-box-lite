@@ -22,12 +22,12 @@ export default function AuthSettings(): ReactElement {
       setInitialFormData(settings.auth);
     }
   }, [loading, settings, user]);
- 
-   const createFolder = async () => {
-     await firestoreCollection
-     .doc(user?.uid)
-     .set({ auth: { accessKeyId:"", secretAccessKey:"" } }, { merge: true });
-     location.reload()
+
+  const createFolder = async () => {
+    await firestoreCollection
+      .doc(user?.uid)
+      .set({ auth: { accessKeyId: "", secretAccessKey: "" } }, { merge: true });
+    location.reload();
   };
 
   return (
@@ -48,14 +48,14 @@ export default function AuthSettings(): ReactElement {
             await firestoreCollection
               .doc(user?.uid)
               .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
-              dispatch(
-                setSettings({
-                  ...settings,
-                  auth: { accessKeyId, secretAccessKey },
-                  credentialProfiles: undefined,
-                })
-                );
-                location.reload();
+            dispatch(
+              setSettings({
+                ...settings,
+                auth: { accessKeyId, secretAccessKey },
+                credentialProfiles: undefined,
+              })
+            );
+            location.reload();
           }}
         >
           {(props) => (
@@ -113,7 +113,6 @@ export default function AuthSettings(): ReactElement {
                             {({ field }: FieldProps) => (
                               <div>
                                 <input
-                                
                                   type="password"
                                   id="secretAccessKey"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"

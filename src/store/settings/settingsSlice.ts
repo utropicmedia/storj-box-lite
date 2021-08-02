@@ -2,7 +2,7 @@ import {
   createAsyncThunk,
   createSlice,
   PayloadAction,
-  SerializedError
+  SerializedError,
 } from "@reduxjs/toolkit";
 import firebase from "firebase/app";
 import { firestoreCollection } from "../../lib/firebase";
@@ -61,7 +61,6 @@ const initialState: SettingsState = {
     credentialProfiles: undefined,
   },
 };
-
 
 export const settingsSlice = createSlice({
   name: "settings",
