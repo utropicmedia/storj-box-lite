@@ -1,13 +1,9 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChevronLeft,
-  faChevronRight,
-  faDownload,
-  faFileAlt,
-  faFolder,
-  faHome,
+  faChevronRight, faDownload, faFileAlt, faFolder, faHome,
   faPlus,
-  faTrashAlt,
+  faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
@@ -15,13 +11,7 @@ import { format } from "date-fns";
 import filesize from "filesize";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { StorjClient } from "lib/storjClient";
-import React, {
-  Fragment,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { Fragment, ReactElement, useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -29,9 +19,9 @@ import { Link } from "react-router-dom";
 import {
   BucketItem,
   getBucketItems,
-  selectBucket,
+  selectBucket
 } from "store/bucket/bucketSlice";
-import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
+import { AuthSettings, selectCredentialProfiles } from "store/settings/settingsSlice";
 import * as Yup from "yup";
 import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
@@ -55,6 +45,8 @@ const getItemName = (key: string, prefix: string | undefined) => {
   const name = prefix ? key.replace(`${prefix}/`, "") : key;
   return name.replace(/\/$/, "");
 };
+
+
 
 interface BreadcrumbsProps {
   bucket: string;
@@ -280,13 +272,24 @@ const BucketContentsTable = ({
   bucket: bucketName,
   prefix,
 }: BucketContentsTableProps) => {
-  const authSettings = useSelector(selectAuthSettings);
+  const credentialSettings = useSelector(selectCredentialProfiles);
+
+
   const { items, error, loading } = useSelector(selectBucket);
   const dispatch = useDispatch();
 
+  let getCredential:any;
+
+  const authSettingCredential = credentialSettings?.map((cp) =>{
+    getCredential = cp.credentials
+    return;
+  })
+
+
+
   const downloadFile = async (key: string) => {
-    if (authSettings && bucketName) {
-      const storjClient = StorjClient.getInstance(authSettings);
+    if (getCredential && bucketName) {
+      const storjClient = StorjClient.getInstance(getCredential);
       if (storjClient) {
         // TODO: Figure out a better way to handle this, perhaps? Maybe a dialog, with a link once the url has been generated.
         const windowRef = window.open(`/downloading`, "dowloadFile");
@@ -302,10 +305,10 @@ const BucketContentsTable = ({
     async function loadBucketContents(auth: AuthSettings) {
       dispatch(getBucketItems({ auth, bucket: bucketName, prefix }));
     }
-    if (authSettings?.accessKeyId && authSettings?.secretAccessKey) {
-      loadBucketContents(authSettings);
+    if (getCredential?.accessKeyId && getCredential?.secretAccessKey) {
+      loadBucketContents(getCredential);
     }
-  }, [authSettings, bucketName, prefix, dispatch]);
+  }, [getCredential, bucketName, prefix, dispatch]);
 
   return (
     <>
@@ -362,91 +365,83 @@ const BucketContentsTable = ({
               </tr>
             </tbody>
           )}
-          {!loading && items && items.length > 0 && (
+          {!loading && items && items.length > 0 &&(
             <tbody>
               {items.map((item, itemIndex) => (
-                <>
-                  {item.size != 0 ? (
-                    <tr
-                      className={
-                        itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }
-                      key={`f-${item.key}}`}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {item.type === "folder" && (
-                          <span className="flex items-center">
-                            <FontAwesomeIcon
-                              className="flex-shrink-0 text-xl mr-4"
-                              aria-hidden="true"
-                              icon={faFolder}
-                            />
-                            <Link to={getFolderLink(item.key, bucketName)}>
-                              {getItemName(item.key, prefix)}
-                            </Link>
-                          </span>
-                        )}
-
-                        {item.type === "file" && (
-                          <span className="flex items-center">
-                            <FontAwesomeIcon
-                              className="flex-shrink-0 text-xl mr-4"
-                              aria-hidden="true"
-                              icon={faFileAlt}
-                            />
-
-                            {getItemName(item.key, prefix)}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                        {item.type === "file" && (
-                          <>
-                            {item.lastModified
-                              ? format(
-                                  new Date(item.lastModified),
-                                  "MMM d, yyyy h:mm bbb"
-                                )
-                              : ""}
-                          </>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                        {item.type === "file" && (
-                          <>{item.size ? filesize(item.size) : ""}</>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {item.type === "folder" && (
-                          <DeleteFolderButton
-                            authSettings={authSettings as AuthSettings}
-                            bucketName={bucketName}
-                            item={item}
-                            prefix={String(prefix)}
-                          />
-                        )}
-                        {item.type === "file" && (
-                          <>
-                            <IconButton
-                              text="Download"
-                              icon={faDownload}
-                              size="sm"
-                              onClick={() => downloadFile(item.key)}
-                            />
-                            <DeleteFileButton
-                              authSettings={authSettings as AuthSettings}
-                              bucketName={bucketName}
-                              item={item}
-                              prefix={String(prefix)}
-                            />
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ) : (
-                    ""
-                  )}
-                </>
+                  <tr
+                  className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  key={`f-${item.key}}`}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {item.type === "folder" && (
+                      <span className="flex items-center">
+                        <FontAwesomeIcon
+                          className="flex-shrink-0 text-xl mr-4"
+                          aria-hidden="true"
+                          icon={faFolder}
+                        />
+                        <Link to={getFolderLink(item.key, bucketName)}>
+                          {getItemName(item.key, prefix)}
+                        </Link>
+                      </span>
+                    )}
+                    
+                    { item.type === "file" && (
+                      <span className="flex items-center">
+                        <FontAwesomeIcon
+                          className="flex-shrink-0 text-xl mr-4"
+                          aria-hidden="true"
+                          icon={faFileAlt}
+                        />
+                        
+                        {getItemName(item.key, prefix)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    {item.type === "file" && (
+                      <>
+                        {item.lastModified
+                          ? format(
+                              new Date(item.lastModified),
+                              "MMM d, yyyy h:mm bbb"
+                            )
+                          : ""}
+                      </>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    {item.type === "file" && (
+                      <>{item.size ? filesize(item.size) : ""}</>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {item.type === "folder" && (
+                      <DeleteFolderButton
+                        authSettings={getCredential as AuthSettings}
+                        bucketName={bucketName}
+                        item={item}
+                        prefix={String(prefix)}
+                      />
+                    )}
+                    {item.type === "file" && (
+                      <>
+                        <IconButton
+                          text="Download"
+                          icon={faDownload}
+                          size="sm"
+                          onClick={() => downloadFile(item.key)}
+                        />
+                        <DeleteFileButton
+                          authSettings={getCredential as AuthSettings}
+                          bucketName={bucketName}
+                          item={item}
+                          prefix={String(prefix)}
+                        />
+                      </>
+                    )}
+                  </td>
+                </tr>
               ))}
             </tbody>
           )}
@@ -467,15 +462,25 @@ export const BucketContents = ({
   const location = useLocation();
   const [prefix, setPrefix] = useState<string>();
   const [uploading, setUploading] = useState(false);
-  const authSettings = useSelector(selectAuthSettings);
+  const credentialSettings = useSelector(selectCredentialProfiles);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [initialvalue, setinitialvalue] = useState(DEFAULT_INITIAL_VALUES);
+  const [initialvalue ] = useState(
+    DEFAULT_INITIAL_VALUES
+  );
+
+  let getCredential:any;
+
+  const authSettingCredential = credentialSettings?.map((cp) =>{
+      getCredential = cp.credentials
+      return
+  })
+  
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
         setUploading(true);
-        const storjClient = StorjClient.getInstance(authSettings);
+        const storjClient = StorjClient.getInstance(getCredential);
         if (storjClient) {
           await storjClient.uploadFiles({
             files: acceptedFiles,
@@ -488,13 +493,13 @@ export const BucketContents = ({
       if (
         acceptedFiles &&
         acceptedFiles.length > 0 &&
-        authSettings?.accessKeyId &&
-        authSettings?.secretAccessKey
+        getCredential?.accessKeyId &&
+        getCredential?.secretAccessKey
       ) {
         uploadFiles();
       }
     },
-    [authSettings, bucket, prefix]
+    [getCredential, bucket, prefix]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const {
@@ -508,11 +513,11 @@ export const BucketContents = ({
   });
 
   const createFolder = async (name: string, prefix: string | undefined) => {
-    if (authSettings && bucketName) {
-      const storjClient = StorjClient.getInstance(authSettings);
+    if (getCredential && bucketName) {
+      const storjClient = StorjClient.getInstance(getCredential);
       await storjClient?.createFolder(bucketName, name, prefix);
       dispatch(
-        getBucketItems({ auth: authSettings, bucket: bucketName, prefix })
+        getBucketItems({ auth: getCredential, bucket: bucketName, prefix })
       );
     }
   };
@@ -582,17 +587,16 @@ export const BucketContents = ({
                   <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                     <Formik
                       initialValues={initialvalue}
-                      enableReinitialize={true}
                       validationSchema={Yup.object({
                         name: Yup.string().required("Folder Name is required"),
                       })}
                       onSubmit={async (values) => {
-                        createFolder(values.name, prefix);
+                        createFolder(values.name,prefix)
                         setOpen(false);
                       }}
                       validateOnBlur={false}
                     >
-                      {(props) => (
+                    {(props) => (
                         <form onSubmit={props.handleSubmit} noValidate>
                           <div className="mb-2">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -608,29 +612,29 @@ export const BucketContents = ({
                                 Folder Name
                               </label>
                               <div className="mt-1">
-                                <Field name="name">
-                                  {({ field }: FieldProps) => (
-                                    <div>
-                                      <input
-                                        type="text"
-                                        id="name"
-                                        className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                                        {...field}
-                                      />
-                                      <ErrorMessage
-                                        className="text-sm text-red-600"
-                                        name="name"
-                                      >
-                                        {(msg) => (
-                                          <div className="text-sm text-red-600">
-                                            {msg}
-                                          </div>
+                                    <Field name="name">
+                                      {({ field }:FieldProps) => (
+                                        <div>
+                                          <input
+                                            type="text"
+                                            id="name"
+                                            className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                            {...field}
+                                          />
+                                          <ErrorMessage
+                                            className="text-sm text-red-600"
+                                            name="name"
+                                          >
+                                            {(msg) => (
+                                              <div className="text-sm text-red-600">
+                                                {msg}
+                                              </div>
+                                            )}
+                                          </ErrorMessage>
+                                        </div>
                                         )}
-                                      </ErrorMessage>
-                                    </div>
-                                  )}
-                                </Field>
-                              </div>
+                                    </Field>
+                                  </div>
                             </div>
                             <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                               <button
@@ -649,7 +653,7 @@ export const BucketContents = ({
                             </div>
                           </div>
                         </form>
-                      )}
+                    )}
                     </Formik>
                   </div>
                 </Transition.Child>

@@ -49,7 +49,7 @@ export default function App(): ReactElement {
               <Route exact path="/">
                 <Redirect
                   to={{
-                    pathname: user ? "/bucket" : "/sign-in",
+                    pathname: user ? "/settings" : "/sign-in",
                   }}
                 />
               </Route>

@@ -21,8 +21,9 @@ export const BucketListProfile = (): ReactElement => {
   }
   let getCredential: any;
   const authSettingCredential = authSettings?.map((cp) => {
-    if (paramId == cp.id) {
+    if (paramId === cp.id) {
       getCredential = cp.credentials;
+      return;
     }
   });
 
@@ -44,9 +45,7 @@ export const BucketListProfile = (): ReactElement => {
         </PageTitle>
       </div>
       {!loading && error && (
-        <pre className="mb-4">
-          error: {JSON.stringify(error.message, null, 2)}
-        </pre>
+        <pre className="mb-4">error: {JSON.stringify(error, null, 2)}</pre>
       )}
       <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">

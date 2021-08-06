@@ -1,7 +1,7 @@
+import BucketContents from "components/BucketContents";
+import BucketsList from "components/BucketsList";
 import React from "react";
 import { useParams } from "react-router";
-import { BucketContents } from "../components/BucketContents";
-import { BucketsList } from "../components/BucketsList";
 import Head from "../components/Head";
 
 export const BucketPage = () => {

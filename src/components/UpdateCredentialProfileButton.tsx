@@ -125,15 +125,8 @@ export const UpdateCredentialProfileButton = ({
                           settings.credentialProfiles.length > 0
                             ? settings.credentialProfiles
                             : []),
-                          // values,
                           {
                             ...values,
-                            // id:
-                            //   settings &&
-                            //   settings.credentialProfiles &&
-                            //   settings.credentialProfiles.length > 0
-                            //     ? settings.credentialProfiles.length
-                            //     : 0,
                             id: uuidv4(),
                           },
                         ];

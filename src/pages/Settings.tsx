@@ -1,5 +1,4 @@
 import React, { ReactElement } from "react";
-import AuthSettings from "../components/AuthSettings";
 import CredentialProfiles from "../components/CredentialProfiles";
 import Head from "../components/Head";
 
@@ -15,9 +14,9 @@ export default function Settings(): ReactElement {
         <CredentialProfiles />
       </div>
 
-      <div className="mt-4 mx-auto px-4 sm:px-6 md:px-8">
+      {/* <div className="mt-4 mx-auto px-4 sm:px-6 md:px-8">
         <AuthSettings />
-      </div>
+      </div> */}
     </>
   );
 }

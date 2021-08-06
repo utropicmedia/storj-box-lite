@@ -1,9 +1,9 @@
+import BucketListProfile from "components/BucketListProfile";
 import React from "react";
 import { useParams } from "react-router";
-import { BucketListProfile } from "../components/BucketListProfile";
 import Head from "../components/Head";
 
-export const BucketPage = () => {
+export const BucketPageProfile = () => {
   const { bucketName } = useParams<{ bucketName: string }>();
 
   return (
@@ -14,4 +14,4 @@ export const BucketPage = () => {
   );
 };
 
-export default BucketPage;
+export default BucketPageProfile;

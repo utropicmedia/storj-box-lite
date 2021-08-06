@@ -23,12 +23,12 @@ export default function AuthSettings(): ReactElement {
     }
   }, [loading, settings, user]);
 
-  const createFolder = async () => {
-    await firestoreCollection
-      .doc(user?.uid)
-      .set({ auth: { accessKeyId: "", secretAccessKey: "" } }, { merge: true });
-    location.reload();
-  };
+  //  const reset = async () => {
+  //    await firestoreCollection
+  //    .doc(user?.uid)
+  //    .set({ auth: { accessKeyId:"", secretAccessKey:"" } }, { merge: true });
+  //    location.reload()
+  // };
 
   return (
     <>
@@ -55,12 +55,11 @@ export default function AuthSettings(): ReactElement {
                 credentialProfiles: undefined,
               })
             );
-            location.reload();
           }}
         >
           {(props) => (
             <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-              <form onSubmit={props.handleSubmit} noValidate id="test">
+              <form onSubmit={props.handleSubmit}>
                 <div className="shadow sm:rounded-md">
                   <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
                     <div>
@@ -141,7 +140,7 @@ export default function AuthSettings(): ReactElement {
                   <button
                     type="button"
                     className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter"
-                    onClick={() => createFolder()}
+                    onClick={() => props.resetForm({ values: initalFormData })}
                   >
                     Reset
                   </button>
