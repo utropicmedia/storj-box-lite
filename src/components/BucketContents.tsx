@@ -1,9 +1,13 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChevronLeft,
-  faChevronRight, faDownload, faFileAlt, faFolder, faHome,
+  faChevronRight,
+  faDownload,
+  faFileAlt,
+  faFolder,
+  faHome,
   faPlus,
-  faTrashAlt
+  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
@@ -11,7 +15,13 @@ import { format } from "date-fns";
 import filesize from "filesize";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { StorjClient } from "lib/storjClient";
-import React, { Fragment, ReactElement, useCallback, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -19,9 +29,12 @@ import { Link } from "react-router-dom";
 import {
   BucketItem,
   getBucketItems,
-  selectBucket
+  selectBucket,
 } from "store/bucket/bucketSlice";
-import { AuthSettings, selectCredentialProfiles } from "store/settings/settingsSlice";
+import {
+  AuthSettings,
+  selectCredentialProfiles,
+} from "store/settings/settingsSlice";
 import * as Yup from "yup";
 import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
@@ -45,8 +58,6 @@ const getItemName = (key: string, prefix: string | undefined) => {
   const name = prefix ? key.replace(`${prefix}/`, "") : key;
   return name.replace(/\/$/, "");
 };
-
-
 
 interface BreadcrumbsProps {
   bucket: string;
@@ -274,18 +285,15 @@ const BucketContentsTable = ({
 }: BucketContentsTableProps) => {
   const credentialSettings = useSelector(selectCredentialProfiles);
 
-
   const { items, error, loading } = useSelector(selectBucket);
   const dispatch = useDispatch();
 
-  let getCredential:any;
+  let getCredential: any;
 
-  const authSettingCredential = credentialSettings?.map((cp) =>{
-    getCredential = cp.credentials
+  const authSettingCredential = credentialSettings?.map((cp) => {
+    getCredential = cp.credentials;
     return;
-  })
-
-
+  });
 
   const downloadFile = async (key: string) => {
     if (getCredential && bucketName) {
@@ -365,10 +373,10 @@ const BucketContentsTable = ({
               </tr>
             </tbody>
           )}
-          {!loading && items && items.length > 0 &&(
+          {!loading && items && items.length > 0 && (
             <tbody>
               {items.map((item, itemIndex) => (
-                  <tr
+                <tr
                   className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
                   key={`f-${item.key}}`}
                 >
@@ -385,15 +393,15 @@ const BucketContentsTable = ({
                         </Link>
                       </span>
                     )}
-                    
-                    { item.type === "file" && (
+
+                    {item.type === "file" && (
                       <span className="flex items-center">
                         <FontAwesomeIcon
                           className="flex-shrink-0 text-xl mr-4"
                           aria-hidden="true"
                           icon={faFileAlt}
                         />
-                        
+
                         {getItemName(item.key, prefix)}
                       </span>
                     )}
@@ -465,17 +473,15 @@ export const BucketContents = ({
   const credentialSettings = useSelector(selectCredentialProfiles);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [initialvalue ] = useState(
-    DEFAULT_INITIAL_VALUES
-  );
+  const [initialvalue] = useState(DEFAULT_INITIAL_VALUES);
 
-  let getCredential:any;
+  let getCredential: any;
 
-  const authSettingCredential = credentialSettings?.map((cp) =>{
-      getCredential = cp.credentials
-      return
-  })
-  
+  const authSettingCredential = credentialSettings?.map((cp) => {
+    getCredential = cp.credentials;
+    return;
+  });
+
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
@@ -591,12 +597,12 @@ export const BucketContents = ({
                         name: Yup.string().required("Folder Name is required"),
                       })}
                       onSubmit={async (values) => {
-                        createFolder(values.name,prefix)
+                        createFolder(values.name, prefix);
                         setOpen(false);
                       }}
                       validateOnBlur={false}
                     >
-                    {(props) => (
+                      {(props) => (
                         <form onSubmit={props.handleSubmit} noValidate>
                           <div className="mb-2">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -612,29 +618,29 @@ export const BucketContents = ({
                                 Folder Name
                               </label>
                               <div className="mt-1">
-                                    <Field name="name">
-                                      {({ field }:FieldProps) => (
-                                        <div>
-                                          <input
-                                            type="text"
-                                            id="name"
-                                            className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                                            {...field}
-                                          />
-                                          <ErrorMessage
-                                            className="text-sm text-red-600"
-                                            name="name"
-                                          >
-                                            {(msg) => (
-                                              <div className="text-sm text-red-600">
-                                                {msg}
-                                              </div>
-                                            )}
-                                          </ErrorMessage>
-                                        </div>
+                                <Field name="name">
+                                  {({ field }: FieldProps) => (
+                                    <div>
+                                      <input
+                                        type="text"
+                                        id="name"
+                                        className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
+                                        {...field}
+                                      />
+                                      <ErrorMessage
+                                        className="text-sm text-red-600"
+                                        name="name"
+                                      >
+                                        {(msg) => (
+                                          <div className="text-sm text-red-600">
+                                            {msg}
+                                          </div>
                                         )}
-                                    </Field>
-                                  </div>
+                                      </ErrorMessage>
+                                    </div>
+                                  )}
+                                </Field>
+                              </div>
                             </div>
                             <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                               <button
@@ -653,7 +659,7 @@ export const BucketContents = ({
                             </div>
                           </div>
                         </form>
-                    )}
+                      )}
                     </Formik>
                   </div>
                 </Transition.Child>

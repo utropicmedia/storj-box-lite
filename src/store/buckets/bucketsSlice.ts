@@ -34,7 +34,7 @@ export const getBuckets = createAsyncThunk<
   if (!loading) {
     return;
   }
-  const client = StorjClient.getInstance(auth);
+  const client = StorjClient.getInstanceProfile(auth);
   const response = await client?.listBuckets();
   return response && response.Buckets ? mapS3Buckets(response.Buckets) : [];
 });
@@ -64,10 +64,12 @@ export const bucketsSlice = createSlice({
     });
     builder.addCase(getBuckets.fulfilled, (state, action) => {
       state.loading = false;
+      state.error = undefined;
       state.buckets = action.payload;
     });
     builder.addCase(getBuckets.rejected, (state, action) => {
       state.loading = false;
+      state.buckets = [];
       state.error = action.error;
     });
   },

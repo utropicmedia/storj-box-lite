@@ -19,8 +19,8 @@ import {
 import * as Yup from "yup";
 
 export interface ConfirmDialogProps {
-  accessKey?: ReactElement | string;
-  secretKey?: ReactElement | string;
+  accessKeyProfile?: ReactElement | string;
+  secretKeyProfile?: ReactElement | string;
   content?: ReactElement | string;
   onCancel: () => unknown;
   index: number;
@@ -36,18 +36,11 @@ const DEFAULT_INITIAL_VALUES: CredentialProfile = {
 };
 
 export const ConfirmDialog = ({
-  secretKey,
-  accessKey,
-  content,
   onCancel,
   index,
   open,
-  cancelText,
-  confirmText,
 }: ConfirmDialogProps) => {
-  const [initialValues, setInitalValues] = useState<CredentialProfile>(
-    DEFAULT_INITIAL_VALUES
-  );
+  const [initialValues] = useState<CredentialProfile>(DEFAULT_INITIAL_VALUES);
   const { settings, loading } = useSelector(selectSettings);
   const [user] = useAuthState(auth);
 

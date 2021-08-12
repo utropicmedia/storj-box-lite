@@ -20,8 +20,6 @@ import { Link, useLocation } from "react-router-dom";
 import { selectSettings } from "store/settings/settingsSlice";
 import { Logo } from "../components/logo/index";
 
-// const navigation = [{ name: "Storj DCS", href: "/bucket", icon: faCloud }];
-
 const userMenu = [
   {
     items: [
@@ -136,34 +134,6 @@ export default function AppLayout({
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
                 <nav className="px-2">
-                  {/* <div className="space-y-1">
-                    {navigation &&
-                      navigation.map((item, itemIndex) => (
-                        <Link
-                          key={`n-${itemIndex}-${item.name}`}
-                          to={item.href}
-                          className={classNames(
-                            location.pathname === item.href
-                              ? "bg-secondary-dark text-white"
-                              : "text-gray-100 hover:bg-secondary-lighter",
-                            "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
-                          )}
-                          onClick={() => setSidebarOpen(false)}
-                          aria-current={
-                            location.pathname === item.href ? "page" : undefined
-                          }
-                        >
-                          {item.icon && (
-                            <FontAwesomeIcon
-                              icon={item.icon}
-                              className="mr-3 h-6 w-6 text-gray-300"
-                              aria-hidden="true"
-                            />
-                          )}
-                          {item.name}
-                        </Link>
-                      ))}
-                  </div> */}
                   <div className="mt-8">
                     <h3
                       className="px-3 text-xs font-semibold text-gray-100 uppercase tracking-wider"
@@ -187,10 +157,7 @@ export default function AppLayout({
                                 : "text-gray-100 hover:bg-secondary-lighter",
                               "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
                             )}
-                            // onClick={() => setSidebarOpen(false)}
-                            onClick={() =>
-                              (window.location.href = profile.href)
-                            }
+                            onClick={() => setSidebarOpen(false)}
                             aria-current={
                               location.pathname === profile.href
                                 ? "page"
@@ -317,34 +284,6 @@ export default function AppLayout({
             </Menu>
             {/* Navigation */}
             <nav className="px-3 mt-6">
-              {/* <div className="space-y-1">
-                {navigation &&
-                  navigation.map((item, itemIndex) => (
-                    <Link
-                      key={`n-${itemIndex}-${item.name}`}
-                      to={item.href}
-                      className={classNames(
-                        location.pathname === item.href
-                          ? "bg-secondary-dark text-white"
-                          : "text-gray-100 hover:bg-secondary-lighter",
-                        "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
-                      )}
-                      onClick={() => window.location.href = item.href}
-                      aria-current={
-                        location.pathname === item.href ? "page" : undefined
-                      }
-                    >
-                      {item.icon && (
-                        <FontAwesomeIcon
-                          icon={item.icon}
-                          className="mr-3 h-6 w-6 text-gray-300"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {item.name}
-                    </Link>
-                  ))}
-              </div> */}
               <div className="mt-8">
                 {/* Secondary navigation */}
                 <h3
@@ -369,7 +308,7 @@ export default function AppLayout({
                             : "text-gray-100 hover:bg-secondary-lighter",
                           "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
                         )}
-                        onClick={() => (window.location.href = profile.href)}
+                        onClick={() => setSidebarOpen(false)}
                         aria-current={
                           location.pathname === profile.href
                             ? "page"

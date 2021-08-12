@@ -23,13 +23,6 @@ export default function AuthSettings(): ReactElement {
     }
   }, [loading, settings, user]);
 
-  //  const reset = async () => {
-  //    await firestoreCollection
-  //    .doc(user?.uid)
-  //    .set({ auth: { accessKeyId:"", secretAccessKey:"" } }, { merge: true });
-  //    location.reload()
-  // };
-
   return (
     <>
       {loading && <Spinner />}

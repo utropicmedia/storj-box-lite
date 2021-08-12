@@ -13,10 +13,6 @@ export default function Settings(): ReactElement {
       <div className="mt-4 mx-auto px-4 sm:px-6 md:px-8">
         <CredentialProfiles />
       </div>
-
-      {/* <div className="mt-4 mx-auto px-4 sm:px-6 md:px-8">
-        <AuthSettings />
-      </div> */}
     </>
   );
 }

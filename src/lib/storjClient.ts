@@ -49,6 +49,14 @@ export class StorjClient {
     }
     return this.classInstance;
   }
+  static getInstanceProfile(options: StorjClientOptions | null | undefined) {
+    if (options) {
+      this.classInstance = new StorjClient(options);
+    } else if (!this.classInstance && !options) {
+      throw new Error("StorjClientOptions are required");
+    }
+    return this.classInstance;
+  }
 
   createFolder(bucket: string, name: string, prefix: string | undefined) {
     const params: PutObjectRequest = {
