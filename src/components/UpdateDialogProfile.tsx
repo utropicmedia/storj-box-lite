@@ -111,7 +111,7 @@ export const ConfirmDialog = ({
                       const updateProfileData: any = [];
                       var key: any;
                       for (key in geAlltProfiles) {
-                        if (key != index) {
+                        if (key !== index) {
                           updateProfileData.push(geAlltProfiles[key]);
                         } else {
                           values.id = geAlltProfiles[key].id;
@@ -197,7 +197,7 @@ export const ConfirmDialog = ({
                                 autoComplete="type"
                                 className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                               >
-                                <option value="storjDcs">Storj S3</option>
+                                <option value="storjDcs">Storj DCS</option>
                               </select>
                             </div>
                           </div>

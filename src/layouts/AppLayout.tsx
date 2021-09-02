@@ -1,8 +1,8 @@
 import {
   faCloud,
+  faCog,
   faCogs,
   faIdCard,
-  faPlus,
   faSignOutAlt,
   faUserCog,
   IconDefinition,
@@ -67,7 +67,7 @@ export default function AppLayout({
               icon: cp.type === "storjDcs" ? faCloud : faUserCog,
             }))
           : []),
-        { name: "Add Profiles", href: "/settings", icon: faPlus },
+        { name: "Manage Profiles", href: "/settings", icon: faCog },
       ];
       setProfiles(profileItems);
     }

@@ -200,7 +200,7 @@ export const UpdateCredentialProfileButton = ({
                                   autoComplete="type"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                 >
-                                  <option value="storjDcs">Storj S3</option>
+                                  <option value="storjDcs">Storj DCS</option>
                                 </select>
                               </div>
                             </div>

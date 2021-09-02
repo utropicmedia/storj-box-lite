@@ -24,7 +24,7 @@ const CredentialProfileTypeDisplay = ({
   switch (type) {
     case "storjDcs":
     default:
-      return <span>Storj S3</span>;
+      return <span>Storj DCS</span>;
   }
 };
 
