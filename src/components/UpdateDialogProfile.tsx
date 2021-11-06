@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth, firestoreCollection } from "lib/firebase";
 import {
@@ -126,9 +127,12 @@ export const ConfirmDialog = ({
                           : []),
                       ];
 
-                      await firestoreCollection
-                        .doc(user?.uid)
-                        .set({ credentialProfiles }, { merge: true });
+                      const docRef = doc(firestoreCollection, user?.uid);
+                      await setDoc(
+                        docRef,
+                        { credentialProfiles },
+                        { merge: true }
+                      );
                       dispatch(
                         setSettings({
                           auth: settings?.auth,

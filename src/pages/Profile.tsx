@@ -1,3 +1,4 @@
+import { updateProfile } from "firebase/auth";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -44,7 +45,7 @@ export default function Profile(): ReactElement {
             })}
             onSubmit={async (values) => {
               const { displayName, photoURL } = values;
-              await user.updateProfile({ displayName, photoURL });
+              await updateProfile(user, { displayName, photoURL });
               setInitialFormData({ displayName, photoURL });
               dispatch(setUser(user.toJSON() as UserState));
             }}

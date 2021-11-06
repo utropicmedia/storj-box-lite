@@ -1,6 +1,7 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
+import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import React, { Fragment, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -130,9 +131,12 @@ export const UpdateCredentialProfileButton = ({
                             id: uuidv4(),
                           },
                         ];
-                        await firestoreCollection
-                          .doc(user?.uid)
-                          .set({ credentialProfiles }, { merge: true });
+                        const docRef = doc(firestoreCollection, user?.uid);
+                        await setDoc(
+                          docRef,
+                          { credentialProfiles },
+                          { merge: true }
+                        );
                         dispatch(
                           setSettings({
                             auth: settings?.auth,

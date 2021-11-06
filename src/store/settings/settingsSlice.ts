@@ -4,20 +4,23 @@ import {
   PayloadAction,
   SerializedError,
 } from "@reduxjs/toolkit";
-import firebase from "firebase/app";
+import { User } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { firestoreCollection } from "../../lib/firebase";
 import { RootState } from "../store";
 
 export const getSettings = createAsyncThunk<
   Settings | undefined,
-  firebase.User,
+  User,
   { state: RootState }
 >("settings/getSettings", async (user, { getState }) => {
   const { loading } = getState().settings;
   if (!loading) {
     return;
   }
-  const userDocument = await firestoreCollection.doc(user.uid).get();
+  const docRef = await doc(firestoreCollection, user.uid);
+  const userDocument = await getDoc(docRef);
+  // const userDocument = await firestoreCollection.doc(user.uid).get();
   const data = userDocument.data() as Settings;
   return data;
 });

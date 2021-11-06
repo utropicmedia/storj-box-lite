@@ -1,3 +1,4 @@
+import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -38,9 +39,12 @@ export default function AuthSettings(): ReactElement {
           })}
           onSubmit={async (values) => {
             const { accessKeyId, secretAccessKey } = values;
-            await firestoreCollection
-              .doc(user?.uid)
-              .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
+            const docRef = doc(firestoreCollection, user?.uid);
+            await setDoc(
+              docRef,
+              { auth: { accessKeyId, secretAccessKey } },
+              { merge: true }
+            );
             dispatch(
               setSettings({
                 ...settings,

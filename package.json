@@ -32,14 +32,14 @@
     "classnames": "^2.3.1",
     "date-fns": "^2.23.0",
     "filesize": "^7.0.0",
-    "firebase": "^8.8.1",
+    "firebase": "^9.3.0",
     "formik": "^2.2.9",
     "framer-motion": "^4.1.17",
     "is-ci": "^3.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-dropzone": "^11.3.4",
-    "react-firebase-hooks": "^3.0.4",
+    "react-firebase-hooks": "^4.0.1",
     "react-query": "3.19.1",
     "react-redux": "^7.2.4",
     "react-router-dom": "5.2.0",
@@ -91,5 +91,9 @@
     "*.css": "stylelint --fix",
     "*.{html,js,ts,tsx,css,md,json}": "prettier --write"
   },
-  "browserslist": "Edge >= 18, Firefox >= 60, Chrome >= 61, Safari >= 11, Opera >= 48"
+  "browserslist": "Edge >= 18, Firefox >= 60, Chrome >= 61, Safari >= 11, Opera >= 48",
+  "volta": {
+    "node": "16.13.0",
+    "yarn": "1.22.17"
+  }
 }

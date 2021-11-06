@@ -1,5 +1,6 @@
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { signInWithPopup } from "firebase/auth";
 import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -12,7 +13,7 @@ export default function SignIn(): ReactElement {
   const history = useHistory();
 
   const signInWithGoogle = async () => {
-    await auth.signInWithPopup(googleAuthProvider);
+    await signInWithPopup(auth, googleAuthProvider);
   };
 
   useEffect(() => {

@@ -1,4 +1,5 @@
-import firebase from "firebase/app";
+import { User } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -33,7 +34,7 @@ interface DeleteProfileButtonProps {
   credentialProfiles: CredentialProfile[];
   profile: CredentialProfile;
   profileIndex: number;
-  user: firebase.User;
+  user: User;
 }
 
 const DeleteProfileButton = ({
@@ -51,9 +52,8 @@ const DeleteProfileButton = ({
       ...credentialProfiles.slice(0, idx),
       ...credentialProfiles.slice(idx + 1),
     ];
-    await firestoreCollection
-      .doc(user?.uid)
-      .set({ credentialProfiles: newProfiles }, { merge: true });
+    const docRef = doc(firestoreCollection, user?.uid);
+    await setDoc(docRef, { credentialProfiles: newProfiles }, { merge: true });
     dispatch(
       setSettings({
         auth: authSettings,
@@ -93,7 +93,7 @@ interface UpdateProfileButtonProps {
   credentialProfiles: CredentialProfile[];
   profile: CredentialProfile;
   profileIndex: any;
-  user: firebase.User;
+  user: User;
 }
 
 const UpdateProfile = ({ profile, profileIndex }: UpdateProfileButtonProps) => {
