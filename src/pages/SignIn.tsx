@@ -4,13 +4,13 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Head from "../components/Head";
 import { Logo } from "../components/logo/index";
 
 export default function SignIn(): ReactElement {
   const [user] = useAuthState(auth);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleAuthProvider);
@@ -18,9 +18,9 @@ export default function SignIn(): ReactElement {
 
   useEffect(() => {
     if (user) {
-      history.push("/settings");
+      navigate("/settings");
     }
-  }, [user, history]);
+  }, [user, navigate]);
 
   return (
     <>
