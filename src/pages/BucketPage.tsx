@@ -5,7 +5,7 @@ import { useParams } from "react-router";
 import Head from "../components/Head";
 
 export const BucketPage = () => {
-  const { bucketName } = useParams<{ bucketName: string }>();
+  const { bucketName } = useParams();
 
   return (
     <>
