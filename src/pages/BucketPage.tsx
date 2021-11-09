@@ -9,7 +9,7 @@ export const BucketPage = () => {
 
   return (
     <>
-      <Head title="Bucket | Storj Box Lite" />
+      <Head title="Bucket | Box Lite" />
       {!bucketName && <BucketsList />}
       {bucketName && <BucketContents bucket={bucketName} />}
     </>
