@@ -27,6 +27,12 @@
     "@headlessui/react": "1.4.0",
     "@heroicons/react": "^1.0.3",
     "@reduxjs/toolkit": "^1.6.1",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/wallet-adapter-base": "^0.7.0",
+    "@solana/wallet-adapter-react": "^0.13.1",
+    "@solana/wallet-adapter-react-ui": "^0.6.0",
+    "@solana/wallet-adapter-wallets": "^0.11.3",
+    "@solana/web3.js": "^1.30.2",
     "babel-eslint": "^10.1.0",
     "change-case": "^4.1.2",
     "classnames": "^2.3.1",
@@ -43,7 +49,9 @@
     "react-query": "3.19.1",
     "react-redux": "^7.2.4",
     "react-router-dom": "5.2.0",
+    "use-wallet": "^0.13.1",
     "uuid": "^8.3.2",
+    "web3": "^1.6.0",
     "yup": "^0.32.9"
   },
   "devDependencies": {
@@ -91,5 +99,9 @@
     "*.css": "stylelint --fix",
     "*.{html,js,ts,tsx,css,md,json}": "prettier --write"
   },
-  "browserslist": "Edge >= 18, Firefox >= 60, Chrome >= 61, Safari >= 11, Opera >= 48"
+  "browserslist": "Edge >= 18, Firefox >= 60, Chrome >= 61, Safari >= 11, Opera >= 48",
+  "browser": {
+    "crypto": "crypto-browserify",
+    "stream": "stream-browserify"
+  }
 }

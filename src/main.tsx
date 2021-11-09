@@ -1,11 +1,15 @@
+import { Buffer } from "buffer";
+import process from "process";
 import React from "react";
 import ReactDOM from "react-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
+import { UseWalletProvider } from "use-wallet";
 import App from "./App";
 import "./index.css";
 import { store } from "./store/store";
-
+window.process = process;
+window.Buffer = Buffer || require("buffer").Buffer;
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -16,11 +20,13 @@ const queryClient = new QueryClient({
 
 ReactDOM.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </QueryClientProvider>
+    <UseWalletProvider connectors={{}}>
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </QueryClientProvider>
+    </UseWalletProvider>
   </React.StrictMode>,
   document.querySelector("#root")
 );
