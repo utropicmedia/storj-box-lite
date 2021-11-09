@@ -34,9 +34,7 @@ export const UpdateCredentialProfileButton = ({
   const [user] = useAuthState(auth);
   const { settings, loading } = useSelector(selectSettings);
   const [open, setOpen] = useState(false);
-  const [initialValues, setInitalValues] = useState<CredentialProfile>(
-    DEFAULT_INITIAL_VALUES
-  );
+  const [initialValues] = useState<CredentialProfile>(DEFAULT_INITIAL_VALUES);
   const dispatch = useDispatch();
 
   const handleClick = () => {

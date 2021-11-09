@@ -20,7 +20,7 @@ export const BucketListProfile = (): ReactElement => {
     paramId = param[0];
   }
   let getCredential: any;
-  const authSettingCredential = authSettings?.map((cp) => {
+  authSettings?.forEach((cp) => {
     if (paramId === cp.id) {
       getCredential = cp.credentials;
       return;

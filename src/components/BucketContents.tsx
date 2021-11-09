@@ -290,7 +290,7 @@ const BucketContentsTable = ({
 
   let getCredential: any;
 
-  const authSettingCredential = credentialSettings?.map((cp) => {
+  credentialSettings?.forEach((cp) => {
     getCredential = cp.credentials;
     return;
   });
@@ -477,7 +477,7 @@ export const BucketContents = ({
 
   let getCredential: any;
 
-  const authSettingCredential = credentialSettings?.map((cp) => {
+  credentialSettings?.forEach((cp) => {
     getCredential = cp.credentials;
     return;
   });

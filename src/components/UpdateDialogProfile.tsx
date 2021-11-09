@@ -1,30 +1,21 @@
+import { User } from "@firebase/auth";
 import { Dialog, Transition } from "@headlessui/react";
-import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
-import { auth, firestoreCollection } from "lib/firebase";
-import {
-  default as React,
-  Fragment,
-  ReactElement,
-  useRef,
-  useState,
-} from "react";
+import { auth } from "lib/firebase";
+import { default as React, Fragment, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import {
   CredentialProfile,
   CredentialProfileType,
+  saveCredentialProfiles,
   selectSettings,
-  setSettings,
 } from "store/settings/settingsSlice";
 import * as Yup from "yup";
 
 export interface ConfirmDialogProps {
-  accessKeyProfile?: ReactElement | string;
-  secretKeyProfile?: ReactElement | string;
-  content?: ReactElement | string;
+  credentialProfile?: CredentialProfile;
   onCancel: () => unknown;
-  index: number;
   open: boolean;
   cancelText?: string;
   confirmText?: string;
@@ -38,10 +29,14 @@ const DEFAULT_INITIAL_VALUES: CredentialProfile = {
 
 export const ConfirmDialog = ({
   onCancel,
-  index,
   open,
+  credentialProfile,
+  cancelText,
+  confirmText,
 }: ConfirmDialogProps) => {
-  const [initialValues] = useState<CredentialProfile>(DEFAULT_INITIAL_VALUES);
+  const [initialValues] = useState<CredentialProfile>(
+    credentialProfile || DEFAULT_INITIAL_VALUES
+  );
   const { settings, loading } = useSelector(selectSettings);
   const [user] = useAuthState(auth);
 
@@ -108,38 +103,27 @@ export const ConfirmDialog = ({
                       }),
                     })}
                     onSubmit={async (values) => {
-                      const geAlltProfiles: any = settings?.credentialProfiles;
-                      const updateProfileData: any = [];
-                      var key: any;
-                      for (key in geAlltProfiles) {
-                        if (key !== index) {
-                          updateProfileData.push(geAlltProfiles[key]);
-                        } else {
-                          values.id = geAlltProfiles[key].id;
-                          updateProfileData.push(values);
-                        }
-                      }
-                      const credentialProfiles = [
-                        ...(updateProfileData &&
-                        updateProfileData &&
-                        updateProfileData.length > 0
-                          ? updateProfileData
-                          : []),
+                      const credentialProfiles: CredentialProfile[] = [
+                        ...(settings?.credentialProfiles || []),
                       ];
-
-                      const docRef = doc(firestoreCollection, user?.uid);
-                      await setDoc(
-                        docRef,
-                        { credentialProfiles },
-                        { merge: true }
+                      const idx = credentialProfiles.findIndex(
+                        (p: CredentialProfile) => p.id === values.id
                       );
+                      if (idx !== -1) {
+                        credentialProfiles[idx] = {
+                          ...credentialProfiles[idx],
+                          ...values,
+                        };
+                      } else {
+                        credentialProfiles.push(values);
+                      }
+
                       dispatch(
-                        setSettings({
-                          auth: settings?.auth,
+                        saveCredentialProfiles({
                           credentialProfiles,
+                          user: user as User,
                         })
                       );
-                      onCancel();
                     }}
                     validateOnBlur={false}
                   >
@@ -282,14 +266,14 @@ export const ConfirmDialog = ({
                               type="submit"
                               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-brand text-base font-medium text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter sm:ml-3 sm:w-auto sm:text-sm"
                             >
-                              Save
+                              {confirmText || "Save"}
                             </button>
                             <button
                               type="button"
                               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-lighter sm:mt-0 sm:w-auto sm:text-sm"
                               onClick={() => onCancel()}
                             >
-                              Cancel
+                              {cancelText || "Cancel"}
                             </button>
                           </div>
                         </div>

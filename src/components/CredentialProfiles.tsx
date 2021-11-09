@@ -90,13 +90,11 @@ const DeleteProfileButton = ({
 
 interface UpdateProfileButtonProps {
   authSettings: AuthSettings;
-  credentialProfiles: CredentialProfile[];
   profile: CredentialProfile;
-  profileIndex: any;
   user: User;
 }
 
-const UpdateProfile = ({ profile, profileIndex }: UpdateProfileButtonProps) => {
+const UpdateProfile = ({ profile }: UpdateProfileButtonProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -109,11 +107,8 @@ const UpdateProfile = ({ profile, profileIndex }: UpdateProfileButtonProps) => {
         Update
       </button>
       <UpdateDialogProfile
-        accessKeyProfile={profile.credentials.accessKeyId}
-        secretKeyProfile={profile.credentials.secretAccessKey}
+        credentialProfile={profile}
         confirmText="Update"
-        content={profile.nickname}
-        index={profileIndex}
         open={open}
         onCancel={() => setOpen(false)}
       />
@@ -166,9 +161,7 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
                 <div className="-ml-px w-0 flex-1 flex">
                   <UpdateProfile
                     authSettings={settings.auth as AuthSettings}
-                    credentialProfiles={credentialProfiles}
                     profile={profile}
-                    profileIndex={profileIndex}
                     user={user}
                   />
                 </div>
