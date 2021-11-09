@@ -40,11 +40,19 @@ export const BucketListProfile = (): ReactElement => {
     <>
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
         <PageTitle>
-          {profile &&
-            credentialSettings &&
-            getProfileCredentialNickname(profile, credentialSettings)}{" "}
-          Buckets{" "}
-          {buckets && <span className="font-normal">({buckets.length})</span>}
+          <span>
+            <span className="italic font-normal">
+              {profile &&
+                credentialSettings &&
+                getProfileCredentialNickname(profile, credentialSettings)}{" "}
+            </span>{" "}
+            Buckets
+          </span>
+          {buckets && (
+            <span className="inline-flex items-center ml-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {buckets.length}
+            </span>
+          )}
         </PageTitle>
       </div>
       {!loading && error && (

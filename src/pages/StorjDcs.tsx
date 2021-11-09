@@ -11,7 +11,7 @@ export const BucketPageProfile = () => {
 
   return (
     <>
-      <Head title={`${bucketName ? "Buckets" : "Profile"} | Storj Box Lite`} />
+      <Head title={`${bucketName ? "Buckets" : "Profile"} | Box Lite`} />
       {profile && !bucketName && <BucketListProfile />}
       {profile && bucketName && <BucketPage />}
     </>

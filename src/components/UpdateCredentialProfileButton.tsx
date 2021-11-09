@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
 import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
+import { profileTypes } from "lib/profile-types";
 import React, { Fragment, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
@@ -202,7 +203,9 @@ export const UpdateCredentialProfileButton = ({
                                   autoComplete="type"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                 >
-                                  <option value="storjDcs">Storj DCS</option>
+                                  {profileTypes.map((pt) => (
+                                    <option value={pt.id}>{pt.name}</option>
+                                  ))}
                                 </select>
                               </div>
                             </div>

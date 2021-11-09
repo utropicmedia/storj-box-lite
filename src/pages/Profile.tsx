@@ -30,7 +30,7 @@ export default function Profile(): ReactElement {
 
   return (
     <>
-      <Head title="Profile | Storj Box Lite" />
+      <Head title="Profile | Box Lite" />
       <div className="mx-auto px-4 sm:px-6 md:px-8">
         <h1 className="text-3xl font-extrabold text-gray-900">Profile</h1>
       </div>

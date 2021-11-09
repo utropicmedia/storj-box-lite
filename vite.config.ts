@@ -26,8 +26,8 @@ export default defineConfig({
         navigateFallback: undefined,
       },
       manifest: {
-        name: "Storj Box Lite",
-        short_name: "Storj Box Lite",
+        name: "Box Lite",
+        short_name: "Box Lite",
         theme_color: "#0055C6",
         icons: [
           {

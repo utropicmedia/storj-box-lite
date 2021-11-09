@@ -5,6 +5,9 @@ export const getProfileType = (profile: string): string => paramCase(profile);
 
 export const getProfileName = (profile: string): string => paramCase(profile);
 
+export const getProfileUrl = (cp: CredentialProfile): string =>
+  `/p/${getProfileType(cp.type)}/${getProfileName(cp.nickname)}`;
+
 export const getProfileCredentials = (
   profile: string,
   credentialProfiles: CredentialProfile[]

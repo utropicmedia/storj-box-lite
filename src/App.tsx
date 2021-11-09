@@ -15,9 +15,9 @@ import FullPageLayout from "./layouts/FullPageLayout";
 import { auth } from "./lib/firebase";
 import { getSettings } from "./store/settings/settingsSlice";
 import { setUser, UserState } from "./store/user/userSlice";
-const BucketPage = lazy(() => import("./pages/BucketPage"));
 const NoMatch = lazy(() => import("./pages/NoMatch"));
 const Profile = lazy(() => import("./pages/Profile"));
+const ProfileList = lazy(() => import("./pages/ProfileList"));
 const Settings = lazy(() => import("./pages/Settings"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SignOut = lazy(() => import("./pages/SignOut"));
@@ -43,15 +43,24 @@ export default function App(): ReactElement {
             <Routes>
               <Route path="/" element={<Layout user={user} />}>
                 <Route
-                  path=""
+                  index
                   element={
                     <Navigate
                       to={{
-                        pathname: user ? "settings" : "sign-in",
+                        pathname: user ? "p" : "sign-in",
                       }}
                     />
                   }
                 ></Route>
+
+                <Route
+                  path="p"
+                  element={
+                    <RequireAuth>
+                      <ProfileList />
+                    </RequireAuth>
+                  }
+                />
                 <Route
                   path="p/:type"
                   element={
@@ -59,9 +68,42 @@ export default function App(): ReactElement {
                       <StorjDcs />
                     </RequireAuth>
                   }
+                ></Route>
+                <Route
+                  path="p/:type/:profile"
+                  element={
+                    <RequireAuth>
+                      <StorjDcs />
+                    </RequireAuth>
+                  }
+                ></Route>
+                <Route
+                  path="p/:type/:profile/:bucketName/*"
+                  element={
+                    <RequireAuth>
+                      <StorjDcs />
+                    </RequireAuth>
+                  }
+                ></Route>
+
+                {/* <Route
+                  path="p"
+                  element={
+                    <RequireAuth>
+                      <ProfileList />
+                    </RequireAuth>
+                  }
                 >
                   <Route
-                    path=":profile"
+                    index
+                    element={
+                      <RequireAuth>
+                        <ProfileList />
+                      </RequireAuth>
+                    }
+                  ></Route>
+                  <Route
+                    path=":type"
                     element={
                       <RequireAuth>
                         <StorjDcs />
@@ -69,20 +111,38 @@ export default function App(): ReactElement {
                     }
                   >
                     <Route
-                      path=":bucketName/*"
+                      path=":profile"
                       element={
                         <RequireAuth>
                           <StorjDcs />
                         </RequireAuth>
                       }
-                    />
+                    >
+                      <Route
+                        path=":bucketName/*"
+                        element={
+                          <RequireAuth>
+                            <StorjDcs />
+                          </RequireAuth>
+                        }
+                      />
+                    </Route>
                   </Route>
-                </Route>
+                </Route> */}
+
                 <Route
                   path="settings"
                   element={
                     <RequireAuth>
                       <Settings />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="profile"
+                  element={
+                    <RequireAuth>
+                      <Profile />
                     </RequireAuth>
                   }
                 />

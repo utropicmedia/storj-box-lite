@@ -1,4 +1,4 @@
-# Storj Box Lite
+# Box Lite
 
 ## Setup
 

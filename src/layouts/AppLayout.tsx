@@ -11,15 +11,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { SelectorIcon } from "@heroicons/react/solid";
+import { ReactComponent as StorjLogo } from "components/logo/svg/storj-logomark-white.svg";
 import UserAvatar from "components/UserAvatar";
 import { auth } from "lib/firebase";
 import { getProfileName, getProfileType } from "lib/utils";
-import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useState,
+} from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { selectSettings } from "store/settings/settingsSlice";
-import { Logo } from "../components/logo/index";
 
 const userMenu = [
   {
@@ -41,6 +47,7 @@ interface NavigationItem {
   name: string;
   href: string;
   icon?: IconDefinition;
+  logo?: ReactElement;
 }
 
 interface AppLayoutProps {}
@@ -66,6 +73,10 @@ export default function AppLayout({
                 cp.nickname
               )}`,
               icon: cp.type === "storjDcs" ? faCloud : faUserCog,
+              logo:
+                cp.type === "storjDcs" ? (
+                  <StorjLogo title={"Storj Logo"} className="h-4 w-4 mr-3" />
+                ) : undefined,
             }))
           : []),
         { name: "Manage Profiles", href: "/settings", icon: faCog },
@@ -126,11 +137,12 @@ export default function AppLayout({
               </Transition.Child>
               <div className="flex-shrink-0 flex items-center px-4">
                 <Link
-                  to="/bucket"
-                  className="h-8 w-auto"
+                  to="/p"
+                  className="text-white font-mono uppercase text-2xl font-light"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Logo variant="white" />
+                  {/* <Logo variant="white" /> */}
+                  Box Lite
                 </Link>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
@@ -165,7 +177,8 @@ export default function AppLayout({
                                 : undefined
                             }
                           >
-                            {profile.icon && (
+                            {profile.logo && profile.logo}
+                            {!profile.logo && profile.icon && (
                               <FontAwesomeIcon
                                 icon={profile.icon}
                                 className="mr-3 h-6 w-6 text-gray-300"
@@ -192,11 +205,12 @@ export default function AppLayout({
         <div className="flex flex-col w-64 border-r border-gray-200 pt-5 pb-4 bg-secondary">
           <div className="flex items-center flex-shrink-0 px-6">
             <Link
-              to="/bucket"
-              className="h-8 w-auto"
+              to="/p"
+              className="text-white font-mono uppercase text-2xl font-light"
               onClick={() => setSidebarOpen(false)}
             >
-              <Logo variant="white" />
+              {/* <Logo variant="white" /> */}
+              Box Lite
             </Link>
           </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -316,7 +330,8 @@ export default function AppLayout({
                             : undefined
                         }
                       >
-                        {profile.icon && (
+                        {profile.logo && profile.logo}
+                        {!profile.logo && profile.icon && (
                           <FontAwesomeIcon
                             icon={profile.icon}
                             className="mr-3 h-6 w-6 text-gray-300"

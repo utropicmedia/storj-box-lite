@@ -24,7 +24,7 @@ export default function SignIn(): ReactElement {
 
   return (
     <>
-      <Head title="Sign In | Storj Box Lite" />
+      <Head title="Sign In | Box Lite" />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="mx-auto w-3/4">
