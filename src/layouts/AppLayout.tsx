@@ -13,6 +13,7 @@ import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { SelectorIcon } from "@heroicons/react/solid";
 import UserAvatar from "components/UserAvatar";
 import { auth } from "lib/firebase";
+import { getProfileName, getProfileType } from "lib/utils";
 import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useSelector } from "react-redux";
@@ -61,9 +62,9 @@ export default function AppLayout({
         settings.credentialProfiles.length > 0
           ? settings.credentialProfiles.map((cp) => ({
               name: cp.nickname,
-              href: `/${
-                cp.type === "storjDcs" ? "storj-dcs" : "storj-dcs"
-              }/id?${cp.id}`,
+              href: `/p/${getProfileType(cp.type)}/${getProfileName(
+                cp.nickname
+              )}`,
               icon: cp.type === "storjDcs" ? faCloud : faUserCog,
             }))
           : []),

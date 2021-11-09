@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import filesize from "filesize";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { StorjClient } from "lib/storjClient";
+import { getProfileCredentials } from "lib/utils";
 import React, {
   Fragment,
   ReactElement,
@@ -24,7 +25,7 @@ import React, {
 } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import {
   BucketItem,
@@ -45,13 +46,16 @@ export interface BucketContentsProps {
   bucket: string;
 }
 
-const getPrefix = (bucket: string, pathname: string) => {
-  const prefix = pathname.replace(`/bucket/${bucket}`, "").replace(/^\//, "");
-  return prefix;
-};
-
-const getFolderLink = (key: string, bucket: string) => {
-  return `/bucket/${bucket}/${key.substring(0, key.length - 1)}`;
+const getFolderLink = (
+  key: string,
+  bucket: string,
+  profile: string,
+  profileType: string
+) => {
+  return `/p/${profileType}/${profile}/${bucket}/${key.substring(
+    0,
+    key.length - 1
+  )}`;
 };
 
 const getItemName = (key: string, prefix: string | undefined) => {
@@ -71,6 +75,7 @@ interface BreadcrumbLink {
 }
 
 const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
+  const { profile, type: profileType } = useParams();
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbLink[]>();
 
   useEffect(() => {
@@ -79,17 +84,17 @@ const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
         {
           icon: faHome,
           title: "Buckets",
-          url: "/bucket",
+          url: `/p/${profileType}/${profile}`,
         },
         {
           title: bucket,
-          url: `/bucket/${bucket}`,
+          url: `/p/${profileType}/${profile}/${bucket}`,
         },
       ];
       if (prefix) {
         const parts = prefix.split("/");
         if (parts && parts.length > 0) {
-          let url = `/bucket/${bucket}`;
+          let url = `/p/${profileType}/${profile}/${bucket}`;
           parts.forEach((part) => {
             url += `/${part}`;
             bc.push({
@@ -104,13 +109,13 @@ const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
     if (bucket) {
       getBreadcrumbs();
     }
-  }, [bucket, prefix]);
+  }, [bucket, profile, profileType, prefix]);
 
   return (
     <div>
       <nav className="sm:hidden" aria-label="Back">
         <Link
-          to={`/bucket`}
+          to={`/p/${profileType}/${profile}`}
           className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700"
         >
           <FontAwesomeIcon
@@ -283,21 +288,16 @@ const BucketContentsTable = ({
   bucket: bucketName,
   prefix,
 }: BucketContentsTableProps) => {
+  const { profile, type: profileType } = useParams();
   const credentialSettings = useSelector(selectCredentialProfiles);
-
+  console.log("credentialSettings", credentialSettings);
   const { items, error, loading } = useSelector(selectBucket);
   const dispatch = useDispatch();
-
-  let getCredential: any;
-
-  credentialSettings?.forEach((cp) => {
-    getCredential = cp.credentials;
-    return;
-  });
+  const [auth, setAuth] = useState<AuthSettings | undefined>();
 
   const downloadFile = async (key: string) => {
-    if (getCredential && bucketName) {
-      const storjClient = StorjClient.getInstance(getCredential);
+    if (auth && bucketName) {
+      const storjClient = StorjClient.getInstance(auth);
       if (storjClient) {
         // TODO: Figure out a better way to handle this, perhaps? Maybe a dialog, with a link once the url has been generated.
         const windowRef = window.open(`/downloading`, "dowloadFile");
@@ -310,13 +310,27 @@ const BucketContentsTable = ({
   };
 
   useEffect(() => {
-    async function loadBucketContents(auth: AuthSettings) {
-      dispatch(getBucketItems({ auth, bucket: bucketName, prefix }));
+    async function loadBucketContents(
+      auth: AuthSettings,
+      bucket: string,
+      prefix: string | undefined
+    ) {
+      dispatch(getBucketItems({ auth, bucket, prefix }));
     }
-    if (getCredential?.accessKeyId && getCredential?.secretAccessKey) {
-      loadBucketContents(getCredential);
+    if (auth && bucketName) {
+      loadBucketContents(auth, bucketName, prefix);
     }
-  }, [getCredential, bucketName, prefix, dispatch]);
+  }, [auth, bucketName, prefix, dispatch]);
+
+  useEffect(() => {
+    if (profile && credentialSettings) {
+      const profileCredentials = getProfileCredentials(
+        profile,
+        credentialSettings
+      );
+      setAuth(profileCredentials);
+    }
+  }, [profile, credentialSettings, setAuth]);
 
   return (
     <>
@@ -373,120 +387,120 @@ const BucketContentsTable = ({
               </tr>
             </tbody>
           )}
-          {!loading && items && items.length > 0 && (
-            <tbody>
-              {items.map((item, itemIndex) => (
-                <tr
-                  className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  key={`f-${item.key}}`}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {item.type === "folder" && (
-                      <span className="flex items-center">
-                        <FontAwesomeIcon
-                          className="flex-shrink-0 text-xl mr-4"
-                          aria-hidden="true"
-                          icon={faFolder}
-                        />
-                        <Link to={getFolderLink(item.key, bucketName)}>
+          {!loading &&
+            profile &&
+            profileType &&
+            auth &&
+            items &&
+            items.length > 0 && (
+              <tbody>
+                {items.map((item, itemIndex) => (
+                  <tr
+                    className={itemIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    key={`f-${item.key}}`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {item.type === "folder" && (
+                        <span className="flex items-center">
+                          <FontAwesomeIcon
+                            className="flex-shrink-0 text-xl mr-4"
+                            aria-hidden="true"
+                            icon={faFolder}
+                          />
+                          <Link
+                            to={getFolderLink(
+                              item.key,
+                              bucketName,
+                              profile,
+                              profileType
+                            )}
+                          >
+                            {getItemName(item.key, prefix)}
+                          </Link>
+                        </span>
+                      )}
+
+                      {item.type === "file" && (
+                        <span className="flex items-center">
+                          <FontAwesomeIcon
+                            className="flex-shrink-0 text-xl mr-4"
+                            aria-hidden="true"
+                            icon={faFileAlt}
+                          />
+
                           {getItemName(item.key, prefix)}
-                        </Link>
-                      </span>
-                    )}
-
-                    {item.type === "file" && (
-                      <span className="flex items-center">
-                        <FontAwesomeIcon
-                          className="flex-shrink-0 text-xl mr-4"
-                          aria-hidden="true"
-                          icon={faFileAlt}
-                        />
-
-                        {getItemName(item.key, prefix)}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                    {item.type === "file" && (
-                      <>
-                        {item.lastModified
-                          ? format(
-                              new Date(item.lastModified),
-                              "MMM d, yyyy h:mm bbb"
-                            )
-                          : ""}
-                      </>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                    {item.type === "file" && (
-                      <>{item.size ? filesize(item.size) : ""}</>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {item.type === "folder" && (
-                      <DeleteFolderButton
-                        authSettings={getCredential as AuthSettings}
-                        bucketName={bucketName}
-                        item={item}
-                        prefix={String(prefix)}
-                      />
-                    )}
-                    {item.type === "file" && (
-                      <>
-                        <IconButton
-                          text="Download"
-                          icon={faDownload}
-                          size="sm"
-                          onClick={() => downloadFile(item.key)}
-                        />
-                        <DeleteFileButton
-                          authSettings={getCredential as AuthSettings}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                      {item.type === "file" && (
+                        <>
+                          {item.lastModified
+                            ? format(
+                                new Date(item.lastModified),
+                                "MMM d, yyyy h:mm bbb"
+                              )
+                            : ""}
+                        </>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                      {item.type === "file" && (
+                        <>{item.size ? filesize(item.size) : ""}</>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {item.type === "folder" && (
+                        <DeleteFolderButton
+                          authSettings={auth}
                           bucketName={bucketName}
                           item={item}
                           prefix={String(prefix)}
                         />
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          )}
+                      )}
+                      {item.type === "file" && (
+                        <>
+                          <IconButton
+                            text="Download"
+                            icon={faDownload}
+                            size="sm"
+                            onClick={() => downloadFile(item.key)}
+                          />
+                          <DeleteFileButton
+                            authSettings={auth}
+                            bucketName={bucketName}
+                            item={item}
+                            prefix={String(prefix)}
+                          />
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
         </table>
       </div>
     </>
   );
 };
 
-const DEFAULT_INITIAL_VALUES = {
-  name: "",
-};
-
 export const BucketContents = ({
   bucket,
   bucket: bucketName,
 }: BucketContentsProps): ReactElement => {
-  const location = useLocation();
-  const [prefix, setPrefix] = useState<string>();
+  const { profile, "*": prefix } = useParams();
   const [uploading, setUploading] = useState(false);
+  const [auth, setAuth] = useState<AuthSettings | undefined>();
   const credentialSettings = useSelector(selectCredentialProfiles);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [initialvalue] = useState(DEFAULT_INITIAL_VALUES);
-
-  let getCredential: any;
-
-  credentialSettings?.forEach((cp) => {
-    getCredential = cp.credentials;
-    return;
-  });
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       async function uploadFiles() {
         setUploading(true);
-        const storjClient = StorjClient.getInstance(getCredential);
+        const storjClient = StorjClient.getInstance(auth);
         if (storjClient) {
           await storjClient.uploadFiles({
             files: acceptedFiles,
@@ -496,16 +510,11 @@ export const BucketContents = ({
           setUploading(false);
         }
       }
-      if (
-        acceptedFiles &&
-        acceptedFiles.length > 0 &&
-        getCredential?.accessKeyId &&
-        getCredential?.secretAccessKey
-      ) {
+      if (acceptedFiles && acceptedFiles.length > 0 && auth) {
         uploadFiles();
       }
     },
-    [getCredential, bucket, prefix]
+    [auth, bucket, prefix]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const {
@@ -519,20 +528,22 @@ export const BucketContents = ({
   });
 
   const createFolder = async (name: string, prefix: string | undefined) => {
-    if (getCredential && bucketName) {
-      const storjClient = StorjClient.getInstance(getCredential);
+    if (auth && bucketName) {
+      const storjClient = StorjClient.getInstance(auth);
       await storjClient?.createFolder(bucketName, name, prefix);
-      dispatch(
-        getBucketItems({ auth: getCredential, bucket: bucketName, prefix })
-      );
+      dispatch(getBucketItems({ auth, bucket: bucketName, prefix }));
     }
   };
 
   useEffect(() => {
-    if (bucket && location?.pathname) {
-      setPrefix(getPrefix(bucket, location.pathname));
+    if (profile && credentialSettings) {
+      const profileCredentials = getProfileCredentials(
+        profile,
+        credentialSettings
+      );
+      setAuth(profileCredentials);
     }
-  }, [bucket, location]);
+  }, [profile, credentialSettings, setAuth]);
 
   const handleClick = () => {
     setOpen(true);
@@ -592,7 +603,9 @@ export const BucketContents = ({
                 >
                   <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
                     <Formik
-                      initialValues={initialvalue}
+                      initialValues={{
+                        name: "",
+                      }}
                       validationSchema={Yup.object({
                         name: Yup.string().required("Folder Name is required"),
                       })}

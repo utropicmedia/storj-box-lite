@@ -52,55 +52,32 @@ export default function App(): ReactElement {
                     />
                   }
                 ></Route>
-
                 <Route
-                  path="bucket"
-                  element={
-                    <RequireAuth>
-                      <BucketPage />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="bucket/:bucketName"
-                  element={
-                    <RequireAuth>
-                      <BucketPage />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="storj-dcs"
+                  path="p/:type"
                   element={
                     <RequireAuth>
                       <StorjDcs />
                     </RequireAuth>
                   }
-                />
-                <Route
-                  path="storj-dcs/:profile"
-                  element={
-                    <RequireAuth>
-                      <StorjDcs />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="storj-dcs/:profile/:bucketName"
-                  element={
-                    <RequireAuth>
-                      <StorjDcs />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="profile"
-                  element={
-                    <RequireAuth>
-                      <Profile />
-                    </RequireAuth>
-                  }
-                />
+                >
+                  <Route
+                    path=":profile"
+                    element={
+                      <RequireAuth>
+                        <StorjDcs />
+                      </RequireAuth>
+                    }
+                  >
+                    <Route
+                      path=":bucketName/*"
+                      element={
+                        <RequireAuth>
+                          <StorjDcs />
+                        </RequireAuth>
+                      }
+                    />
+                  </Route>
+                </Route>
                 <Route
                   path="settings"
                   element={

@@ -1,45 +1,48 @@
 import format from "date-fns/format";
+import {
+  getProfileCredentialNickname,
+  getProfileCredentials,
+  getProfileName,
+  getProfileType,
+} from "lib/utils";
 import React, { ReactElement, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { getBuckets, selectBuckets } from "../store/buckets/bucketsSlice";
-import { selectCredentialProfiles } from "../store/settings/settingsSlice";
+import {
+  AuthSettings,
+  selectCredentialProfiles,
+} from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
 
 export const BucketListProfile = (): ReactElement => {
-  const authSettings = useSelector(selectCredentialProfiles);
+  const { profile, type: profileType } = useParams();
+  const credentialSettings = useSelector(selectCredentialProfiles);
 
   const { buckets, error, loading } = useSelector(selectBuckets);
   const dispatch = useDispatch();
 
-  //Get CredentialProfile AccessKey and SeceretAccessKey by Id
-  let paramId: string;
-  const params = new URLSearchParams(window.location.search);
-  for (const param of params) {
-    paramId = param[0];
-  }
-  let getCredential: any;
-  authSettings?.forEach((cp) => {
-    if (paramId === cp.id) {
-      getCredential = cp.credentials;
-      return;
-    }
-  });
-
   useEffect(() => {
-    async function getBucketsList(credentialProfiles: any) {
-      dispatch(getBuckets(credentialProfiles));
+    async function getBucketsList(auth: AuthSettings) {
+      dispatch(getBuckets(auth));
     }
-    if (getCredential?.accessKeyId && getCredential?.secretAccessKey) {
-      getBucketsList(getCredential);
+    if (profile && credentialSettings) {
+      const auth = getProfileCredentials(profile, credentialSettings);
+      if (auth) {
+        getBucketsList(auth);
+      }
     }
-  }, [getCredential, dispatch]);
+  }, [profile, credentialSettings, dispatch]);
 
   return (
     <>
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
         <PageTitle>
+          {profile &&
+            credentialSettings &&
+            getProfileCredentialNickname(profile, credentialSettings)}{" "}
           Buckets{" "}
           {buckets && <span className="font-normal">({buckets.length})</span>}
         </PageTitle>
@@ -89,7 +92,7 @@ export const BucketListProfile = (): ReactElement => {
               </tr>
             </tbody>
           )}
-          {!loading && buckets && buckets.length > 0 && (
+          {!loading && profileType && profile && buckets && buckets.length > 0 && (
             <tbody>
               {buckets.map((bucket, bucketIndex) => (
                 <tr
@@ -97,7 +100,13 @@ export const BucketListProfile = (): ReactElement => {
                   key={`f-${bucket.Name}}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link to={`/bucket/${bucket.Name}`}>{bucket.Name}</Link>
+                    <Link
+                      to={`/p/${getProfileType(profileType)}/${getProfileName(
+                        profile
+                      )}/${bucket.Name}`}
+                    >
+                      {bucket.Name}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {bucket.CreationDate

@@ -45,7 +45,7 @@ export const saveCredentialProfiles = createAsyncThunk<
   }
 );
 
-export interface S3Credentials {
+export interface AuthSettings {
   accessKeyId: string;
   secretAccessKey: string;
 }
@@ -53,15 +53,10 @@ export interface S3Credentials {
 export type CredentialProfileType = "storjDcs";
 
 export interface CredentialProfile {
-  credentials: S3Credentials;
+  credentials: AuthSettings;
   id: string;
   nickname: string;
   type: CredentialProfileType;
-}
-
-export interface AuthSettings {
-  accessKeyId: string;
-  secretAccessKey: string;
 }
 
 export interface Settings {
