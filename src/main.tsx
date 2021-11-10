@@ -9,7 +9,7 @@ import App from "./App";
 import "./index.css";
 import { store } from "./store/store";
 window.process = process;
-window.Buffer = Buffer || require("buffer").Buffer;
+window.Buffer = Buffer;
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
