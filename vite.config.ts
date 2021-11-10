@@ -54,6 +54,7 @@ export default defineConfig({
       },
     ],
   },
+
   // TODO: Should we do this? The largest chunk is smaller than the limit, but there are more files.
   // build: {
   //   rollupOptions: {
