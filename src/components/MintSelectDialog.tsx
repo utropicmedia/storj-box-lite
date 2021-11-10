@@ -88,7 +88,7 @@ export const MintSelectDialog = ({
                           name="type"
                           autoComplete="type"
                           className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
-                          onChange={handleTypeChange}
+                          onChangeCapture={handleTypeChange}
                         >
                           <option value="eth">Ethereum</option>
                           <option value="sol">Solana</option>
