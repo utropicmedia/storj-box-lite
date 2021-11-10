@@ -42,6 +42,8 @@ import { SolanaWalletProvider } from "./SolanaWalletProvider";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
 
+const { VITE_ETHEREUM_MINT_CONTRACT_ADDR } = import.meta.env;
+
 export interface BucketContentsProps {
   bucket: string;
 }
@@ -206,7 +208,8 @@ const MintFileButton = ({
         });
         const publicKey = accounts[0];
         console.log(publicKey);
-        const mintContractAddr = "0x2cd2c68b87588388b4f410fb1DD927443775A807";
+        console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
+        const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
         const web3 = new Web3(window.ethereum);
         const mintContract = new web3.eth.Contract(
           StorjToken,
