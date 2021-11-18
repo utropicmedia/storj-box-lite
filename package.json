@@ -8,7 +8,7 @@
     "dev": "vite --open",
     "format": "prettier --write .",
     "lint": "yarn eslint && yarn stylelint",
-    "eslint": "eslint src/**/* --ext js --ext ts --ext tsx",
+    "eslint": "eslint src/ --ext .js,.ts,.tsx",
     "stylelint": "stylelint \"src/**/*.css\"",
     "test": "cypress open",
     "test:headless": "cypress run",
@@ -27,6 +27,12 @@
     "@headlessui/react": "1.4.2",
     "@heroicons/react": "^1.0.5",
     "@reduxjs/toolkit": "^1.6.2",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/wallet-adapter-base": "^0.7.0",
+    "@solana/wallet-adapter-react": "^0.13.1",
+    "@solana/wallet-adapter-react-ui": "^0.6.0",
+    "@solana/web3.js": "^1.30.2",
+    "@solana/wallet-adapter-wallets": "^0.11.3",
     "babel-eslint": "^10.1.0",
     "change-case": "^4.1.2",
     "classnames": "^2.3.1",
@@ -43,7 +49,9 @@
     "react-query": "3.32.1",
     "react-redux": "^7.2.6",
     "react-router-dom": "6.0.1",
+    "use-wallet": "^0.13.1",
     "uuid": "^8.3.2",
+    "web3": "^1.6.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {
@@ -92,6 +100,10 @@
     "*.{html,js,ts,tsx,css,md,json}": "prettier --write"
   },
   "browserslist": "Edge >= 18, Firefox >= 60, Chrome >= 61, Safari >= 11, Opera >= 48",
+  "browser": {
+    "crypto": "crypto-browserify",
+    "stream": "stream-browserify"
+  },
   "volta": {
     "node": "16.13.0",
     "yarn": "1.22.17"

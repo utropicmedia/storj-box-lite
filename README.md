@@ -1,5 +1,7 @@
 # Box Lite
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0ac0060c78b04df5b5a3d13397e7c9b2)](https://www.codacy.com/gh/utropicmedia/storj-box-lite/dashboard?utm_source=github.com&utm_medium=referral&utm_content=utropicmedia/storj-box-lite&utm_campaign=Badge_Grade)
+
 ## Setup
 
 Install the dependencies:
