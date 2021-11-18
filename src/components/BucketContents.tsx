@@ -2,6 +2,7 @@ import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faChevronLeft,
   faChevronRight,
+  faCubes,
   faDownload,
   faFileAlt,
   faFolder,
@@ -10,6 +11,13 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import splToken from "@solana/spl-token";
+import * as splToken from "@solana/spl-token";
+import {
+  useConnection,
+  useWallet as useSolWallet,
+} from "@solana/wallet-adapter-react";
+import * as web3 from "@solana/web3.js";
 import format from "date-fns/format";
 import filesize from "filesize";
 import { StorjClient } from "lib/storjClient";
@@ -24,10 +32,17 @@ import {
   selectBucket,
 } from "store/bucket/bucketSlice";
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
+import { useWallet } from "use-wallet";
+import Web3 from "web3";
+import StorjToken from "../abi/StorjToken.json";
 import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
+import MintSelectDialog from "./MintSelectDialog";
+import { SolanaWalletProvider } from "./SolanaWalletProvider";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
+
+const { VITE_ETHEREUM_MINT_CONTRACT_ADDR } = import.meta.env;
 
 export interface BucketContentsProps {
   bucket: string;
@@ -160,6 +175,133 @@ const Breadcrumbs = ({ bucket, prefix }: BreadcrumbsProps) => {
         </nav>
       )}
     </div>
+  );
+};
+
+interface MintFileButtonProps {
+  authSettings: AuthSettings;
+  bucketName: string;
+  item: BucketItem;
+  prefix: string;
+}
+
+const MintFileButton = ({
+  authSettings,
+  bucketName,
+  item,
+  prefix,
+}: MintFileButtonProps) => {
+  const [open, setOpen] = useState(false);
+  const { connection } = useConnection();
+  const { publicKey } = useSolWallet();
+  const wallet = useWallet();
+  const mintFile = async (key: string, chainType: string) => {
+    setOpen(false);
+    const storjClient = StorjClient.getInstance(authSettings);
+    if (storjClient) {
+      const url = await storjClient.getObjectUrl(bucketName, key);
+
+      if (chainType === "eth") {
+        wallet.connect();
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        const publicKey = accounts[0];
+        console.log(publicKey);
+        console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
+        const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
+        const web3 = new Web3(window.ethereum);
+        const mintContract = new web3.eth.Contract(
+          StorjToken,
+          mintContractAddr
+        );
+        mintContract.setProvider(window.ethereum);
+        const tx = await mintContract.methods
+          .mint(url)
+          .send({ from: publicKey });
+        console.log(tx.events.Transfer.returnValues.tokenId);
+        alert("succesfully minted");
+      } else {
+        const fromWallet = web3.Keypair.generate();
+        console.log(connection);
+        const fromAirDropSignature = await connection.requestAirdrop(
+          fromWallet.publicKey,
+          web3.LAMPORTS_PER_SOL
+        );
+        await connection.confirmTransaction(fromAirDropSignature);
+
+        let mint = await splToken.Token.createMint(
+          connection,
+          fromWallet,
+          fromWallet.publicKey,
+          null,
+          9,
+          splToken.TOKEN_PROGRAM_ID
+        );
+        let fromTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
+          fromWallet.publicKey
+        );
+
+        if (publicKey != null) {
+          const toTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
+            publicKey
+          );
+
+          await mint.mintTo(
+            fromTokenAccount.address,
+            fromWallet.publicKey,
+            [],
+            1000000000
+          );
+
+          await mint.setAuthority(
+            mint.publicKey,
+            null,
+            "MintTokens",
+            fromWallet.publicKey,
+            []
+          );
+
+          const transaction = new web3.Transaction().add(
+            splToken.Token.createTransferInstruction(
+              splToken.TOKEN_PROGRAM_ID,
+              fromTokenAccount.address,
+              toTokenAccount.address,
+              fromWallet.publicKey,
+              [],
+              1
+            )
+          );
+          const signature = await web3.sendAndConfirmTransaction(
+            connection,
+            transaction,
+            [fromWallet],
+            { commitment: "confirmed" }
+          );
+          alert("Successfully minted. Transaction ID " + signature);
+        } else {
+          alert("Connect with wallet");
+        }
+      }
+    }
+  };
+
+  return (
+    <>
+      <IconButton
+        className="ml-1"
+        text="Mint NFT"
+        icon={faCubes}
+        onClick={() => setOpen(true)}
+      />
+      <MintSelectDialog
+        confirmText="Mint NFT"
+        open={open}
+        onCancel={() => setOpen(false)}
+        onConfirm={(chainType) => mintFile(item.key, chainType)}
+        title="Mint NFT"
+      />
+    </>
   );
 };
 
@@ -423,6 +565,12 @@ const BucketContentsTable = ({
                     )}
                     {item.type === "file" && (
                       <>
+                        <MintFileButton
+                          authSettings={authSettings as AuthSettings}
+                          bucketName={bucketName}
+                          item={item}
+                          prefix={String(prefix)}
+                        />
                         <IconButton
                           text="Download"
                           icon={faDownload}
@@ -498,7 +646,7 @@ export const BucketContents = ({
   }, [bucket, location]);
 
   return (
-    <>
+    <SolanaWalletProvider>
       <Breadcrumbs bucket={bucket} prefix={prefix} />
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
         <PageTitle>{bucket}</PageTitle>
@@ -536,7 +684,7 @@ export const BucketContents = ({
         {!uploading && <BucketContentsTable bucket={bucket} prefix={prefix} />}
         <input {...getInputPropsDrop()} multiple={true} disabled={uploading} />
       </div>
-    </>
+    </SolanaWalletProvider>
   );
 };
 

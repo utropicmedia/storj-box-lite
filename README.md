@@ -1,4 +1,4 @@
-# Storj Box  Lite
+# Storj Box Lite
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/0ac0060c78b04df5b5a3d13397e7c9b2)](https://www.codacy.com/gh/utropicmedia/storj-box-lite/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=utropicmedia/storj-box-lite&amp;utm_campaign=Badge_Grade)
 
