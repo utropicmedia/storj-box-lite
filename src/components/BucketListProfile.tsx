@@ -1,17 +1,26 @@
 import format from "date-fns/format";
+import {
+  getProfileCredentialNickname,
+  getProfileCredentials,
+  getProfileName,
+  getProfileType,
+} from "lib/utils";
 import React, { ReactElement, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { getBuckets, selectBuckets } from "../store/buckets/bucketsSlice";
 import {
   AuthSettings,
-  selectAuthSettings,
+  selectCredentialProfiles,
 } from "../store/settings/settingsSlice";
 import Spinner from "./Spinner";
 import { PageTitle } from "./typography";
 
-export const BucketsList = (): ReactElement => {
-  const authSettings = useSelector(selectAuthSettings);
+export const BucketListProfile = (): ReactElement => {
+  const { profile, type: profileType } = useParams();
+  const credentialSettings = useSelector(selectCredentialProfiles);
+
   const { buckets, error, loading } = useSelector(selectBuckets);
   const dispatch = useDispatch();
 
@@ -19,17 +28,31 @@ export const BucketsList = (): ReactElement => {
     async function getBucketsList(auth: AuthSettings) {
       dispatch(getBuckets(auth));
     }
-    if (authSettings?.accessKeyId && authSettings?.secretAccessKey) {
-      getBucketsList(authSettings);
+    if (profile && credentialSettings) {
+      const auth = getProfileCredentials(profile, credentialSettings);
+      if (auth) {
+        getBucketsList(auth);
+      }
     }
-  }, [authSettings, dispatch]);
+  }, [profile, credentialSettings, dispatch]);
 
   return (
     <>
       <div className="mt-2 mb-4 md:flex md:items-center md:justify-between">
         <PageTitle>
-          Buckets{" "}
-          {buckets && <span className="font-normal">({buckets.length})</span>}
+          <span>
+            <span className="italic font-normal">
+              {profile &&
+                credentialSettings &&
+                getProfileCredentialNickname(profile, credentialSettings)}{" "}
+            </span>{" "}
+            Buckets
+          </span>
+          {buckets && (
+            <span className="inline-flex items-center ml-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {buckets.length}
+            </span>
+          )}
         </PageTitle>
       </div>
       {!loading && error && (
@@ -77,7 +100,7 @@ export const BucketsList = (): ReactElement => {
               </tr>
             </tbody>
           )}
-          {!loading && buckets && buckets.length > 0 && (
+          {!loading && profileType && profile && buckets && buckets.length > 0 && (
             <tbody>
               {buckets.map((bucket, bucketIndex) => (
                 <tr
@@ -85,7 +108,13 @@ export const BucketsList = (): ReactElement => {
                   key={`f-${bucket.Name}}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link to={`/bucket/${bucket.Name}`}>{bucket.Name}</Link>
+                    <Link
+                      to={`/p/${getProfileType(profileType)}/${getProfileName(
+                        profile
+                      )}/${bucket.Name}`}
+                    >
+                      {bucket.Name}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {bucket.CreationDate
@@ -105,4 +134,4 @@ export const BucketsList = (): ReactElement => {
   );
 };
 
-export default BucketsList;
+export default BucketListProfile;

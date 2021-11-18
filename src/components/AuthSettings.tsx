@@ -1,3 +1,4 @@
+import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -38,9 +39,12 @@ export default function AuthSettings(): ReactElement {
           })}
           onSubmit={async (values) => {
             const { accessKeyId, secretAccessKey } = values;
-            await firestoreCollection
-              .doc(user?.uid)
-              .set({ auth: { accessKeyId, secretAccessKey } }, { merge: true });
+            const docRef = doc(firestoreCollection, user?.uid);
+            await setDoc(
+              docRef,
+              { auth: { accessKeyId, secretAccessKey } },
+              { merge: true }
+            );
             dispatch(
               setSettings({
                 ...settings,
@@ -52,7 +56,7 @@ export default function AuthSettings(): ReactElement {
         >
           {(props) => (
             <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
-              <form onSubmit={props.handleSubmit} noValidate>
+              <form onSubmit={props.handleSubmit}>
                 <div className="shadow sm:rounded-md">
                   <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
                     <div>
@@ -60,7 +64,6 @@ export default function AuthSettings(): ReactElement {
                         Auth Settings
                       </h3>
                     </div>
-
                     <div className="grid grid-cols-3 gap-6">
                       <div className="col-span-3 sm:col-span-2">
                         <label

@@ -1,6 +1,6 @@
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
+import { FirebaseOptions, getApps, initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { collection, getFirestore } from "firebase/firestore";
 
 const {
   VITE_FIREBASE_API_KEY: apiKey,
@@ -19,15 +19,15 @@ const firebaseConfig = {
   messagingSenderId,
   projectId,
   storageBucket,
-};
+} as FirebaseOptions;
 
-if (firebase.apps.length === 0) {
-  firebase.initializeApp(firebaseConfig);
-}
+const apps = getApps();
+const app = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
 
-export const auth = firebase.auth();
-export const firestore = firebase.firestore();
-export const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
-export const firestoreCollection = firestore.collection(
+export const auth = getAuth(app);
+export const firestore = getFirestore(app);
+export const googleAuthProvider = new GoogleAuthProvider();
+export const firestoreCollection = collection(
+  firestore,
   String(VITE_FIRESTORE_COLLECTION)
 );

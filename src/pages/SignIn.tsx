@@ -1,29 +1,30 @@
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { signInWithPopup } from "firebase/auth";
 import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Head from "../components/Head";
 import { Logo } from "../components/logo/index";
 
 export default function SignIn(): ReactElement {
   const [user] = useAuthState(auth);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
-    await auth.signInWithPopup(googleAuthProvider);
+    await signInWithPopup(auth, googleAuthProvider);
   };
 
   useEffect(() => {
     if (user) {
-      history.push("/bucket");
+      navigate("/settings");
     }
-  }, [user, history]);
+  }, [user, navigate]);
 
   return (
     <>
-      <Head title="Sign In | Storj Box Lite" />
+      <Head title="Sign In | Box Lite" />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="mx-auto w-3/4">

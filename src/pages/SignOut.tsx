@@ -1,12 +1,12 @@
 import React, { ReactElement, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../lib/firebase";
 import { resetSettings } from "../store/settings/settingsSlice";
 import { resetUser } from "../store/user/userSlice";
 
 export default function SignIn(): ReactElement {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -14,10 +14,10 @@ export default function SignIn(): ReactElement {
       await auth.signOut();
       dispatch(resetSettings());
       dispatch(resetUser());
-      history.push("/sign-in");
+      navigate("/sign-in");
     }
     signOut();
-  }, [history, dispatch]);
+  }, [navigate, dispatch]);
 
   return <></>;
 }

@@ -1,8 +1,8 @@
-import firebase from "firebase/app";
+import { User } from "firebase/auth";
 import React, { ReactElement } from "react";
 
 export interface UserAvatarProperties {
-  user: firebase.User;
+  user: User;
 }
 
 const getInitials = (name: string | null) => {

@@ -38,7 +38,7 @@ export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
     [network]
   );
 
-  const onError = useCallback((error: WalletError) => console.log(error), []);
+  const onError = useCallback((error: WalletError) => console.error(error), []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>

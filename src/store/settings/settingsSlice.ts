@@ -4,25 +4,48 @@ import {
   PayloadAction,
   SerializedError,
 } from "@reduxjs/toolkit";
-import firebase from "firebase/app";
+import { User } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { firestoreCollection } from "../../lib/firebase";
 import { RootState } from "../store";
 
 export const getSettings = createAsyncThunk<
   Settings | undefined,
-  firebase.User,
+  User,
   { state: RootState }
 >("settings/getSettings", async (user, { getState }) => {
   const { loading } = getState().settings;
   if (!loading) {
     return;
   }
-  const userDocument = await firestoreCollection.doc(user.uid).get();
+  const docRef = await doc(firestoreCollection, user.uid);
+  const userDocument = await getDoc(docRef);
+  // const userDocument = await firestoreCollection.doc(user.uid).get();
   const data = userDocument.data() as Settings;
   return data;
 });
 
-export interface S3Credentials {
+export const saveCredentialProfiles = createAsyncThunk<
+  CredentialProfile[] | undefined,
+  {
+    credentialProfiles: CredentialProfile[];
+    user: User;
+  },
+  { state: RootState }
+>(
+  "settings/saveCredentialProfiles",
+  async ({ credentialProfiles, user }, { getState }) => {
+    const { loading } = getState().settings;
+    if (!loading) {
+      return;
+    }
+    const docRef = doc(firestoreCollection, user?.uid);
+    await setDoc(docRef, { credentialProfiles }, { merge: true });
+    return credentialProfiles;
+  }
+);
+
+export interface AuthSettings {
   accessKeyId: string;
   secretAccessKey: string;
 }
@@ -30,15 +53,10 @@ export interface S3Credentials {
 export type CredentialProfileType = "storjDcs";
 
 export interface CredentialProfile {
-  credentials: S3Credentials;
+  credentials: AuthSettings;
   id: string;
   nickname: string;
   type: CredentialProfileType;
-}
-
-export interface AuthSettings {
-  accessKeyId: string;
-  secretAccessKey: string;
 }
 
 export interface Settings {
@@ -86,6 +104,20 @@ export const settingsSlice = createSlice({
       state.settings = action.payload;
     });
     builder.addCase(getSettings.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error;
+    });
+
+    builder.addCase(saveCredentialProfiles.pending, (state) => {
+      if (!state.loading) {
+        state.loading = true;
+      }
+    });
+    builder.addCase(saveCredentialProfiles.fulfilled, (state, action) => {
+      state.loading = false;
+      state.settings!.credentialProfiles = action.payload;
+    });
+    builder.addCase(saveCredentialProfiles.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error;
     });

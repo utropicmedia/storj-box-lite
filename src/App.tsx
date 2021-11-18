@@ -1,28 +1,23 @@
+import { User } from "@firebase/auth";
 import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
-import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 import LoadingOrError from "./components/LoadingOrError";
 import AppLayout from "./layouts/AppLayout";
 import FullPageLayout from "./layouts/FullPageLayout";
 import { auth } from "./lib/firebase";
-import PrivateRoute from "./lib/PrivateRoute";
-// import BucketPage from "./pages/BucketPage";
-// import NoMatch from "./pages/NoMatch";
-// import Profile from "./pages/Profile";
-// import Settings from "./pages/Settings";
-// import SignIn from "./pages/SignIn";
-// import SignOut from "./pages/SignOut";
-// import StorjDcs from "./pages/StorjDcs";
 import { getSettings } from "./store/settings/settingsSlice";
 import { setUser, UserState } from "./store/user/userSlice";
-
-// const FullPageLayout = lazy(() => import("./layouts/FullPageLayout"));
-// const AppLayout = lazy(() => import("./layouts/AppLayout"));
-// const PrivateRoute = lazy(() => import("./lib/PrivateRoute"));
-const BucketPage = lazy(() => import("./pages/BucketPage"));
 const NoMatch = lazy(() => import("./pages/NoMatch"));
 const Profile = lazy(() => import("./pages/Profile"));
+const ProfileList = lazy(() => import("./pages/ProfileList"));
 const Settings = lazy(() => import("./pages/Settings"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SignOut = lazy(() => import("./pages/SignOut"));
@@ -45,72 +40,146 @@ export default function App(): ReactElement {
       {!loading && (
         <BrowserRouter>
           <Suspense fallback={<LoadingOrError />}>
-            <Switch>
-              <Route exact path="/">
-                <Redirect
-                  to={{
-                    pathname: user ? "/bucket" : "/sign-in",
-                  }}
+            <Routes>
+              <Route path="/" element={<Layout user={user} />}>
+                <Route
+                  index
+                  element={
+                    <Navigate
+                      to={{
+                        pathname: user ? "p" : "sign-in",
+                      }}
+                    />
+                  }
+                ></Route>
+
+                <Route
+                  path="p"
+                  element={
+                    <RequireAuth>
+                      <ProfileList />
+                    </RequireAuth>
+                  }
                 />
-              </Route>
+                <Route
+                  path="p/:type"
+                  element={
+                    <RequireAuth>
+                      <StorjDcs />
+                    </RequireAuth>
+                  }
+                ></Route>
+                <Route
+                  path="p/:type/:profile"
+                  element={
+                    <RequireAuth>
+                      <StorjDcs />
+                    </RequireAuth>
+                  }
+                ></Route>
+                <Route
+                  path="p/:type/:profile/:bucketName/*"
+                  element={
+                    <RequireAuth>
+                      <StorjDcs />
+                    </RequireAuth>
+                  }
+                ></Route>
 
-              <PrivateRoute
-                path={["/bucket", "/storj-dcs", "/profile", "/settings"]}
-              >
-                <AppLayout>
-                  <Route exact path="/bucket">
-                    <BucketPage />
+                {/* <Route
+                  path="p"
+                  element={
+                    <RequireAuth>
+                      <ProfileList />
+                    </RequireAuth>
+                  }
+                >
+                  <Route
+                    index
+                    element={
+                      <RequireAuth>
+                        <ProfileList />
+                      </RequireAuth>
+                    }
+                  ></Route>
+                  <Route
+                    path=":type"
+                    element={
+                      <RequireAuth>
+                        <StorjDcs />
+                      </RequireAuth>
+                    }
+                  >
+                    <Route
+                      path=":profile"
+                      element={
+                        <RequireAuth>
+                          <StorjDcs />
+                        </RequireAuth>
+                      }
+                    >
+                      <Route
+                        path=":bucketName/*"
+                        element={
+                          <RequireAuth>
+                            <StorjDcs />
+                          </RequireAuth>
+                        }
+                      />
+                    </Route>
                   </Route>
-                  <Route path="/bucket/:bucketName">
-                    <BucketPage />
-                  </Route>
-                  <Route exact path="/storj-dcs">
-                    <StorjDcs />
-                  </Route>
-                  <Route path="/storj-dcs/:profile">
-                    <StorjDcs />
-                  </Route>
-                  <Route path="/storj-dcs/:profile/:bucketName">
-                    <StorjDcs />
-                  </Route>
-                  <Route exact path="/profile">
-                    <Profile />
-                  </Route>
-                  <Route exact path="/settings">
-                    <Settings />
-                  </Route>
-                </AppLayout>
-              </PrivateRoute>
+                </Route> */}
 
-              <Route exact path={["/sign-in", "/sign-out", "/downloading"]}>
-                <FullPageLayout>
-                  <Route exact path="/sign-in">
-                    <SignIn />
-                  </Route>
-                  <Route exact path="/sign-out">
-                    <SignOut />
-                  </Route>
-                  <Route exact path="/downloading">
-                    <LoadingOrError />
-                  </Route>
-                </FullPageLayout>
-              </Route>
+                <Route
+                  path="settings"
+                  element={
+                    <RequireAuth>
+                      <Settings />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="profile"
+                  element={
+                    <RequireAuth>
+                      <Profile />
+                    </RequireAuth>
+                  }
+                />
 
-              <Route path="*">
-                {user ? (
-                  <AppLayout>
-                    <NoMatch />
-                  </AppLayout>
-                ) : (
-                  <FullPageLayout>
-                    <NoMatch />
-                  </FullPageLayout>
-                )}
+                <Route path="sign-in" element={<SignIn />} />
+                <Route path="sign-out" element={<SignOut />} />
+                <Route path="downloading" element={<LoadingOrError />} />
+
+                <Route path="*" element={<NoMatch />} />
               </Route>
-            </Switch>
+            </Routes>
           </Suspense>
         </BrowserRouter>
       )}
     </>
   );
 }
+
+export const RequireAuth: React.FC<{ children: JSX.Element }> = ({
+  children,
+}) => {
+  const [user] = useAuthState(auth);
+  return user ? children : <Navigate to="/sign-in" />;
+};
+
+const Layout: React.FC<{ user: User | null | undefined }> = ({ user }) => {
+  if (user) {
+    return (
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    );
+  }
+
+  return (
+    <FullPageLayout>
+      <Outlet />
+    </FullPageLayout>
+  );
+};

@@ -1,3 +1,4 @@
+import { updateProfile } from "firebase/auth";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
 import { auth } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -29,7 +30,7 @@ export default function Profile(): ReactElement {
 
   return (
     <>
-      <Head title="Profile | Storj Box Lite" />
+      <Head title="Profile | Box Lite" />
       <div className="mx-auto px-4 sm:px-6 md:px-8">
         <h1 className="text-3xl font-extrabold text-gray-900">Profile</h1>
       </div>
@@ -44,7 +45,7 @@ export default function Profile(): ReactElement {
             })}
             onSubmit={async (values) => {
               const { displayName, photoURL } = values;
-              await user.updateProfile({ displayName, photoURL });
+              await updateProfile(user, { displayName, photoURL });
               setInitialFormData({ displayName, photoURL });
               dispatch(setUser(user.toJSON() as UserState));
             }}

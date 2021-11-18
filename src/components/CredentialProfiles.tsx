@@ -1,4 +1,5 @@
-import firebase from "firebase/app";
+import { User } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, firestoreCollection } from "lib/firebase";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -11,7 +12,8 @@ import {
   setSettings,
 } from "store/settings/settingsSlice";
 import ConfirmDialog from "./ConfirmDialog";
-import { UpdateCredentialProfileButton } from "./UpdateCredentialProfileButton";
+import UpdateCredentialProfileButton from "./UpdateCredentialProfileButton";
+import UpdateDialogProfile from "./UpdateDialogProfile";
 
 export interface CredentialProfileTypeDisplayProps {
   type: CredentialProfileType;
@@ -23,7 +25,7 @@ const CredentialProfileTypeDisplay = ({
   switch (type) {
     case "storjDcs":
     default:
-      return <span>Storj S3</span>;
+      return <span>Storj DCS</span>;
   }
 };
 
@@ -32,7 +34,7 @@ interface DeleteProfileButtonProps {
   credentialProfiles: CredentialProfile[];
   profile: CredentialProfile;
   profileIndex: number;
-  user: firebase.User;
+  user: User;
 }
 
 const DeleteProfileButton = ({
@@ -50,9 +52,8 @@ const DeleteProfileButton = ({
       ...credentialProfiles.slice(0, idx),
       ...credentialProfiles.slice(idx + 1),
     ];
-    await firestoreCollection
-      .doc(user?.uid)
-      .set({ credentialProfiles: newProfiles }, { merge: true });
+    const docRef = doc(firestoreCollection, user?.uid);
+    await setDoc(docRef, { credentialProfiles: newProfiles }, { merge: true });
     dispatch(
       setSettings({
         auth: authSettings,
@@ -87,6 +88,34 @@ const DeleteProfileButton = ({
   );
 };
 
+interface UpdateProfileButtonProps {
+  authSettings: AuthSettings;
+  profile: CredentialProfile;
+  user: User;
+}
+
+const UpdateProfile = ({ profile }: UpdateProfileButtonProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500"
+        onClick={() => setOpen(true)}
+      >
+        Update
+      </button>
+      <UpdateDialogProfile
+        credentialProfile={profile}
+        confirmText="Update"
+        open={open}
+        onCancel={() => setOpen(false)}
+      />
+    </>
+  );
+};
+
 export interface ProfileCardsProps {
   credentialProfiles: CredentialProfile[];
 }
@@ -94,11 +123,6 @@ export interface ProfileCardsProps {
 const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
   const { settings, loading } = useSelector(selectSettings);
   const [user, userLoading] = useAuthState(auth);
-
-  const updateProfile = (profileIndex: number) => {
-    const profile = credentialProfiles[profileIndex];
-    console.log("updateProfile", profile);
-  };
 
   return (
     <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -135,13 +159,11 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
                   />
                 </div>
                 <div className="-ml-px w-0 flex-1 flex">
-                  <button
-                    type="button"
-                    className="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500"
-                    onClick={() => updateProfile(profileIndex)}
-                  >
-                    Update
-                  </button>
+                  <UpdateProfile
+                    authSettings={settings.auth as AuthSettings}
+                    profile={profile}
+                    user={user}
+                  />
                 </div>
               </div>
             </div>

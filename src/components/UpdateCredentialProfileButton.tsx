@@ -1,7 +1,9 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
+import { doc, setDoc } from "firebase/firestore";
 import { ErrorMessage, Field, FieldProps, Formik } from "formik";
+import { profileTypes } from "lib/profile-types";
 import React, { Fragment, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,9 +35,7 @@ export const UpdateCredentialProfileButton = ({
   const [user] = useAuthState(auth);
   const { settings, loading } = useSelector(selectSettings);
   const [open, setOpen] = useState(false);
-  const [initialValues, setInitalValues] = useState<CredentialProfile>(
-    DEFAULT_INITIAL_VALUES
-  );
+  const [initialValues] = useState<CredentialProfile>(DEFAULT_INITIAL_VALUES);
   const dispatch = useDispatch();
 
   const handleClick = () => {
@@ -125,21 +125,17 @@ export const UpdateCredentialProfileButton = ({
                           settings.credentialProfiles.length > 0
                             ? settings.credentialProfiles
                             : []),
-                          values,
                           {
                             ...values,
-                            // id:
-                            //   settings &&
-                            //   settings.credentialProfiles &&
-                            //   settings.credentialProfiles.length > 0
-                            //     ? settings.credentialProfiles.length
-                            //     : 0,
                             id: uuidv4(),
                           },
                         ];
-                        await firestoreCollection
-                          .doc(user?.uid)
-                          .set({ credentialProfiles }, { merge: true });
+                        const docRef = doc(firestoreCollection, user?.uid);
+                        await setDoc(
+                          docRef,
+                          { credentialProfiles },
+                          { merge: true }
+                        );
                         dispatch(
                           setSettings({
                             auth: settings?.auth,
@@ -207,7 +203,9 @@ export const UpdateCredentialProfileButton = ({
                                   autoComplete="type"
                                   className="shadow-sm focus:ring-brand-lighter focus:border-brand-lighter block w-full sm:text-sm border-gray-300 rounded-md"
                                 >
-                                  <option value="storjDcs">Storj S3</option>
+                                  {profileTypes.map((pt) => (
+                                    <option value={pt.id}>{pt.name}</option>
+                                  ))}
                                 </select>
                               </div>
                             </div>

@@ -29,22 +29,26 @@ export const mapBucketContents = (
   const items: BucketItem[] = [];
   if (response.CommonPrefixes && response.CommonPrefixes.length > 0) {
     response.CommonPrefixes.forEach((item) => {
-      items.push({
-        key: String(item.Prefix),
-        lastModified: undefined,
-        size: undefined,
-        type: "folder",
-      });
+      if (String(item.Prefix) !== `${prefix}/`) {
+        items.push({
+          key: String(item.Prefix),
+          lastModified: undefined,
+          size: undefined,
+          type: "folder",
+        });
+      }
     });
   }
   if (response.Contents && response.Contents.length > 0) {
     response.Contents.forEach((item) => {
-      items.push({
-        key: String(item.Key),
-        lastModified: item.LastModified?.toISOString(),
-        size: item.Size,
-        type: "file",
-      });
+      if (String(item.Key) !== `${prefix}/`) {
+        items.push({
+          key: String(item.Key),
+          lastModified: item.LastModified?.toISOString(),
+          size: item.Size,
+          type: "file",
+        });
+      }
     });
   }
   return items;
@@ -68,6 +72,7 @@ export const getBucketItems = createAsyncThunk<
     Delimiter: "/",
     Prefix: prefix,
   });
+  // console.log(response);
   return response ? mapBucketContents(response, prefix) : [];
 });
 

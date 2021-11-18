@@ -1,8 +1,8 @@
 import {
   faCloud,
+  faCog,
   faCogs,
   faIdCard,
-  faPlus,
   faSignOutAlt,
   faUserCog,
   IconDefinition,
@@ -11,16 +11,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { MenuAlt1Icon, XIcon } from "@heroicons/react/outline";
 import { SelectorIcon } from "@heroicons/react/solid";
+import { ReactComponent as StorjLogo } from "components/logo/svg/storj-logomark-white.svg";
 import UserAvatar from "components/UserAvatar";
 import { auth } from "lib/firebase";
-import React, { Fragment, PropsWithChildren, useEffect, useState } from "react";
+import { getProfileName, getProfileType } from "lib/utils";
+import React, {
+  Fragment,
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useState,
+} from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { selectSettings } from "store/settings/settingsSlice";
-import { Logo } from "../components/logo/index";
-
-const navigation = [{ name: "Storj DCS", href: "/bucket", icon: faCloud }];
 
 const userMenu = [
   {
@@ -42,6 +47,7 @@ interface NavigationItem {
   name: string;
   href: string;
   icon?: IconDefinition;
+  logo?: ReactElement;
 }
 
 interface AppLayoutProps {}
@@ -63,13 +69,17 @@ export default function AppLayout({
         settings.credentialProfiles.length > 0
           ? settings.credentialProfiles.map((cp) => ({
               name: cp.nickname,
-              href: `/${cp.type === "storjDcs" ? "storj-dcs" : "storj-dcs"}/${
-                cp.id
-              }`,
+              href: `/p/${getProfileType(cp.type)}/${getProfileName(
+                cp.nickname
+              )}`,
               icon: cp.type === "storjDcs" ? faCloud : faUserCog,
+              logo:
+                cp.type === "storjDcs" ? (
+                  <StorjLogo title={"Storj Logo"} className="h-4 w-4 mr-3" />
+                ) : undefined,
             }))
           : []),
-        { name: "Add Profile", href: "/settings", icon: faPlus },
+        { name: "Manage Profiles", href: "/settings", icon: faCog },
       ];
       setProfiles(profileItems);
     }
@@ -127,43 +137,16 @@ export default function AppLayout({
               </Transition.Child>
               <div className="flex-shrink-0 flex items-center px-4">
                 <Link
-                  to="/bucket"
-                  className="h-8 w-auto"
+                  to="/p"
+                  className="text-white font-mono uppercase text-2xl font-light"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Logo variant="white" />
+                  {/* <Logo variant="white" /> */}
+                  Box Lite
                 </Link>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
                 <nav className="px-2">
-                  <div className="space-y-1">
-                    {navigation &&
-                      navigation.map((item, itemIndex) => (
-                        <Link
-                          key={`n-${itemIndex}-${item.name}`}
-                          to={item.href}
-                          className={classNames(
-                            location.pathname === item.href
-                              ? "bg-secondary-dark text-white"
-                              : "text-gray-100 hover:bg-secondary-lighter",
-                            "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
-                          )}
-                          onClick={() => setSidebarOpen(false)}
-                          aria-current={
-                            location.pathname === item.href ? "page" : undefined
-                          }
-                        >
-                          {item.icon && (
-                            <FontAwesomeIcon
-                              icon={item.icon}
-                              className="mr-3 h-6 w-6 text-gray-300"
-                              aria-hidden="true"
-                            />
-                          )}
-                          {item.name}
-                        </Link>
-                      ))}
-                  </div>
                   <div className="mt-8">
                     <h3
                       className="px-3 text-xs font-semibold text-gray-100 uppercase tracking-wider"
@@ -194,7 +177,8 @@ export default function AppLayout({
                                 : undefined
                             }
                           >
-                            {profile.icon && (
+                            {profile.logo && profile.logo}
+                            {!profile.logo && profile.icon && (
                               <FontAwesomeIcon
                                 icon={profile.icon}
                                 className="mr-3 h-6 w-6 text-gray-300"
@@ -221,11 +205,12 @@ export default function AppLayout({
         <div className="flex flex-col w-64 border-r border-gray-200 pt-5 pb-4 bg-secondary">
           <div className="flex items-center flex-shrink-0 px-6">
             <Link
-              to="/bucket"
-              className="h-8 w-auto"
+              to="/p"
+              className="text-white font-mono uppercase text-2xl font-light"
               onClick={() => setSidebarOpen(false)}
             >
-              <Logo variant="white" />
+              {/* <Logo variant="white" /> */}
+              Box Lite
             </Link>
           </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -314,34 +299,6 @@ export default function AppLayout({
             </Menu>
             {/* Navigation */}
             <nav className="px-3 mt-6">
-              <div className="space-y-1">
-                {navigation &&
-                  navigation.map((item, itemIndex) => (
-                    <Link
-                      key={`n-${itemIndex}-${item.name}`}
-                      to={item.href}
-                      className={classNames(
-                        location.pathname === item.href
-                          ? "bg-secondary-dark text-white"
-                          : "text-gray-100 hover:bg-secondary-lighter",
-                        "group flex items-center px-2 py-2 text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter"
-                      )}
-                      onClick={() => setSidebarOpen(false)}
-                      aria-current={
-                        location.pathname === item.href ? "page" : undefined
-                      }
-                    >
-                      {item.icon && (
-                        <FontAwesomeIcon
-                          icon={item.icon}
-                          className="mr-3 h-6 w-6 text-gray-300"
-                          aria-hidden="true"
-                        />
-                      )}
-                      {item.name}
-                    </Link>
-                  ))}
-              </div>
               <div className="mt-8">
                 {/* Secondary navigation */}
                 <h3
@@ -373,7 +330,8 @@ export default function AppLayout({
                             : undefined
                         }
                       >
-                        {profile.icon && (
+                        {profile.logo && profile.logo}
+                        {!profile.logo && profile.icon && (
                           <FontAwesomeIcon
                             icon={profile.icon}
                             className="mr-3 h-6 w-6 text-gray-300"

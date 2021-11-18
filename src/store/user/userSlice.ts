@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import firebase from "firebase/app";
+import { UserInfo } from "firebase/auth";
 import { RootState } from "../store";
 
-export interface UserState extends firebase.UserInfo {}
+export interface UserState extends UserInfo {}
 
 // Define the initial state using that type
 const initialState: Partial<UserState> = {};

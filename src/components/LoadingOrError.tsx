@@ -1,9 +1,8 @@
-import firebase from "firebase/app";
 import React, { ReactElement } from "react";
 import Spinner from "./Spinner";
 
 interface Properties {
-  error?: Error | firebase.auth.Error;
+  error?: any;
 }
 export default function LoadingOrError({ error }: Properties): ReactElement {
   return (
