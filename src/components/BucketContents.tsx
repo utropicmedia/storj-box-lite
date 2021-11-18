@@ -238,8 +238,10 @@ const MintFileButton = ({
         const tx = await mintContract.methods
           .mint(url)
           .send({ from: publicKey });
-        // console.log(tx.events.Transfer.returnValues.tokenId);
-        alert("succesfully minted");
+        alert(
+          "Successfully minted. Transaction ID " +
+            tx.events.Transfer.returnValues.tokenId
+        );
       } else {
         const fromWallet = web3.Keypair.generate();
         // console.log(connection);
