@@ -1,5 +1,3 @@
-import { Buffer } from "buffer";
-import process from "process";
 import React from "react";
 import ReactDOM from "react-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -7,9 +5,9 @@ import { Provider } from "react-redux";
 import { UseWalletProvider } from "use-wallet";
 import App from "./App";
 import "./index.css";
+import "./polyfill";
 import { store } from "./store/store";
-window.process = process;
-window.Buffer = Buffer;
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

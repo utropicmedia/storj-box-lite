@@ -211,7 +211,8 @@ const MintFileButton = ({
   const [open, setOpen] = useState(false);
   const { connection } = useConnection();
   const { publicKey } = useSolWallet();
-  const wallet = useWallet();
+  // TODO: Using any as this was failing to build, as connect expects a string
+  const wallet: any = useWallet();
   const mintFile = async (key: string, chainType: string) => {
     setOpen(false);
     const storjClient = StorjClient.getInstance(authSettings);
@@ -228,8 +229,9 @@ const MintFileButton = ({
         console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
         const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
         const web3 = new Web3(window.ethereum);
-        const mintContract = new web3.eth.Contract(
-          StorjToken,
+        // TODO: Using any as it was yelling about setProvider, and the StorjToken wasn't right
+        const mintContract: any = new web3.eth.Contract(
+          StorjToken as any,
           mintContractAddr
         );
         mintContract.setProvider(window.ethereum);
