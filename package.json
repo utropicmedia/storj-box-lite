@@ -8,7 +8,7 @@
     "dev": "vite --open",
     "format": "prettier --write .",
     "lint": "yarn eslint && yarn stylelint",
-    "eslint": "eslint src/**/* --ext js --ext ts --ext tsx",
+    "eslint": "eslint src/ --ext .js,.ts,.tsx",
     "stylelint": "stylelint \"src/**/*.css\"",
     "test": "cypress open",
     "test:headless": "cypress run",
