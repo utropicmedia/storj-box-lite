@@ -72,7 +72,7 @@ export const getBucketItems = createAsyncThunk<
     Delimiter: "/",
     Prefix: prefix,
   });
-  console.log(response);
+  // console.log(response);
   return response ? mapBucketContents(response, prefix) : [];
 });
 

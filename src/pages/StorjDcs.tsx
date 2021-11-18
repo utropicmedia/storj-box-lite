@@ -7,7 +7,7 @@ import BucketPage from "./BucketPage";
 export const BucketPageProfile = () => {
   const { bucketName, profile } = useParams();
 
-  console.log(bucketName, profile);
+  // console.log(bucketName, profile);
 
   return (
     <>

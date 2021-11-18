@@ -225,8 +225,8 @@ const MintFileButton = ({
           method: "eth_requestAccounts",
         });
         const publicKey = accounts[0];
-        console.log(publicKey);
-        console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
+        // console.log(publicKey);
+        // console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
         const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
         const web3 = new Web3(window.ethereum);
         // TODO: Using any as it was yelling about setProvider, and the StorjToken wasn't right
@@ -238,11 +238,11 @@ const MintFileButton = ({
         const tx = await mintContract.methods
           .mint(url)
           .send({ from: publicKey });
-        console.log(tx.events.Transfer.returnValues.tokenId);
+        // console.log(tx.events.Transfer.returnValues.tokenId);
         alert("succesfully minted");
       } else {
         const fromWallet = web3.Keypair.generate();
-        console.log(connection);
+        // console.log(connection);
         const fromAirDropSignature = await connection.requestAirdrop(
           fromWallet.publicKey,
           web3.LAMPORTS_PER_SOL
@@ -434,7 +434,7 @@ const BucketContentsTable = ({
 }: BucketContentsTableProps) => {
   const { profile, type: profileType } = useParams();
   const credentialSettings = useSelector(selectCredentialProfiles);
-  console.log("credentialSettings", credentialSettings);
+  // console.log("credentialSettings", credentialSettings);
   const { items, error, loading } = useSelector(selectBucket);
   const dispatch = useDispatch();
   const [auth, setAuth] = useState<AuthSettings | undefined>();
