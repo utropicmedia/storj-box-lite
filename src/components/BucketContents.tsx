@@ -34,12 +34,13 @@ import {
 import { AuthSettings, selectAuthSettings } from "store/settings/settingsSlice";
 import { useWallet } from "use-wallet";
 import Web3 from "web3";
-import StorjToken from "../abi/StorjToken.json";
+import StorjNFTToken from "../abi/StorjNFTToken.json";
 import { ConfirmDialog } from "./ConfirmDialog";
 import IconButton from "./IconButton";
 import MintSelectDialog from "./MintSelectDialog";
 import { SolanaWalletProvider } from "./SolanaWalletProvider";
 import Spinner from "./Spinner";
+import TransactionDialog from "./TransactionDialog";
 import { PageTitle } from "./typography";
 
 const { VITE_ETHEREUM_MINT_CONTRACT_ADDR } = import.meta.env;
@@ -192,98 +193,135 @@ const MintFileButton = ({
   prefix,
 }: MintFileButtonProps) => {
   const [open, setOpen] = useState(false);
+  const [openTransaction, setOpenTransaction] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [confirmTransactionText, setConfirmTransactionText] =
+    useState("View on Etherscan");
   const { connection } = useConnection();
   const { publicKey } = useSolWallet();
   const wallet = useWallet();
-  const mintFile = async (key: string, chainType: string) => {
-    setOpen(false);
+
+  const handleOpenMintDialog = async (key: string) => {
     const storjClient = StorjClient.getInstance(authSettings);
     if (storjClient) {
       const url = await storjClient.getObjectUrl(bucketName, key);
+      setFileUrl(url);
+      setOpen(true);
+    }
+  };
 
-      if (chainType === "eth") {
-        wallet.connect();
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        const publicKey = accounts[0];
-        console.log(publicKey);
-        console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
-        const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
-        const web3 = new Web3(window.ethereum);
-        const mintContract = new web3.eth.Contract(
-          StorjToken,
-          mintContractAddr
-        );
-        mintContract.setProvider(window.ethereum);
-        const tx = await mintContract.methods
-          .mint(url)
-          .send({ from: publicKey });
-        console.log(tx.events.Transfer.returnValues.tokenId);
-        alert("succesfully minted");
-      } else {
-        const fromWallet = web3.Keypair.generate();
-        console.log(connection);
-        const fromAirDropSignature = await connection.requestAirdrop(
-          fromWallet.publicKey,
-          web3.LAMPORTS_PER_SOL
-        );
-        await connection.confirmTransaction(fromAirDropSignature);
+  const mintFile = async (
+    chainType: string,
+    name: string,
+    description: string
+  ) => {
+    setOpen(false);
 
-        let mint = await splToken.Token.createMint(
-          connection,
-          fromWallet,
+    let metaData = {
+      name: name,
+      description: description,
+      url: fileUrl,
+    };
+
+    if (chainType === "eth") {
+      wallet.connect();
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const publicKey = accounts[0];
+      console.log(publicKey);
+      console.log(String(VITE_ETHEREUM_MINT_CONTRACT_ADDR));
+      const mintContractAddr = String(VITE_ETHEREUM_MINT_CONTRACT_ADDR);
+      const web3 = new Web3(window.ethereum);
+      const mintContract = new web3.eth.Contract(
+        StorjNFTToken,
+        mintContractAddr
+      );
+      mintContract.setProvider(window.ethereum);
+      const tx = await mintContract.methods
+        .create(publicKey, 1, "", [])
+        .send({ from: publicKey });
+      console.log(tx);
+      // alert("succesfully minted");
+      setTransactionId(tx.transactionHash);
+      setConfirmTransactionText("View on Etherscan");
+      setOpenTransaction(true);
+    } else {
+      const fromWallet = web3.Keypair.generate();
+      console.log(connection);
+      const fromAirDropSignature = await connection.requestAirdrop(
+        fromWallet.publicKey,
+        web3.LAMPORTS_PER_SOL
+      );
+      await connection.confirmTransaction(fromAirDropSignature);
+
+      let mint = await splToken.Token.createMint(
+        connection,
+        fromWallet,
+        fromWallet.publicKey,
+        null,
+        9,
+        splToken.TOKEN_PROGRAM_ID
+      );
+      let fromTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
+        fromWallet.publicKey
+      );
+
+      if (publicKey != null) {
+        const toTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
+          publicKey
+        );
+
+        await mint.mintTo(
+          fromTokenAccount.address,
           fromWallet.publicKey,
+          [],
+          1000000000
+        );
+
+        await mint.setAuthority(
+          mint.publicKey,
           null,
-          9,
-          splToken.TOKEN_PROGRAM_ID
-        );
-        let fromTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
-          fromWallet.publicKey
+          "MintTokens",
+          fromWallet.publicKey,
+          []
         );
 
-        if (publicKey != null) {
-          const toTokenAccount = await mint.getOrCreateAssociatedAccountInfo(
-            publicKey
-          );
-
-          await mint.mintTo(
+        const transaction = new web3.Transaction().add(
+          splToken.Token.createTransferInstruction(
+            splToken.TOKEN_PROGRAM_ID,
             fromTokenAccount.address,
+            toTokenAccount.address,
             fromWallet.publicKey,
             [],
-            1000000000
-          );
-
-          await mint.setAuthority(
-            mint.publicKey,
-            null,
-            "MintTokens",
-            fromWallet.publicKey,
-            []
-          );
-
-          const transaction = new web3.Transaction().add(
-            splToken.Token.createTransferInstruction(
-              splToken.TOKEN_PROGRAM_ID,
-              fromTokenAccount.address,
-              toTokenAccount.address,
-              fromWallet.publicKey,
-              [],
-              1
-            )
-          );
-          const signature = await web3.sendAndConfirmTransaction(
-            connection,
-            transaction,
-            [fromWallet],
-            { commitment: "confirmed" }
-          );
-          alert("Successfully minted. Transaction ID " + signature);
-        } else {
-          alert("Connect with wallet");
-        }
+            1
+          )
+        );
+        const signature = await web3.sendAndConfirmTransaction(
+          connection,
+          transaction,
+          [fromWallet],
+          { commitment: "confirmed" }
+        );
+        setTransactionId(signature);
+        setConfirmTransactionText("View on Solscan");
+        setOpenTransaction(true);
+      } else {
+        alert("Connect with wallet");
       }
     }
+  };
+
+  const goToTransaction = () => {
+    setOpenTransaction(false);
+    let url = "";
+    if (confirmTransactionText === "View on Etherscan") {
+      url = "https://rinkeby.etherscan.io/tx/" + transactionId;
+    } else {
+      url = "https://solscan.io/tx/" + transactionId + "?cluster=devnet";
+    }
+    window.open(url, "_blank");
   };
 
   return (
@@ -292,14 +330,22 @@ const MintFileButton = ({
         className="ml-1"
         text="Mint NFT"
         icon={faCubes}
-        onClick={() => setOpen(true)}
+        onClick={() => handleOpenMintDialog(item.key)}
       />
       <MintSelectDialog
         confirmText="Mint NFT"
         open={open}
         onCancel={() => setOpen(false)}
-        onConfirm={(chainType) => mintFile(item.key, chainType)}
+        onConfirm={(chainType) => mintFile(chainType)}
         title="Mint NFT"
+        fileUrl={fileUrl}
+      />
+      <TransactionDialog
+        confirmText={confirmTransactionText}
+        open={openTransaction}
+        onCancel={() => setOpenTransaction(false)}
+        onConfirm={goToTransaction}
+        transactionId={transactionId}
       />
     </>
   );
