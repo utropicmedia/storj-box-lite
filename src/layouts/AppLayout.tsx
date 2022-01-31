@@ -26,7 +26,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { selectSettings } from "store/settings/settingsSlice";
-
+import { selectUser } from "../store/user/userSlice";
 const userMenu = [
   {
     items: [
@@ -60,7 +60,7 @@ export default function AppLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profiles, setProfiles] = useState<NavigationItem[]>();
   const location = useLocation();
-
+  const userEth = useSelector(selectUser);
   useEffect(() => {
     if (!loading) {
       const profileItems = [
@@ -234,6 +234,27 @@ export default function AppLayout({
                               </span>
                               <span className="text-gray-400 text-sm truncate">
                                 {user.email}
+                              </span>
+                            </span>
+                          </span>
+                          <SelectorIcon
+                            className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-100"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Menu.Button>
+                    )}
+                    {userEth && (
+                      <Menu.Button className="group w-full bg-secondary rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-100 hover:bg-secondary-lighter focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-secondary-dark focus:ring-secondary-lighter">
+                        <span className="flex w-full justify-between items-center">
+                          <span className="flex min-w-0 items-center justify-between space-x-3">
+                            {/* <UserAvatar user={user} /> */}
+                            <span className="flex-1 flex flex-col min-w-0">
+                              <span className="text-sm font-medium truncate">
+                                {userEth.email}
+                              </span>
+                              <span className="text-gray-400 text-sm truncate">
+                                {userEth.displayName}
                               </span>
                             </span>
                           </span>

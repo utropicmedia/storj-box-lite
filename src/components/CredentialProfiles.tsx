@@ -123,7 +123,7 @@ export interface ProfileCardsProps {
 const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
   const { settings, loading } = useSelector(selectSettings);
   const [user, userLoading] = useAuthState(auth);
-
+  console.log(user);
   return (
     <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {!loading &&
@@ -175,7 +175,6 @@ const ProfileCards = ({ credentialProfiles }: ProfileCardsProps) => {
 
 export const CredentialProfiles = () => {
   const { settings, loading } = useSelector(selectSettings);
-
   return (
     <div className="space-y-6 sm:px-6 lg:px-0 lg:col-span-9">
       <div className="shadow sm:rounded-md">
