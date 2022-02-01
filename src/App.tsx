@@ -1,6 +1,7 @@
+import { User } from "@firebase/auth";
 import React, { lazy, ReactElement, Suspense, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   BrowserRouter,
   Navigate,
@@ -8,12 +9,12 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { getSettings } from "store/settings/settingsSlice";
 import LoadingOrError from "./components/LoadingOrError";
 import AppLayout from "./layouts/AppLayout";
 import FullPageLayout from "./layouts/FullPageLayout";
 import { auth } from "./lib/firebase";
-import { selectUser, setUser, UserState } from "./store/user/userSlice";
+import { getSettings } from "./store/settings/settingsSlice";
+import { setUser, UserState } from "./store/user/userSlice";
 const NoMatch = lazy(() => import("./pages/NoMatch"));
 const Profile = lazy(() => import("./pages/Profile"));
 const ProfileList = lazy(() => import("./pages/ProfileList"));
@@ -24,7 +25,6 @@ const StorjDcs = lazy(() => import("./pages/StorjDcs"));
 
 export default function App(): ReactElement {
   const [user, loading, error] = useAuthState(auth);
-  const account = localStorage.getItem("meta");
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,16 +32,7 @@ export default function App(): ReactElement {
       dispatch(setUser(user.toJSON() as UserState));
       dispatch(getSettings(user));
     }
-
-    if (account) {
-      dispatch(
-        setUser({
-          email: account,
-          displayName: account,
-        } as UserState)
-      );
-    }
-  }, [user, account, dispatch]);
+  }, [user, dispatch]);
 
   return (
     <>
@@ -50,7 +41,7 @@ export default function App(): ReactElement {
         <BrowserRouter>
           <Suspense fallback={<LoadingOrError />}>
             <Routes>
-              <Route path="/" element={<Layout />}>
+              <Route path="/" element={<Layout user={user} />}>
                 <Route
                   index
                   element={
@@ -173,13 +164,12 @@ export default function App(): ReactElement {
 export const RequireAuth: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {
-  const { email } = useSelector(selectUser);
-  return email ? children : <Navigate to="/sign-in" />;
+  const [user] = useAuthState(auth);
+  return user ? children : <Navigate to="/sign-in" />;
 };
 
-const Layout = () => {
-  const { email } = useSelector(selectUser);
-  if (email) {
+const Layout: React.FC<{ user: User | null | undefined }> = ({ user }) => {
+  if (user) {
     return (
       <AppLayout>
         <Outlet />
