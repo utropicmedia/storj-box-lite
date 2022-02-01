@@ -243,6 +243,8 @@ const MintFileButton = ({
       url: fileUrl,
     };
 
+    console.log(metaData);
+
     if (chainType === "eth") {
       wallet.connect();
       const accounts = await window.ethereum.request({

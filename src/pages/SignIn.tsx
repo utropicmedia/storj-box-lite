@@ -7,7 +7,6 @@ import { signInWithPopup, UserInfo } from "firebase/auth";
 import Fortmatic from "fortmatic";
 import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Web3Modal from "web3modal";
@@ -16,11 +15,8 @@ import { selectUser, setUser } from "../store/user/userSlice";
 const { VITE_FORT_MATIC_KEY, VITE_PORTIS_KEY, VITE_WALLETCONNECT_KEY } =
   import.meta.env;
 export default function SignIn(): ReactElement {
-  const [user] = useAuthState(auth);
   const navigate = useNavigate();
   const [account, setAccount] = useState("");
-  const [connection, setConnection] = useState<any>(false);
-  const [loggedIn, setLoggedIn] = useState<Boolean>(false);
   const dispatch = useDispatch();
   const { email } = useSelector(selectUser);
   const users: any = {};
@@ -60,14 +56,13 @@ export default function SignIn(): ReactElement {
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const accounts = await provider.listAccounts();
-    setConnection(connection);
     const userether = await authenticate(accounts[0] as string);
     const signer = provider.getSigner();
     const signature = await signer.signMessage(userether.nonce.toString());
     const data = await verify(accounts[0], signature);
+    console.log(data);
     setAccount(accounts[0]);
     localStorage.setItem("meta", accounts[0]);
-    setLoggedIn(data);
   };
 
   useEffect(() => {
@@ -83,7 +78,7 @@ export default function SignIn(): ReactElement {
 
   useEffect(() => {
     if (email) navigate("/settings");
-  }, [email]);
+  }, [email, navigate]);
 
   const authenticate = async (address: string) => {
     try {
