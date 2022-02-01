@@ -1,119 +1,25 @@
-import { faEthereum, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Portis from "@portis/web3";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import { ethers } from "ethers";
-import { signInWithPopup, UserInfo } from "firebase/auth";
-import Fortmatic from "fortmatic";
+import { signInWithPopup } from "firebase/auth";
 import { auth, googleAuthProvider } from "lib/firebase";
-import React, { ReactElement, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { ReactElement, useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import Web3Modal from "web3modal";
 import Head from "../components/Head";
-import { selectUser, setUser } from "../store/user/userSlice";
-const { VITE_FORT_MATIC_KEY, VITE_PORTIS_KEY, VITE_WALLETCONNECT_KEY } =
-  import.meta.env;
+
 export default function SignIn(): ReactElement {
+  const [user] = useAuthState(auth);
   const navigate = useNavigate();
-  const [account, setAccount] = useState("");
-  const dispatch = useDispatch();
-  const { email } = useSelector(selectUser);
-  const users: any = {};
+
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleAuthProvider);
   };
 
-  const getWeb3Modal = async () => {
-    return new Web3Modal({
-      network: "mainnet",
-      cacheProvider: false,
-      providerOptions: {
-        fortmatic: {
-          package: Fortmatic, // required
-          options: {
-            key: VITE_FORT_MATIC_KEY, // required
-          },
-        },
-        portis: {
-          package: Portis, // required
-          options: {
-            id: VITE_PORTIS_KEY, // required
-          },
-        },
-        walletconnect: {
-          package: WalletConnectProvider,
-          options: {
-            infuraId: VITE_WALLETCONNECT_KEY,
-          },
-        },
-      },
-    });
-  };
-
-  const signInEther = async () => {
-    const web3Modal = await getWeb3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const accounts = await provider.listAccounts();
-    const userether = await authenticate(accounts[0] as string);
-    const signer = provider.getSigner();
-    const signature = await signer.signMessage(userether.nonce.toString());
-    const data = await verify(accounts[0], signature);
-    console.log(data);
-    setAccount(accounts[0]);
-    localStorage.setItem("meta", accounts[0]);
-  };
-
   useEffect(() => {
-    if (account) {
-      dispatch(
-        setUser({
-          email: account,
-          displayName: account,
-        } as UserInfo)
-      );
+    if (user) {
+      navigate("/settings");
     }
-  }, [account, dispatch]);
-
-  useEffect(() => {
-    if (email) navigate("/settings");
-  }, [email, navigate]);
-
-  const authenticate = async (address: string) => {
-    try {
-      let userether = users[address];
-      if (!userether) {
-        userether = {
-          address,
-          nonce: Math.floor(Math.random() * 10000000),
-        };
-        users[address] = userether;
-      } else {
-        userether.nonce = Math.floor(Math.random() * 10000000);
-        users[address] = userether;
-      }
-      return userether;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const verify = async (address: string, signature: string) => {
-    try {
-      let authenticated = false;
-      const userether = users[address];
-      const decodedAddress = ethers.utils.verifyMessage(
-        userether.nonce.toString(),
-        signature
-      );
-      if (address?.toString().toLowerCase() === decodedAddress.toLowerCase())
-        authenticated = true;
-      return authenticated;
-    } catch (error) {
-      throw error;
-    }
-  };
+  }, [user, navigate]);
 
   return (
     <>
@@ -148,19 +54,6 @@ export default function SignIn(): ReactElement {
                 >
                   <span className="sr-only">Sign in with Google</span>
                   <FontAwesomeIcon icon={faGoogle} />
-                </button>
-              </div>
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <div></div>
-              <div>
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  onClick={() => signInEther()}
-                >
-                  <span className="sr-only">Sign in with Google</span>
-                  <FontAwesomeIcon icon={faEthereum} />
                 </button>
               </div>
             </div>
