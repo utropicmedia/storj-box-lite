@@ -14,6 +14,7 @@ export default function SignIn(): ReactElement {
       await auth.signOut();
       dispatch(resetSettings());
       dispatch(resetUser());
+      localStorage.removeItem("meta");
       navigate("/sign-in");
     }
     signOut();
