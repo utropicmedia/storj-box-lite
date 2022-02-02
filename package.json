@@ -27,7 +27,6 @@
     "@headlessui/react": "1.4.2",
     "@heroicons/react": "^1.0.5",
     "@portis/web3": "^4.0.6",
-    "@toruslabs/torus-embed": "^1.20.2",
     "@reduxjs/toolkit": "^1.6.2",
     "@solana/spl-token": "^0.1.8",
     "@solana/wallet-adapter-base": "^0.7.0",

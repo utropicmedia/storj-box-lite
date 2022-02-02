@@ -3541,7 +3541,7 @@
     lodash.merge "^4.6.2"
     pump "^3.0.0"
 
-"@toruslabs/torus-embed@^1.20.2", "@toruslabs/torus-embed@^1.8.0":
+"@toruslabs/torus-embed@^1.8.0":
   version "1.20.2"
   resolved "https://registry.yarnpkg.com/@toruslabs/torus-embed/-/torus-embed-1.20.2.tgz#8c2a1b22b3ba9c24a927f0fc4b7517f1dc5d3c38"
   integrity sha512-+HCoDFXP2XPl4Qf82LwjNvu2lQEQd5OiRs8KupDIlTFv2qh8i+42erP4A+VuLDrJGEYmdSwc2ERulzA5FOYsmQ==
