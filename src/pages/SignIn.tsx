@@ -1,5 +1,7 @@
 import { faEthereum, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Portis from "@portis/web3";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { signInWithPopup, UserInfo } from "firebase/auth";
 import Fortmatic from "fortmatic";
@@ -31,6 +33,18 @@ export default function SignIn(): ReactElement {
           package: Fortmatic, // required
           options: {
             key: VITE_FORT_MATIC_KEY, // required
+          },
+        },
+        portis: {
+          package: Portis, // required
+          options: {
+            id: "a180917a-e8d2-43a9-a782-456579bf39b9", // required
+          },
+        },
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: {
+            infuraId: "8cf3cad623da43f9a84ab5ac94230cf6",
           },
         },
       },
