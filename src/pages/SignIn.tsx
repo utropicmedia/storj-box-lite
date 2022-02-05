@@ -38,13 +38,13 @@ export default function SignIn(): ReactElement {
         portis: {
           package: Portis, // required
           options: {
-            id: "a180917a-e8d2-43a9-a782-456579bf39b9", // required
+            id: VITE_PORTIS_KEY, // required
           },
         },
         walletconnect: {
           package: WalletConnectProvider,
           options: {
-            infuraId: "8cf3cad623da43f9a84ab5ac94230cf6",
+            infuraId: VITE_WALLETCONNECT_KEY,
           },
         },
       },
