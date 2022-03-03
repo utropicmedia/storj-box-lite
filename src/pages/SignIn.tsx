@@ -3,7 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Portis from "@portis/web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
-import { signInWithPopup, UserInfo } from "firebase/auth";
+import {
+  signInWithCustomToken,
+  signInWithPopup,
+  UserInfo,
+} from "firebase/auth";
 import Fortmatic from "fortmatic";
 import { auth, googleAuthProvider } from "lib/firebase";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -12,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import Web3Modal from "web3modal";
 import Head from "../components/Head";
 import { selectUser, setUser } from "../store/user/userSlice";
+
 const { VITE_FORT_MATIC_KEY, VITE_PORTIS_KEY, VITE_WALLETCONNECT_KEY } =
   import.meta.env;
 export default function SignIn(): ReactElement {
@@ -56,13 +61,49 @@ export default function SignIn(): ReactElement {
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const accounts = await provider.listAccounts();
-    const userether = await authenticate(accounts[0] as string);
-    const signer = provider.getSigner();
-    const signature = await signer.signMessage(userether.nonce.toString());
-    const data = await verify(accounts[0], signature);
-    console.log(data);
-    setAccount(accounts[0]);
-    localStorage.setItem("meta", accounts[0]);
+    // const userether = await authenticate(accounts[0] as string);
+    let getNonce = {};
+    let getToken = {};
+    let response = await fetch(
+      "https://us-central1-storj-utropic-services.cloudfunctions.net/getNonceToSign",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address: accounts[0] as string }),
+      }
+    );
+    if (response.status == 200) {
+      getNonce = await response.json();
+      const signer = provider.getSigner();
+      const signature = await signer.signMessage(
+        (getNonce as any).nonce.toString()
+      );
+      response = await fetch(
+        "https://us-central1-storj-utropic-services.cloudfunctions.net/verifySignedMessage",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            address: accounts[0] as string,
+            signature: signature,
+          }),
+        }
+      );
+      if (response.status == 200) {
+        getToken = await response.json();
+        setAccount(accounts[0]);
+        localStorage.setItem("meta", accounts[0]);
+        await signInWithCustomToken(auth, (getToken as any).token.toString());
+      }
+    } else {
+      console.log("firebase function error");
+    }
   };
 
   useEffect(() => {
@@ -79,41 +120,6 @@ export default function SignIn(): ReactElement {
   useEffect(() => {
     if (email) navigate("/settings");
   }, [email, navigate]);
-
-  const authenticate = async (address: string) => {
-    try {
-      let userether = users[address];
-      if (!userether) {
-        userether = {
-          address,
-          nonce: Math.floor(Math.random() * 10000000),
-        };
-        users[address] = userether;
-      } else {
-        userether.nonce = Math.floor(Math.random() * 10000000);
-        users[address] = userether;
-      }
-      return userether;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const verify = async (address: string, signature: string) => {
-    try {
-      let authenticated = false;
-      const userether = users[address];
-      const decodedAddress = ethers.utils.verifyMessage(
-        userether.nonce.toString(),
-        signature
-      );
-      if (address?.toString().toLowerCase() === decodedAddress.toLowerCase())
-        authenticated = true;
-      return authenticated;
-    } catch (error) {
-      throw error;
-    }
-  };
 
   return (
     <>
