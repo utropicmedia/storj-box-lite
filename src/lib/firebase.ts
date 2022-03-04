@@ -25,7 +25,9 @@ const apps = getApps();
 const app = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+// connectAuthEmulator(auth, "http://localhost:9099");
 export const firestore = getFirestore(app);
+// connectFirestoreEmulator(firestore, "localhost", 8080);
 export const googleAuthProvider = new GoogleAuthProvider();
 export const firestoreCollection = collection(
   firestore,

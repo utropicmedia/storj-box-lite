@@ -136,6 +136,7 @@ export const UpdateCredentialProfileButton = ({
                           { credentialProfiles },
                           { merge: true }
                         );
+
                         dispatch(
                           setSettings({
                             auth: settings?.auth,
