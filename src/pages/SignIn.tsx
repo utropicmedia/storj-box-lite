@@ -60,8 +60,15 @@ export default function SignIn(): ReactElement {
     const web3Modal = await getWeb3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
+
     const accounts = await provider.listAccounts();
-    // const userether = await authenticate(accounts[0] as string);
+    let ens_name = await provider.lookupAddress(accounts[0] as string);
+    let ens_avatar = "";
+    if (ens_name != null) {
+      ens_avatar = (await provider.getAvatar(ens_name as any)) as string;
+    } else {
+      ens_name = "";
+    }
     let getNonce = {};
     let getToken = {};
     let response = await fetch(
@@ -72,7 +79,11 @@ export default function SignIn(): ReactElement {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ address: accounts[0] as string }),
+        body: JSON.stringify({
+          address: accounts[0] as string,
+          displayname: ens_name as string,
+          avatar: ens_avatar as string,
+        }),
       }
     );
     if (response.status == 200) {
@@ -81,6 +92,7 @@ export default function SignIn(): ReactElement {
       const signature = await signer.signMessage(
         (getNonce as any).nonce.toString()
       );
+
       response = await fetch(
         "https://us-central1-storj-utropic-services.cloudfunctions.net/verifySignedMessage",
         {
